@@ -197,7 +197,7 @@ nav img:not([class*="size-"]) {
 /* Main Content Area */
 main {
     margin-left: 30%;
-    padding: 60px 20px;
+    padding: 60px 40px;
     max-width: 900px;
 }
 
