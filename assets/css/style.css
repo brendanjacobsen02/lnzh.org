@@ -255,32 +255,57 @@ a:hover {
     font-size: 1.25rem;
 }
 
+.blog-section {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
 .blog-grid {
     display: flex;
-    gap: 1.5rem;
+    gap: 0;
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 1rem;
-    margin-bottom: 2rem;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
 }
 
 .blog-grid::-webkit-scrollbar {
-    height: 8px;
+    display: none;
 }
 
-.blog-grid::-webkit-scrollbar-track {
-    background: #f1f1f1;
+.scroll-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.3s ease, transform 0.2s ease;
+    font-size: 1.5rem;
+    color: #333;
+    user-select: none;
 }
 
-.blog-grid::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
+.scroll-arrow:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-50%) scale(1.1);
 }
 
-.blog-grid::-webkit-scrollbar-thumb:hover {
-    background: #555;
+.scroll-arrow.left {
+    left: -20px;
+}
+
+.scroll-arrow.right {
+    right: -20px;
 }
 
 .blog-card {
@@ -289,17 +314,21 @@ a:hover {
     display: flex;
     flex-direction: column;
     background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border-right: 1px solid #e0e0e0;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-decoration: none;
     color: inherit;
 }
 
+.blog-card:first-child {
+    border-left: 1px solid #e0e0e0;
+}
+
 .blog-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 5;
 }
 
 .card-title {
@@ -510,6 +539,20 @@ footer a img {
     .card-title img {
         max-height: 2rem;
     }
+
+    .scroll-arrow {
+        width: 35px;
+        height: 35px;
+        font-size: 1.3rem;
+    }
+
+    .scroll-arrow.left {
+        left: -15px;
+    }
+
+    .scroll-arrow.right {
+        right: -15px;
+    }
 }
 
 /* Mobile - wrapping nav at top */
@@ -633,5 +676,19 @@ footer a img {
         padding: 0.75rem;
         font-size: 0.85rem;
         min-height: 70px;
+    }
+
+    .scroll-arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 1.2rem;
+    }
+
+    .scroll-arrow.left {
+        left: -10px;
+    }
+
+    .scroll-arrow.right {
+        right: -10px;
     }
 }

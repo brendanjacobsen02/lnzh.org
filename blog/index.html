@@ -46,7 +46,10 @@
 
         <section class="content">
             <h2>Favourites</h2>
-            <div class="blog-grid">
+            <div class="blog-section">
+                <div class="scroll-arrow left" onclick="scrollBlog(this, -1)">‹</div>
+                <div class="scroll-arrow right" onclick="scrollBlog(this, 1)">›</div>
+                <div class="blog-grid">
                 <a href="otherworldly/" class="blog-card">
                     <div class="card-title"><img src="../assets/images/content/the-world-inside-my-head.png" alt="Otherworldly"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
@@ -67,10 +70,14 @@
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
                     <div class="card-notes">Notes about this essay...</div>
                 </a>
+                </div>
             </div>
 
             <h2>Philosophy</h2>
-            <div class="blog-grid">
+            <div class="blog-section">
+                <div class="scroll-arrow left" onclick="scrollBlog(this, -1)">‹</div>
+                <div class="scroll-arrow right" onclick="scrollBlog(this, 1)">›</div>
+                <div class="blog-grid">
                 <a href="hum/" class="blog-card">
                     <div class="card-title"><img src="../assets/images/content/the-humming-pronatalism-the-joy-of-life.png" alt="The Hum"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
@@ -96,10 +103,14 @@
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
                     <div class="card-notes">Notes about this essay...</div>
                 </a>
+                </div>
             </div>
 
             <h2>Life</h2>
-            <div class="blog-grid">
+            <div class="blog-section">
+                <div class="scroll-arrow left" onclick="scrollBlog(this, -1)">‹</div>
+                <div class="scroll-arrow right" onclick="scrollBlog(this, 1)">›</div>
+                <div class="blog-grid">
                 <a href="gastronomy/" class="blog-card">
                     <div class="card-title"><img src="../assets/images/content/gastronomy.png" alt="Gastronomy"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
@@ -130,8 +141,32 @@
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
                     <div class="card-notes">Notes about this essay...</div>
                 </a>
+                </div>
             </div>
         </section>
+
+        <script>
+        function scrollBlog(arrow, direction) {
+            const section = arrow.parentElement;
+            const grid = section.querySelector('.blog-grid');
+            const cardWidth = grid.querySelector('.blog-card').offsetWidth;
+            const scrollAmount = cardWidth * direction;
+
+            grid.scrollBy({
+                left: scrollAmount,
+                behavior: 'smooth'
+            });
+
+            // Infinite loop logic
+            setTimeout(() => {
+                if (direction > 0 && grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 10) {
+                    grid.scrollLeft = 0;
+                } else if (direction < 0 && grid.scrollLeft <= 10) {
+                    grid.scrollLeft = grid.scrollWidth;
+                }
+            }, 500);
+        }
+        </script>
     </main>
 
     <footer>
