@@ -248,6 +248,37 @@ a:hover {
     margin: 20px 0 30px 0;
 }
 
+/* Blog Links */
+.content h2 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.blog-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.blog-links a {
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.blog-links a:hover {
+    opacity: 0.6;
+}
+
+.blog-links img {
+    max-width: 100%;
+    height: auto;
+    max-height: 3rem;
+    display: block;
+    object-fit: contain;
+    object-position: left center;
+}
+
 main a:has(.content-divider) {
     display: block;
     width: fit-content;
