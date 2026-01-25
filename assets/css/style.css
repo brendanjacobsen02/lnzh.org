@@ -1,0 +1,513 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Newsreader', Georgia, serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+    display: block;
+    min-height: 100vh;
+}
+
+/* Left Sidebar Navigation */
+nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 30%;
+    height: 100vh;
+    padding: 40px 20px 40px 60px;
+    overflow-y: auto;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+}
+
+nav .nav-divider {
+    width: 75%;
+    height: auto;
+    display: block;
+    margin: 0.75rem 0 1.5rem 0;
+    object-fit: contain;
+}
+
+nav a {
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+nav a:hover {
+    opacity: 0.6;
+}
+
+/* Navigation Images - variable sizing */
+nav img {
+    width: auto;
+    height: 2rem;  /* Base height */
+    display: block;
+    object-fit: contain;
+    object-position: left center;
+}
+
+/* Size variations for different letter heights */
+nav img.size-0 {
+    height: 1.15rem;  /* Extra short/tiny letters */
+    margin-top: 0.5rem;
+    margin-bottom: 1.609375rem;  /* padding factor: 1.125, split with constant top */
+}
+
+nav img.size-1 {
+    height: 1.55rem;  /* Short, flat letters (e.g., "one") */
+    margin-top: 0.5rem;
+    margin-bottom: 1.375rem;  /* padding factor: 1.0, split with constant top */
+}
+
+nav img.size-2 {
+    height: 2rem;    /* Tall letters (e.g., "bow") */
+    margin-top: 0.5rem;
+    margin-bottom: 1.140625rem;  /* padding factor: 0.875, split with constant top */
+}
+
+nav img.size-3 {
+    height: 2.5rem;  /* Tall + descenders (e.g., "buy") */
+    margin-top: 0.5rem;
+    margin-bottom: 0.90625rem;  /* padding factor: 0.75, split with constant top */
+}
+
+nav img.size-4 {
+    height: 3rem;    /* Extra tall */
+    margin-top: 0.5rem;
+    margin-bottom: 0.671875rem;  /* padding factor: 0.625, split with constant top */
+}
+
+nav img.size-5 {
+    height: 3.5rem;  /* Largest */
+    margin-top: 0.46875rem;
+    margin-bottom: 0.46875rem;  /* padding factor: 0.5, split evenly */
+}
+
+/* Default size (no class) */
+nav img:not([class*="size-"]) {
+    margin-top: 0.5rem;
+    margin-bottom: 1.140625rem;  /* Same as size-2 */
+}
+
+/* Dropdown Navigation */
+.dropdown-trigger {
+    cursor: pointer;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    transition: padding 0.5s cubic-bezier(0.68, -0.4, 0.265, 1.35);
+}
+
+.dropdown-trigger.active {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.nav-dropdown-toggle {
+    width: auto;
+    height: 1.25rem;
+    display: block;
+    object-fit: contain;
+    object-position: left center;
+    transition: transform 0.6s cubic-bezier(0.68, -0.4, 0.265, 1.35);
+}
+
+.dropdown-trigger.active .nav-dropdown-toggle {
+    transform: rotate(180deg) scale(1.1);
+}
+
+.dropdown-content {
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 0;
+}
+
+.dropdown-content.active {
+    opacity: 1;
+}
+
+.dropdown-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.dropdown-content.active .dropdown-item {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.dropdown-content.active .dropdown-item:nth-child(1) {
+    transition-delay: 0.05s;
+}
+
+.dropdown-content.active .dropdown-item:nth-child(2) {
+    transition-delay: 0.1s;
+}
+
+.dropdown-content.active .dropdown-item:nth-child(3) {
+    transition-delay: 0.15s;
+}
+
+.dropdown-content.active .dropdown-item:nth-child(4) {
+    transition-delay: 0.2s;
+}
+
+.dropdown-arrow {
+    width: auto;
+    height: 0.8rem;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.dropdown-item:first-child .dropdown-arrow,
+.dropdown-item:last-child .dropdown-arrow {
+    height: 0.7rem;
+}
+
+.dropdown-item a {
+    display: block;
+    flex: 1;
+}
+
+/* Main Content Area */
+main {
+    margin-left: 30%;
+    padding: 60px 40px;
+    max-width: 900px;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+h3 {
+    font-size: 1.25rem;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+/* Links */
+a {
+    color: #0066cc;
+}
+
+a:hover {
+    color: #004499;
+}
+
+/* Content sections */
+.content {
+    margin-top: 30px;
+}
+
+.intro {
+    margin-bottom: 0;
+}
+
+.content-divider {
+    width: auto;
+    height: 1.5rem;
+    object-fit: contain;
+    display: block;
+    margin: 20px 0 30px 0;
+}
+
+main a:has(.content-divider) {
+    display: block;
+    width: fit-content;
+    transition: opacity 0.3s ease;
+}
+
+main a:has(.content-divider):hover {
+    opacity: 0.6;
+}
+
+/* Title Images (for headers) */
+.title-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+/* Footer */
+footer {
+    margin-left: 30%;
+    padding: 0 40px 60px 40px;
+    max-width: 900px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-icons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+footer a {
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+footer a:hover {
+    opacity: 0.6;
+}
+
+footer a img {
+    width: auto;
+    height: 1.5rem;
+    display: block;
+    object-fit: contain;
+}
+
+/* Responsive Design */
+/* Medium width (tablets) - single line nav at top */
+@media (max-width: 1024px) and (min-width: 769px) {
+    body {
+        flex-direction: column;
+    }
+
+    nav {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: row;
+        gap: 25px;
+        align-items: center;
+    }
+
+    nav ul {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 25px;
+        align-items: center;
+        overflow-x: auto;  /* Allow horizontal scroll if needed */
+        position: relative;
+    }
+
+    nav .nav-divider {
+        display: none;  /* Hide divider on tablets */
+    }
+
+    /* Reset all image margins for tablets */
+    nav img {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    /* Slightly smaller sizes for tablets */
+    nav img.size-0 {
+        height: 1.035rem;
+    }
+
+    nav img.size-1 {
+        height: 1.35rem;
+    }
+
+    nav img.size-2 {
+        height: 1.7rem;
+    }
+
+    nav img.size-3 {
+        height: 2.1rem;
+    }
+
+    nav img.size-4 {
+        height: 2.5rem;
+    }
+
+    nav img.size-5 {
+        height: 3rem;
+    }
+
+    /* Adjust dropdown for tablets */
+    .dropdown-trigger {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .nav-dropdown-toggle {
+        height: 1.1rem;
+    }
+
+    .dropdown-content {
+        position: relative;
+        width: auto;
+    }
+
+    .dropdown-list {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 25px;
+    }
+
+    .dropdown-arrow {
+        display: none;
+    }
+
+    main {
+        margin-left: 0;
+        padding: 20px 20px 40px 20px;
+    }
+
+    footer {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .footer-icons {
+        gap: 15px;
+    }
+
+    .content-divider {
+        height: 1.2rem;
+        margin: 15px 0 25px 0;
+    }
+}
+
+/* Mobile - wrapping nav at top */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    nav {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding: 20px;
+    }
+
+    nav ul {
+        flex-direction: row;
+        flex-wrap: wrap;
+        row-gap: 8px;
+        column-gap: 30px;
+        align-items: center;
+    }
+
+    nav .nav-divider {
+        width: 50%;
+        margin: 0.5rem 0;
+    }
+
+    /* Reset all image margins for mobile */
+    nav img {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    /* Proportionally smaller sizes for mobile */
+    nav img.size-0 {
+        height: 0.92rem;
+    }
+
+    nav img.size-1 {
+        height: 1.25rem;
+    }
+
+    nav img.size-2 {
+        height: 1.6rem;
+    }
+
+    nav img.size-3 {
+        height: 2rem;
+    }
+
+    nav img.size-4 {
+        height: 2.4rem;
+    }
+
+    nav img.size-5 {
+        height: 2.8rem;
+    }
+
+    /* Adjust dropdown for mobile */
+    .dropdown-trigger {
+        padding-top: 0;
+        padding-bottom: 0;
+        width: 100%;  /* Force dropdown to start on new row */
+    }
+
+    .nav-dropdown-toggle {
+        height: 1rem;
+    }
+
+    .dropdown-content {
+        position: relative;
+        width: 100%;
+    }
+
+    .dropdown-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+
+    .dropdown-arrow {
+        display: none;  /* Hide arrows on mobile */
+    }
+
+    main {
+        margin-left: 0;
+        padding: 20px 20px 40px 20px;
+    }
+
+    footer {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .footer-icons {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .content-divider {
+        height: 1.2rem;
+        margin: 15px 0 25px 0;
+    }
+}
