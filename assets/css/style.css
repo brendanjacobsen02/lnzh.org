@@ -106,8 +106,8 @@ nav img:not([class*="size-"]) {
 /* Dropdown Navigation */
 .dropdown-trigger {
     cursor: pointer;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
     transition: padding 0.5s cubic-bezier(0.68, -0.4, 0.265, 1.35);
 }
 
