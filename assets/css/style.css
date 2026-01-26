@@ -12,7 +12,7 @@ body {
     font-family: 'Newsreader', Georgia, serif;
     line-height: 1.6;
     color: #333;
-    background-color: #fff;
+    background-color: #f2f2e4;
     display: block;
     min-height: 100vh;
 }
@@ -22,7 +22,7 @@ nav {
     position: fixed;
     left: 0;
     top: 0;
-    width: 30%;
+    width: 20%;
     height: 100vh;
     padding: 40px 20px 40px 60px;
     overflow-y: auto;
@@ -95,6 +95,18 @@ nav img.size-5 {
     height: 3.5rem;  /* Largest */
     margin-top: 0.46875rem;
     margin-bottom: 0.46875rem;  /* padding factor: 0.5, split evenly */
+}
+
+nav img.size-6 {
+    height: 4rem;
+    margin-top: 0.40625rem;
+    margin-bottom: 0.40625rem;
+}
+
+nav img.size-7 {
+    height: 4.5rem;
+    margin-top: 0.34375rem;
+    margin-bottom: 0.34375rem;
 }
 
 /* Default size (no class) */
@@ -192,9 +204,9 @@ nav img:not([class*="size-"]) {
 
 /* Main Content Area */
 main {
-    margin-left: 30%;
-    padding: 60px 40px;
-    max-width: 900px;
+    margin-left: 20%;
+    margin-right: 5%;
+    padding: 60px 20px 60px 20px;
 }
 
 /* Typography */
@@ -204,6 +216,7 @@ h1, h2, h3, h4 {
 
 h1 {
     font-size: 2rem;
+    margin-bottom: 0.5rem;
 }
 
 h2 {
@@ -229,7 +242,7 @@ a:hover {
 
 /* Content sections */
 .content {
-    margin-top: 30px;
+    margin-top: 0;
 }
 
 .intro {
@@ -241,99 +254,74 @@ a:hover {
     height: 1.5rem;
     object-fit: contain;
     display: block;
-    margin: 20px 0 30px 0;
+    margin: 1.5rem 0;
+}
+
+/* Blog Filter Buttons */
+.filter-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #000;
+    background: transparent;
+    color: #000;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.filter-btn:hover {
+    opacity: 0.7;
+}
+
+.filter-btn.active {
+    background-color: #000;
+    color: #f2f2e4;
 }
 
 /* Blog Grid */
 .content h2 {
-    margin-top: 2.5rem;
-    margin-bottom: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
     font-size: 1.25rem;
 }
 
-.blog-section {
-    position: relative;
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 0.625rem;
     margin-bottom: 2rem;
 }
 
-.blog-grid {
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 1rem;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-
-.blog-grid::-webkit-scrollbar {
-    display: none;
-}
-
-.scroll-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #ddd;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    transition: background 0.3s ease, transform 0.2s ease;
-    font-size: 1.5rem;
-    color: #333;
-    user-select: none;
-}
-
-.scroll-arrow:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: translateY(-50%) scale(1.1);
-}
-
-.scroll-arrow.left {
-    left: -20px;
-}
-
-.scroll-arrow.right {
-    right: -20px;
-}
-
 .blog-card {
-    flex: 0 0 280px;
-    width: 280px;
     display: flex;
     flex-direction: column;
-    background: #fff;
-    border-right: 1px solid #e0e0e0;
+    background: #f2f2e4;
+    border: 1px solid #e0e0e0;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-decoration: none;
     color: inherit;
-}
-
-.blog-card:first-child {
-    border-left: 1px solid #e0e0e0;
+    padding: 1rem;
 }
 
 .blog-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 5;
 }
 
 .card-title {
-    padding: 1rem;
+    padding: 0 0 0 0.25rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    min-height: 60px;
-    background: #fafafa;
+    justify-content: flex-start;
+    height: 80px;
 }
 
 .card-title img {
@@ -343,11 +331,34 @@ a:hover {
     object-fit: contain;
 }
 
+.card-title img.size-2 {
+    max-height: 2rem;
+}
+
+.card-title img.size-3 {
+    max-height: 2.5rem;
+}
+
+.card-title img.size-4 {
+    max-height: 3rem;
+}
+
+.card-title img.size-5 {
+    max-height: 3.5rem;
+}
+
+.card-title img.size-6 {
+    max-height: 4rem;
+}
+
+.card-title img.size-7 {
+    max-height: 4.5rem;
+}
+
 .card-image {
     width: 100%;
     aspect-ratio: 1;
     overflow: hidden;
-    background: #f5f5f5;
 }
 
 .card-image img {
@@ -356,12 +367,14 @@ a:hover {
     object-fit: cover;
 }
 
-.card-notes {
-    padding: 1rem;
-    font-size: 0.9rem;
-    line-height: 1.5;
+.card-date {
+    padding: 0.75rem 0;
+    font-size: 0.85rem;
     color: #666;
-    min-height: 80px;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 main a:has(.content-divider) {
@@ -385,9 +398,9 @@ main a:has(.content-divider):hover {
 
 /* Footer */
 footer {
-    margin-left: 30%;
+    margin-left: 20%;
+    margin-right: 10%;
     padding: 0 40px 60px 40px;
-    max-width: 900px;
     display: flex;
     gap: 20px;
     align-items: center;
@@ -479,13 +492,16 @@ footer a img {
         height: 3rem;
     }
 
-    /* Adjust dropdown for tablets */
-    .dropdown-trigger {
-        padding-top: 0;
-        padding-bottom: 0;
+    nav img.size-6 {
+        height: 3.5rem;
     }
 
-    .nav-dropdown-toggle {
+    nav img.size-7 {
+        height: 4rem;
+    }
+
+    /* Adjust dropdown for tablets */
+    .dropdown-trigger {
         height: 1.1rem;
     }
 
@@ -523,31 +539,41 @@ footer a img {
         margin: 15px 0 25px 0;
     }
 
-    .blog-card {
-        flex: 0 0 240px;
-        width: 240px;
+    .blog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 0.5rem;
     }
 
     .card-title {
-        min-height: 50px;
+        height: 70px;
     }
 
     .card-title img {
         max-height: 2rem;
     }
 
-    .scroll-arrow {
-        width: 35px;
-        height: 35px;
-        font-size: 1.3rem;
+    .card-title img.size-2 {
+        max-height: 1.6rem;
     }
 
-    .scroll-arrow.left {
-        left: -15px;
+    .card-title img.size-3 {
+        max-height: 2rem;
     }
 
-    .scroll-arrow.right {
-        right: -15px;
+    .card-title img.size-4 {
+        max-height: 2.4rem;
+    }
+
+    .card-title img.size-5 {
+        max-height: 2.8rem;
+    }
+
+    .card-title img.size-6 {
+        max-height: 3.2rem;
+    }
+
+    .card-title img.size-7 {
+        max-height: 3.6rem;
     }
 }
 
@@ -608,15 +634,18 @@ footer a img {
         height: 2.8rem;
     }
 
-    /* Adjust dropdown for mobile */
-    .dropdown-trigger {
-        padding-top: 0;
-        padding-bottom: 0;
-        width: 100%;  /* Force dropdown to start on new row */
+    nav img.size-6 {
+        height: 3.2rem;
     }
 
-    .nav-dropdown-toggle {
+    nav img.size-7 {
+        height: 3.6rem;
+    }
+
+    /* Adjust dropdown for mobile */
+    .dropdown-trigger {
         height: 1rem;
+        width: 100%;  /* Force dropdown to start on new row */
     }
 
     .dropdown-content {
@@ -654,37 +683,46 @@ footer a img {
         margin: 15px 0 25px 0;
     }
 
-    .blog-card {
-        flex: 0 0 220px;
-        width: 220px;
+    .blog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 0.375rem;
     }
 
     .card-title {
-        min-height: 50px;
-        padding: 0.75rem;
+        height: 60px;
+        padding: 0 0 0 0.25rem;
     }
 
     .card-title img {
         max-height: 1.75rem;
     }
 
-    .card-notes {
-        padding: 0.75rem;
-        font-size: 0.85rem;
-        min-height: 70px;
+    .card-title img.size-2 {
+        max-height: 1.4rem;
     }
 
-    .scroll-arrow {
-        width: 30px;
-        height: 30px;
-        font-size: 1.2rem;
+    .card-title img.size-3 {
+        max-height: 1.75rem;
     }
 
-    .scroll-arrow.left {
-        left: -10px;
+    .card-title img.size-4 {
+        max-height: 2.1rem;
     }
 
-    .scroll-arrow.right {
-        right: -10px;
+    .card-title img.size-5 {
+        max-height: 2.45rem;
+    }
+
+    .card-title img.size-6 {
+        max-height: 2.8rem;
+    }
+
+    .card-title img.size-7 {
+        max-height: 3.15rem;
+    }
+
+    .card-date {
+        padding: 0.5rem 0;
+        font-size: 0.8rem;
     }
 }

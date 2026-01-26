@@ -12,6 +12,7 @@
     <title>lnzhBlog</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="../assets/js/nav-dropdown.js"></script>
+    <script src="../assets/js/blog-filter.js"></script>
 </head>
 <body>
     <nav>
@@ -45,128 +46,93 @@
         <a href="../"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
 
         <section class="content">
-            <h2>Favourites</h2>
-            <div class="blog-section">
-                <div class="scroll-arrow left" onclick="scrollBlog(this, -1)">‹</div>
-                <div class="scroll-arrow right" onclick="scrollBlog(this, 1)">›</div>
-                <div class="blog-grid">
-                <a href="otherworldly/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/the-world-inside-my-head.png" alt="Otherworldly"></div>
-                    <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
-                </a>
-                <a href="tomato/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/tomato.png" alt="Tomato"></div>
-                    <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
-                </a>
-                <a href="crying/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/times-i-cried-with-you.png" alt="On Crying"></div>
-                    <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
-                </a>
-                <a href="triage/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/the-mind-triage.png" alt="Mind Triage"></div>
-                    <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
-                </a>
-                </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="favourites">✩</button>
+                <button class="filter-btn" data-filter="philosophy">Philosophy</button>
+                <button class="filter-btn" data-filter="life">Life</button>
+                <button class="filter-btn" data-filter="food">Food</button>
+                <button class="filter-btn" data-filter="discourse">Discourse</button>
             </div>
 
-            <h2>Philosophy</h2>
-            <div class="blog-section">
-                <div class="scroll-arrow left" onclick="scrollBlog(this, -1)">‹</div>
-                <div class="scroll-arrow right" onclick="scrollBlog(this, 1)">›</div>
-                <div class="blog-grid">
-                <a href="hum/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/the-humming-pronatalism-the-joy-of-life.png" alt="The Hum"></div>
+            <div class="blog-grid">
+                <a href="otherworldly/" class="blog-card" data-tags="favourites life philosophy">
+                    <div class="card-title"><img src="../assets/images/content/the-world-inside-my-head.png" alt="Otherworldly" class="size-3"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span>✭</span><span>2026</span></div>
                 </a>
-                <a href="identity/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/on-identity.png" alt="On Identity"></div>
+                <a href="tomato/" class="blog-card" data-tags="favourites life food">
+                    <div class="card-title"><img src="../assets/images/content/tomato.png" alt="Tomato" class="size-3"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span>✭</span><span>2025</span></div>
                 </a>
-                <a href="veganism/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/on-veganism.png" alt="On Veganism"></div>
+                <a href="crying/" class="blog-card" data-tags="favourites life">
+                    <div class="card-title"><img src="../assets/images/content/times-i-cried-with-you.png" alt="On Crying" class="size-5"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span>✭</span><span>2025</span></div>
                 </a>
-                <a href="existence/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/on-existence.png" alt="On Existence"></div>
+                <a href="triage/" class="blog-card" data-tags="favourites life">
+                    <div class="card-title"><img src="../assets/images/content/the-mind-triage.png" alt="Mind Triage" class="size-5"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span>✭</span><span>2026</span></div>
                 </a>
-                <a href="lifeisbeautiful/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/life-is-beautiful-exactly-the-way-it-is.png" alt="Life is Beautiful"></div>
+                <a href="hum/" class="blog-card" data-tags="philosophy discourse">
+                    <div class="card-title"><img src="../assets/images/content/the-humming-pronatalism-the-joy-of-life.png" alt="The Hum" class="size-7"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span></span><span>2026</span></div>
                 </a>
-                </div>
-            </div>
-
-            <h2>Life</h2>
-            <div class="blog-section">
-                <div class="scroll-arrow left" onclick="scrollBlog(this, -1)">‹</div>
-                <div class="scroll-arrow right" onclick="scrollBlog(this, 1)">›</div>
-                <div class="blog-grid">
-                <a href="gastronomy/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/gastronomy.png" alt="Gastronomy"></div>
+                <a href="identity/" class="blog-card" data-tags="philosophy discourse">
+                    <div class="card-title"><img src="../assets/images/content/on-identity.png" alt="On Identity" class="size-6"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span></span><span>2025</span></div>
                 </a>
-                <a href="philosophy/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/i-love-philosophy.png" alt="Philosophy"></div>
+                <a href="veganism/" class="blog-card" data-tags="philosophy discourse food">
+                    <div class="card-title"><img src="../assets/images/content/on-veganism.png" alt="On Veganism" class="size-5"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span></span><span>2026</span></div>
                 </a>
-                <a href="gossip/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/on-gossip.png" alt="On Gossip"></div>
+                <a href="existence/" class="blog-card" data-tags="philosophy discourse">
+                    <div class="card-title"><img src="../assets/images/content/on-existence.png" alt="On Existence" class="size-5"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span></span><span>2025</span></div>
                 </a>
-                <a href="productivity/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/on-productivity.png" alt="On Productivity"></div>
+                <a href="lifeisbeautiful/" class="blog-card" data-tags="philosophy">
+                    <div class="card-title"><img src="../assets/images/content/life-is-beautiful-exactly-the-way-it-is.png" alt="Life is Beautiful" class="size-6"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span></span><span>2026</span></div>
                 </a>
-                <a href="writing/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/on-writing.png" alt="On Writing"></div>
+                <a href="gastronomy/" class="blog-card" data-tags="life food">
+                    <div class="card-title"><img src="../assets/images/content/gastronomy.png" alt="Gastronomy" class="size-6"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span></span><span>2026</span></div>
                 </a>
-                <a href="thinking/" class="blog-card">
-                    <div class="card-title"><img src="../assets/images/content/thinking-too-much0.png" alt="On Thinking"></div>
+                <a href="philosophy/" class="blog-card" data-tags="life philosophy">
+                    <div class="card-title"><img src="../assets/images/content/i-love-philosophy.png" alt="Philosophy" class="size-5"></div>
                     <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
-                    <div class="card-notes">Notes about this essay...</div>
+                    <div class="card-date"><span></span><span>2026</span></div>
                 </a>
-                </div>
+                <a href="gossip/" class="blog-card" data-tags="life discourse">
+                    <div class="card-title"><img src="../assets/images/content/on-gossip.png" alt="On Gossip" class="size-2"></div>
+                    <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
+                    <div class="card-date"><span></span><span>2025</span></div>
+                </a>
+                <a href="productivity/" class="blog-card" data-tags="life discourse">
+                    <div class="card-title"><img src="../assets/images/content/on-productivity.png" alt="On Productivity" class="size-6"></div>
+                    <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
+                    <div class="card-date"><span></span><span>2026</span></div>
+                </a>
+                <a href="writing/" class="blog-card" data-tags="life discourse">
+                    <div class="card-title"><img src="../assets/images/content/on-writing.png" alt="On Writing" class="size-5"></div>
+                    <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
+                    <div class="card-date"><span></span><span>2026</span></div>
+                </a>
+                <a href="thinking/" class="blog-card" data-tags="life philosophy">
+                    <div class="card-title"><img src="../assets/images/content/thinking-too-much0.png" alt="On Thinking" class="size-5"></div>
+                    <div class="card-image"><img src="https://via.placeholder.com/300x200/e8e8e8/666666?text=Image" alt=""></div>
+                    <div class="card-date"><span></span><span>2026</span></div>
+                </a>
             </div>
         </section>
-
-        <script>
-        function scrollBlog(arrow, direction) {
-            const section = arrow.parentElement;
-            const grid = section.querySelector('.blog-grid');
-            const cardWidth = grid.querySelector('.blog-card').offsetWidth;
-            const scrollAmount = cardWidth * direction;
-
-            grid.scrollBy({
-                left: scrollAmount,
-                behavior: 'smooth'
-            });
-
-            // Infinite loop logic
-            setTimeout(() => {
-                if (direction > 0 && grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 10) {
-                    grid.scrollLeft = 0;
-                } else if (direction < 0 && grid.scrollLeft <= 10) {
-                    grid.scrollLeft = grid.scrollWidth;
-                }
-            }, 500);
-        }
-        </script>
     </main>
 
     <footer>
