@@ -250,6 +250,9 @@ p {
 /* Links */
 a {
     color: #119c36;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
 }
 
 a:hover {
@@ -271,6 +274,18 @@ a:hover {
     object-fit: contain;
     display: block;
     margin: 1.5rem 0;
+}
+
+/* Filter Links (in paragraph) */
+.filter-link {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+}
+
+.filter-link:hover {
+    text-decoration-style: solid;
 }
 
 /* Blog Filter Buttons */
@@ -391,6 +406,13 @@ a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.card-tags {
+    padding: 0.5rem 0;
+    font-size: 0.85rem;
+    color: #666;
+    text-align: left;
 }
 
 main a:has(.content-divider) {

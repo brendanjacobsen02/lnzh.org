@@ -2,3 +2,5 @@
 .claude/
 *.log
 node_modules/
+blog/_drafts/
+build.py

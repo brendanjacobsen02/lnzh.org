@@ -1,56 +1,69 @@
 // Blog filter functionality
 document.addEventListener('DOMContentLoaded', function() {
     const filterButtons = document.querySelectorAll('.filter-btn');
+    const filterLinks = document.querySelectorAll('.filter-link');
     const blogCards = document.querySelectorAll('.blog-card');
     const blogGrid = document.querySelector('.blog-grid');
 
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const filter = this.getAttribute('data-filter');
+    function activateFilter(filter) {
+        if (filter === 'all') {
+            // Deselect all other buttons and select "All"
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[data-filter="all"]').classList.add('active');
 
-            if (filter === 'all') {
-                // Deselect all other buttons and select "All"
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
+            // Show all cards in order (favourites first)
+            sortAndShowCards(['all']);
+        } else {
+            // Find and toggle the corresponding button
+            const targetButton = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
+            if (targetButton) {
+                targetButton.classList.toggle('active');
+            }
 
-                // Show all cards in order (favourites first)
+            // Deselect "All" button if any other button is selected
+            const allButton = document.querySelector('[data-filter="all"]');
+            allButton.classList.remove('active');
+
+            // Get all active filters (excluding "all")
+            const activeFilters = Array.from(filterButtons)
+                .filter(btn => btn.classList.contains('active') && btn.getAttribute('data-filter') !== 'all')
+                .map(btn => btn.getAttribute('data-filter'));
+
+            // If no filters are active, reactivate "All"
+            if (activeFilters.length === 0) {
+                allButton.classList.add('active');
                 sortAndShowCards(['all']);
             } else {
-                // Toggle the clicked button
-                this.classList.toggle('active');
-
-                // Deselect "All" button if any other button is selected
-                const allButton = document.querySelector('[data-filter="all"]');
-                allButton.classList.remove('active');
-
-                // Get all active filters (excluding "all")
-                const activeFilters = Array.from(filterButtons)
-                    .filter(btn => btn.classList.contains('active') && btn.getAttribute('data-filter') !== 'all')
-                    .map(btn => btn.getAttribute('data-filter'));
-
-                // If no filters are active, reactivate "All"
-                if (activeFilters.length === 0) {
-                    allButton.classList.add('active');
-                    sortAndShowCards(['all']);
-                } else {
-                    sortAndShowCards(activeFilters);
-                }
+                sortAndShowCards(activeFilters);
             }
+        }
+    }
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            activateFilter(this.getAttribute('data-filter'));
+        });
+    });
+
+    filterLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            activateFilter(this.getAttribute('data-filter'));
         });
     });
 
     function sortAndShowCards(filters) {
         const cardsArray = Array.from(blogCards);
 
-        // Tag priority order and symbols (from Greek origins)
-        // φ = philosophia, ι = idios (personal/life), γ = gastronomia, δ = dialektike
-        const tagOrder = ['favourites', 'philosophy', 'life', 'food', 'dialectic'];
+        // Tag priority order and symbols (Greek letters)
+        // ✩ = favourites, φ = philosophia, β = bios (life), γ = gastronomia, δ = dialektike
+        const tagOrder = ['✩', 'φ', 'β', 'γ', 'δ'];
         const tagSymbols = {
-            'favourites': '✭',
-            'philosophy': 'φ',
-            'life': 'ι',
-            'food': 'γ',
-            'dialectic': 'δ'
+            '✩': '✭',
+            'φ': 'φ',
+            'β': 'β',
+            'γ': 'γ',
+            'δ': 'δ'
         };
 
         // Get highest priority tag for sorting
@@ -87,14 +100,14 @@ document.addEventListener('DOMContentLoaded', function() {
             cardsArray.forEach(card => {
                 card.style.display = 'flex';
                 // Set all tag symbols in priority order
-                const symbolSpan = card.querySelector('.card-date span:first-child');
-                if (symbolSpan) {
+                const tagsDiv = card.querySelector('.card-tags');
+                if (tagsDiv) {
                     const cardTags = card.getAttribute('data-tags').split(' ');
                     const symbols = tagOrder
                         .filter(tag => cardTags.includes(tag))
                         .map(tag => tagSymbols[tag])
                         .join(' ');
-                    symbolSpan.textContent = symbols;
+                    tagsDiv.textContent = symbols;
                 }
                 blogGrid.appendChild(card);
             });
