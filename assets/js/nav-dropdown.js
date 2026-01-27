@@ -1,6 +1,18 @@
 // Navigation dropdown functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const dropdownTriggers = document.querySelectorAll('.dropdown-trigger');
+    const dropdownTriggers = document.querySelectorAll('nav .dropdown-trigger');
+
+    // Handle "open-sidebar" link on homepage
+    const openSidebarLink = document.getElementById('open-sidebar');
+    if (openSidebarLink) {
+        openSidebarLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const navTrigger = document.querySelector('nav .dropdown-trigger');
+            if (navTrigger) {
+                navTrigger.click();
+            }
+        });
+    }
 
     dropdownTriggers.forEach((dropdownTrigger, index) => {
         const dropdownContent = dropdownTrigger.nextElementSibling;
