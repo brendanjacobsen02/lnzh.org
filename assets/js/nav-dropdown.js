@@ -1,5 +1,10 @@
 // Navigation dropdown functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Make all external links open in new tab
+    document.querySelectorAll('a[href^="http"]:not([href*="lnzh.org"])').forEach(link => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+    });
     const dropdownTriggers = document.querySelectorAll('nav .dropdown-trigger');
 
     // Handle "open-sidebar" link on homepage
@@ -71,6 +76,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 10);
 
                     localStorage.setItem(storageKey, 'true');
+                }
+            });
+        }
+    });
+
+    // List page dropdown functionality
+    const listDropdownTriggers = document.querySelectorAll('.list-dropdown-trigger');
+
+    listDropdownTriggers.forEach((trigger) => {
+        const content = trigger.nextElementSibling;
+
+        if (content && content.classList.contains('list-dropdown-content')) {
+            trigger.addEventListener('click', function() {
+                const isActive = content.classList.contains('active');
+
+                if (isActive) {
+                    content.classList.remove('active');
+                    trigger.classList.remove('active');
+                    content.style.maxHeight = '0';
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    setTimeout(() => {
+                        content.classList.add('active');
+                        trigger.classList.add('active');
+                    }, 10);
                 }
             });
         }
