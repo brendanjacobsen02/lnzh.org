@@ -7,11 +7,13 @@
     <meta name="author" content="Leon Zhou">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' 'unsafe-inline' https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com;">
     <meta name="referrer" content="no-referrer-when-downgrade">
     <title>lnzhThoughts</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="icon" type="image/png" href="../assets/images/content/favicon.png">
     <script src="../assets/js/nav-dropdown.js"></script>
+    <script type="module" src="../assets/js/thoughts-filter.js"></script>
 </head>
 <body>
     <nav>
@@ -40,13 +42,2158 @@
 
     <main>
         <header class="intro">
-            <h1>Little turds of wisdom</h1>
+            <h1>My most absurd thoughts</h1>
         </header>
 
         <a href="../"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
+        <p>moments of inspiration, varied in coherence, pulled from my notes and social media. press ★ to save!</p>
+        <div class="thoughts-controls">
+            <div class="thoughts-filters">
+                <button id="all-btn" class="filter-btn active">All</button>
+                <button id="random-btn" class="filter-btn">Random</button>
+                <button id="favs-btn" class="filter-btn">★</button>
+            </div>
+            <span id="thought-count" class="thought-count"></span>
+            <div class="thoughts-sort">
+                <button id="reverse-order-btn" class="reverse-btn" title="Reverse order">
+                    <img src="../assets/images/ui/arrow0.png" alt="reverse order" id="reverse-arrow">
+                </button>
+                <select id="sort-select">
+                    <option value="date">Date</option>
+                    <option value="length">Length</option>
+                    <option value="likes">Likes</option>
+                </select>
+                <input type="text" id="search-input" placeholder="Search..." />
+            </div>
+        </div>
 
-        <section class="content">
-            <p>coming tomorrow (1/28)</p>>
+        <section class="content thoughts-container">
+            <h2>January 2026</h2>
+                <div class="thought">
+                    <span class="date">Jan 23, 2026</span>
+                    <p>Extremely strange phenomena I’ve observed: When I want to make something really pretty and I care a lot about how it will look, I’ll give it a couple tries (e.g. I’ll write a word / take a picture / draw a doodle a couple of times and pick the best one) and very very often the first one is the best one. I think this is pretty absurd and interesting though I’d suspect it has more to do with cognitive biases than anything (devise an experiment!)</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 23, 2026</span>
+                    <p>The thing that Winesburg Ohio seems to be commentary about (even more than whatever the critics think, or at least what I’ve taken from it) is that every human deeply desires and needs something we could probably vaguely call “love”</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 22, 2026</span>
+                    <p>It took only 2 days for the BS administration (short for boarding school) to remind me that I am but a three legged mouse in this game of snakes and ladders. Ipad photography.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 22, 2026</span>
+                    <p>They (guess who) are telling me to Put my Bed back together and that makes me sad :(</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 22, 2026</span>
+                    <p>its very hard for me to have a strong opinion on some kinds of politics because my metaphysics simply accepts inequality as it is but morally I feel some kind of disgust for the way the world is and the way I consume things. I just paid what is likely an undocumented hispanic migrant (half of my payment went to the expenses of the delivery logicstics company) to drive to a store and bring me an egregious amounts of caffienated beverages… the actual content of which accoumting for a small fraction of the cost (I am paying, in a way, for the dream of being Faker one day)</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 22, 2026</span>
+                    <p>I hate that math is probably the most important thing to be good at I cannot even lie to myself and say i dont need it I’ve Given up on this class. I hope I can find my way back one day.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 21, 2026</span>
+                    <p>I want to go around and shake people (myself) up and down one hundred times and yell really loud in their face and say Life is Really good Please try living</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 20, 2026</span>
+                    <p>Perhaps the only important insight playing competitive video games can grant you is how fucking dogshit 99% of humans are at what they do. Even if its what they do their entire life. And almost everything falls into this pareto distribution of skill vs acclaim (aka rank).</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 20, 2026</span>
+                    <p>Pioneering bedless meta. I think its kind of funny this bed-parts-shelf-thing looks like a throne theres probably some irony there. Also that it has literally zero integrity its just pieces of wood leaning against each other. Also the bible sits on The Throne probably some kind of commentary as well. I’m liking this setup because 1. there is finally space and 2. my window is no longer obstructed so I can hop in and out easily. Also I know why I’d never be an engineer because I&#x27;m stupid as fuck.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 20, 2026</span>
+                    <p>Crazy people will try to tell you that you actually NEED to read Hegel and Kant etc. etc. No actually I dont have a brain tumor I do not need another mental disorder. I DO NOT NEED to read the words they wrote. 
+
+I also really want to hear what that slovenian lisp guy has to say about Armpit fetishes.
+
+Slavoj zizek
+
+My latest reading… some Pop politics
+
+ON TYRRANY timothy snyder</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 20, 2026</span>
+                    <p>I used to make fun of people addicted to gross weird things like cigarettes and porn because I think its kind of stupid (Dude, at least pick something good) except now I realize I&#x27;m addicted to even more stupid things like caffiene and sugar and video games so idk</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 18, 2026</span>
+                    <p>Listen I dont think killing people or political violence is good. On an unrelated seperate note I’m noticing a rise in People who are reallu comfortable being just absolutely horrible people (the Clavicular Tate crew).</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 18, 2026</span>
+                    <p>If you have opened twitter in the last 7 days chances are you have stumbled upon THAT guy’s essay. I wrote a response to it (Title: You Cannot change your life in one day). But Its been like 3 weeks since Ive touched my blog and I&#x27;m too much of a lazy prick to do anything about it but I have so many new writings I’d like to share!</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 18, 2026</span>
+                    <p>In a similar vein it seems that there is a personal spatial-temporal axis i.e. some people are very conscientious of the time it takes to do things while some are conscientious of the resources it takes to do things. I think maybe the most successful people are maximally temporal and minimally spatial</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 18, 2026</span>
+                    <p>Ok I think the biggest lie I've ever believed is that there is a lot of time and you can always wait. I think this is not true.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 17, 2026</span>
+                    <p>When comparing two things, finding the relationship between two things etc... especially for items of high dimensionality, the easiest way to gague how "good" or "close" etc. etc. two items are is to simply assign a boolean value on each dimension... One easy example: interpersonal compatibility. Two people are "closer" on this high dimensional space if some dimensions are close in value (if their difference in iq, personal interests = 0, they may get along well), and opposite for others (difference in disagreeableness = 1)... this model is very useful because 1. you are very stupid so you could not possibly project two things onto each other in a meaningful way and therefore this simplified model is a quick framework and 2. you should be very familiar with the things this is most useful for (i.e. you)</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 16, 2026</span>
+                    <p>Very often, maybe once or twice a week, I’ll make an asinine complaint about whatever is bothering me (today it is how fucking moronic I think ap economics is), type something really long and post it on my instagram story and then remember this is not what my fans love me for so then i delete it.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 16, 2026</span>
+                    <p>I dont know if all of economics (and economists) is incredibly stupid or if I am just not perceptive enough But every single time I go to AP Economics I just cannot take it seriously. This is becoming a very serious problem for me because I’m now doubly unmotivated to study for my exam. I am just not very interested in the five hundred pieces of jargon used to express the same central Dogma that when things are more abundant people want it less. And also now I think that everyone who studies economics is a complete moron.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 16, 2026</span>
+                    <p>Genuinely unironically enjoying jordan peterson lectures recently it is so funny (and sometimes interesting) listening to him… its fascinating how… superior he likes to present himself as.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 14, 2026</span>
+                    <p>I think love is one of those things that people desperately try to get right and they psychoanalyze themselves and their family and their husbands and wives and boyfriends girlfriends dog uncle sally gerbert to fucking Death and they ask themselves WHY and they read books about what it is supposed to look like and what they should do and who they should do When maybe. Whatever you already think love is is exactly what it is. And whatever you want to feel is exactly alright. No matter if people want to call it toxic or not. Pinning this so I can laugh at myself in 10 years when I am a cynic divorcee.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 14, 2026</span>
+                    <p>Most reasonable choices for favourite numbers. Everything else is schizoid nonsense
+
+i, 0, 1, gr, 2, e, 3, npi, 6, 7, 28, 42, 73, 6174, also any 2^n, or any autism primes.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 14, 2026</span>
+                    <p>Another thing I do rather often is create humungous universes of objects and states of affairs and characters based on very limited information. And so whatever happens in this universe is actually just a mess of compounded noise and looks absolutely nothing like reality. This has also made my life really bad (well. In a sort of horizontally caused way) because many times in my life some things would be okay but because of my schizoid simulations I just fucking brick myself and go crazy</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 14, 2026</span>
+                    <p>A common therapy I enjoy is to think of the set of people better and worse than me. I.e. the set of people far more funny than me and then the set of people who are very boring (Indiscriminate in their relation to me because I am of course already very funny and interesting). I often fall into this status quo rationalization stage where somehow I decide that I am the perfect amount of funny and interesting without having to Shove myself down anyones throats. And I think this exercise has probably made my life worse in many many ways.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 14, 2026</span>
+                    <p>I find most celebrities rather tasteless and stupid but This Chalamet guy charms me into this buried homoerotic trance that most attractive people do not. I am mostly immune to attractive people… No. Thats not true. But this one is special.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 14, 2026</span>
+                    <p>Inside of me somewhere is a very funny person. I just need to find him. And ask him what to do with this soup.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 14, 2026</span>
+                    <p>I’m trying to defeat despair with whimsy but all I’m left with is a very thick, quite disgustimg soup.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 14, 2026</span>
+                    <p>May I borrow someone’s phone st 5pm? I have to make a phone call! Will be only ~ 45mins! Thanks guys.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 11, 2026</span>
+                    <p>Important skill people dont seem to talk about enough: knowing what people will like</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 11, 2026</span>
+                    <p>I submitted USC and claremont yesterday and to celebrate I watched one of those love movies where they never end up together and find someone else And are left wondering what could have been.And I woke up having dreamed about my life and I cried thinking about it and then I went and ate my 4 hard boiled egg sandwich.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 10, 2026</span>
+                    <p>Ok I&#x27;m getting tilted AM I JUST A CHUD or is nobody else getting college interviews let me know guys Is anyome g4tting interviews Ok?</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 10, 2026</span>
+                    <p>I liked the way you spoke. It reminded myself of me, if I were braver and sharper. If I didn't had to hide behind my small fences of irony. The moment I think of the most between us was when you told me that I knew how to talk. I'm not sure if I was the one doing the talking.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 10, 2026</span>
+                    <p>But what does fate mean to you? When do you decide it has been decided so? Of course, things each happen for reasons, but why must they be good? Why must you be satisfied with the way things are? I could hardly bear the notion of accepting hardship by deferring agency to fate!</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 10, 2026</span>
+                    <p>It's not so much a message for you. I wrote about it in my journal. I doubt you'll ever see that, or this. I'll only show it to you if you say you love me. I think I already do. I don't enjoy people's tired euphemisms: "I like you", "I miss you", etc. I really mean I love you.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 09, 2026</span>
+                    <p>In the LC, freshman approaches me:
+
+Arent you the guy? With the Instagram stories? 
+
+… 
+
+Yeah you’re like an influencer. I love your Instagram man
+
+🙂
+
+I feel somehow both validated in that my slop at least entertains some people but also a bit sad my impression as a human is reduced to my instagram shitposting. Although most of my life is probably orthogonal to this guys Maybe I want to be known as the nonchalant intellectual chinese guy instead. I'm also practicing my sf goyim jargon (e.g. orthogonal isomorphic physiognomy etc.)</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 08, 2026</span>
+                    <p>Very important to find the fine line between romance and perversion. Also genius and hysteria. etc. etc.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 08, 2026</span>
+                    <p>its really disturbing how full of despair and suffering my life is When I was born rich tall handsome and smart. Not sure how this happened. Well actually I do but I wont get into it like that. I'm not sure what this Person wants from me (I know). I'm nearly perfect (im not).</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 08, 2026</span>
+                    <p>Marco Pierre White: Food has always been my mistress, and also my therapist. Spend time with her. She'll teach you more than anybody else in this world.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 07, 2026</span>
+                    <p>Restaurants in nyc:
+
+- “intimate” “cozy” “family style”
+- asian cuisine, french technique
+- chef does not understand the irony in his usage of the word chinoise
+- crudo not optional
+- some commentary about colonialism necessary</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 07, 2026</span>
+                    <p>Sorry I know I sound like a fucking elitist dickhead Ok fine I&#x27;m sorry I didnt mean to say bad things about scu its just that life was supposedto be easy Ok? and its fucking not.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 07, 2026</span>
+                    <p>Submitting my santa clara university application in the dining hall, enter mr koshi
+
+K: Hows everything!
+L: Just submitting scu hope you had a good break 😀
+K: Oh how did earlys go
+L: … 
+L: I got rejected by columbia
+K: oh thats a tough one… honestly graduate school matters more than anything now
+L: Oh. Yeah. Optimistic about it!
+
+How do I tell him I hate everything and the very fact that I have to apply to santa clara university on january 7th is a humiliating enough reason for me to end it right now. Also I have to tell every single school I&#x27;m applying to that I called you mean words on my Instagram story.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 07, 2026</span>
+                    <p>Im banned from buying books if someone sees me buy a book please hit me really hard with it</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 06, 2026</span>
+                    <p>its (basically) over Oh mygod I'm (basically) free</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 06, 2026</span>
+                    <p>Wittgenstein: I won't say 'See you tomorrow' because that would be like predicting the future, and I'm pretty sure I can't do that.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 05, 2026</span>
+                    <p>I should probably be more afraid of saying really stupid things but I’m not</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 05, 2026</span>
+                    <p>Applied ethics (any domain): Ok pragmatic helps the world etc.
+
+Metaethics: mental illness, squabbling children, wittgenstein is your dad</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 05, 2026</span>
+                    <p>How tje fuck is metaethics still a real thing I dont understand why it even exists if you do metaethics you are probably just a fucking Dumbass?</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 05, 2026</span>
+                    <p>Hard to really think of a decent moral argument for pronatalism except that I think humans are the cutest When they are still babies</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 04, 2026</span>
+                    <p>Memory from some months ago:
+
+Brother: One should never kill themselves
+
+Me: But what if they suffer
+B: They may find redemption
+
+M: Think of a homeless man who can never escape addiction
+B: But he can
+
+M: Then shift the needle, imagine a man in a box, chained and whipped…
+B: This is why nobody should study philosophy</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 04, 2026</span>
+                    <p>Wittgenstein: I am now in another hole, though I have to say, it is no better than the old one. Living with human beings is hard! Only they are not really human, but rather 1/4 animal and 3/4 human.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 04, 2026</span>
+                    <p>Wittgenstein, on the village where he taught at: "I am still at Trattenbach, surrounded, as ever, by odiousness and baseness. I know that human beings on the average are not worth much anywhere, but here they are much more good-for-nothing and irresponsible than elsewhere."</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 03, 2026</span>
+                    <p>Counterpoint: Instagram might be the most useless form of social connection and therefore I shouldnt use it at all</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 03, 2026</span>
+                    <p>Exposure therapy: Why do I have 2 instagram accounts Its because I&#x27;m too much of a Fucking manlet to say what I want to say without suffering the consequenses (Social reprimanding/Dearest Phillip) therefore I must practice cutting myself open and grotesquely spilling my emotional innards more often to More people</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 03, 2026</span>
+                    <p>When I cry I do a really pathetic like Singular tear kind of cry I&#x27;m not sure why yet I will feel that overwhelming swell of emotions but Somehow I convince myself you are too old and Huge to cry without knowing what you’re crying about so I manage one tear before rationalizing that its actually not so bad</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 03, 2026</span>
+                    <p>Wonder how horrible it would have been for prehistoric humans to have mouth ulcers</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 02, 2026</span>
+                    <p>2026 resolution: Become really bad at video games</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 02, 2026</span>
+                    <p>Meditations on 2025
+
+Do you believe in God?
+
+I don’t want to believe in a world without magic
+
+I want to be able to answer why with teleological conviction
+
+Why was the last week of 2025 so… everything?
+
+I don’t care what metaphysics led you to me
+
+lets have a magical 2026
+
+and live in the fantasy in our mind!</p>
+                </div>
+            </div>
+            <h2>December 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Dec 23, 2025</span>
+                    <p>Sorry I&#x27;m currently battling my inner demons I will be gettimg back to you shortly</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 17, 2025</span>
+                    <p>College admissions:
+
+Leon zhou: rejected
+John pork: accepted
+Beijing hitler: accepted
+Albert einstein: rejected
+
+Im not coping okay? I think maybe I&#x27;m just not chinese enough.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 16, 2025</span>
+                    <p>everyone: Nobody cares about me!! Please care about me and love me!!
+
+christopher hitchens: I will not give my penis any rest</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 16, 2025</span>
+                    <p>IM sorry I&#x27;m a fucking chud ok?</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 16, 2025</span>
+                    <p>Not rare aesthetic 30 minutes late to final Mr Akcan rips your final presentation apart for 10 minutes (its a 3 minute presentation he says) after providing 0 details about the assignment (it wasnt rigorous enough!) And then afterwards he tells you You are a horrible student and I deserve to fail :D</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 15, 2025</span>
+                    <p>11k durimg finals week this guy is NOT studying 😭😭😭</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 15, 2025</span>
+                    <p>Stevenson school: How can we make our students even less educated and waste as much of their time as possible?</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 14, 2025</span>
+                    <p>Not even trolling I woke up in the middle of the night like 4 times yesterday I had different dreams of opening acceptance letters Like one of them Said We arent sure if we want you. And then I got a rejection subtitled You got too many Bs. And then I got accepted but them got rescinded because Mr koshi expelled me I Dont know what freud would say about me But all I know is that I kinda need this Rn cuz I DONT WANT TO WORK ANYMORE</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 14, 2025</span>
+                    <p>please @ columbia I domt want to study for econ please let me in so I dont have to study for econ 😭😭😭</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 14, 2025</span>
+                    <p>XD this game is Such a Joke seriously WHAT is happening in my videogame Ok leon u should bridgeblock with skellies and insta log OK just Look at what is happening on my screen rn tell me this is balanced (i dont log cuz i thought telsa would finisj But then the knight stutters to ability lebron james s tap and i think even if i have knight i take like 1500dmg)</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 13, 2025</span>
+                    <p>That one  Its an xbow meta KAPPAKLAUS</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 13, 2025</span>
+                    <p>That ome girl you meet when ur 16 that ruins the next 5 years of your life</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 11, 2025</span>
+                    <p>I AM THE MOST oppressed person in the world I AM oppressed by the Absurd weight of my humungous brain does anyone even know how fucking hard it is being so talented and high iq Oh my god my life is soooooo hardddddddd</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 11, 2025</span>
+                    <p>The worsr person you know: Oh my god I’m so oppressed I’ve overcome so many struggles I usedo be kind of ugly when I was 9 years old here are some pictures to prove it 😢😢</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 11, 2025</span>
+                    <p>Mr. Akcans Multivariable calculus bringing us all That Little bit closer to the depths of Existential nihilism Guys funniest thing to put on our exam of 45 minutes FUNNY PRANK lets make the function have Six Fucking Critical Points YES you have to evaluate two equations each at Six different tuples Nice man Thanks man Lol Dont forget The four endpoints of the square in question 2 with like 4 other critical points I LOVE EVALUATING equations at given tuples x,y Ok imnot overitYet Lol Lol Lol Lol Lol Lol I&#x27;m Hysteric 
+
+Did i mention the entire unit was taught in 2 lessons BY THE WAY let meknow LOL lol Lmfao</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 08, 2025</span>
+                    <p>That one Mentally impaired friend: U just like me twin</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 08, 2025</span>
+                    <p>Goodbye… @chef on tiktok… I’ll miss you………</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 07, 2025</span>
+                    <p>I find a lot of joy in being particularly cryptic in the intention of my messages… maybe not cryptic but layering irony in every word… Not even layering but plastering so thickly that nobody can tell if I mean X or not X… and actually to a point where I’m not even so sure what I mean. I think its my own kind of rebellion against words and people taking words so seriously when anyone can press any string of words for meaning and find whatever they want.
+
+so its a bit of a little game for people to play And I relish seeing the reactions of people who dont know me so well and How they squirm in discomfort as they try to work out if i am a horrible person or not… I think it can be offputting to some people but I do it for ME
+
+I tend to like people who can recognize it quicker than not I find that its a perfect test of intelligence and emotional awareness Well I wouldnt be so conclusive as to say people who recognize irony are more intelligent and more emotionally aware but they are surely moreso like me
+
+and I think in a way I use irony as a kind of projection of my dialectic thoughts… i.e. I am mostly ambivalent not because of indecision but rather there is an ongoing conversation in my brain about something and therefore I say something that is true in one half of my brain and ironic in the other half of my brain
+
+Let me know if you are like this as well and we can decide If we are psychopathic or not together</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 07, 2025</span>
+                    <p>Worthless 0 value humans:
+
+Artisans
+Cutators
+Artists
+Athletes
+Activist
+Polititian
+
+High value humans:
+
+Influencer
+Quant trader
+Twitter ragebaiter
+Boarding school administrator
+Art critic</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 06, 2025</span>
+                    <p>There are only 2 outcomes in my life I either become incredibly bitter fat and miserable or I am a perfect radiant genius And unfortunately the trajectory is not looking great</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 03, 2025</span>
+                    <p>No you dont get it I&#x27;m actually really funny you just dont follow my private instagram account</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 03, 2025</span>
+                    <p>Spotify wrapped You listened to 25.43trillion picoseconds of Clairo this year this puts you in the top 0.0001%of humans most likely to be a fat gay retarded chinese performative male</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 02, 2025</span>
+                    <p>Also I&#x27;m Officially Employed (Wow)  Not killing myself sorry guys Loving life ❤️</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 02, 2025</span>
+                    <p>wtf is my problem bro I need to stop doing this</p>
+                </div>
+            </div>
+            <h2>November 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Nov 30, 2025</span>
+                    <p>when the college application is real and you actually have to apply to the college and its not just a funny thing to complain about</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 30, 2025</span>
+                    <p>For every fat girl with pepper spray there is 10 ugly guys with a condom in his wallet</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 29, 2025</span>
+                    <p>Recipes i’ve beem developing (YES I WILL UPDATE MY BLOG SOON)
+
+- sichuan aglio e olio
+- doenjang tomato eggplant
+- vegan mapo tofu 
+etc.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 29, 2025</span>
+                    <p>1.5 month veganism update
+
+Goals; 
+
+Do something hard
+Explore vegan cuisine
+Save the fucking animals
+
+Notes so far:
+
+- Its not so hard
+- There is milk and eggs in literally everything
+- Shoutout soy lecithin
+- Best vegan flavors: Fermented beans (doenjang/douchi/miso/doubanjiang/gochujang), post-malliard allium, tomato, seaweed/kelp)
+- Tofu (esp. silken, fuzhu)
+- Lentils
+- Fucking beans again</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 29, 2025</span>
+                    <p>Thanksgiving dinner A fewduays ago… Speedrun 120 minutes 4 dishes Yes who is impressed wow leon so impressive
+
+Things I’m grateful for
+
+- People who insist on being right
+- The sensation of taste
+- Dopamine
+- Wittgenstein
+- Minecraft with my little brother who is nearly as large as me (I am very large)
+- Green
+- Quiet (No fucking urban hum)
+- Fermented beans</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 18, 2025</span>
+                    <p>In the middle of the night IDK why but I just get random inspiration for fried chicken?
+
+Things to test-
+
+Steam breaded chicken to pregelatinize breading and then fry (I think I might be onto something) (I think this might also be the reason why doublefrying is so good) (also I suspect that chicken juices leak out during the frying process and so this will make a sealant kind of like a batter but unlike a batter it has surface texture)
+
+Smashed wing salad? I watched like my 20th pierre koffman trotter video and it reminded me of deboning chicken wings with Ryan some random night after we built our stupid ass grill on the balcony… and how annoying it was… so I considered what it might be like removing the bones post cooking instead except that seems kind of gross? and kind of weird? But then I remembered some southeast asian dish where they smash fried chicken and smother it with sambal (probably malaysian) so maybe its not that weird. And everyone loves wings man except its so fucking annoying to eat. Sichuan chicken salad but wings holy fuck Need that rn</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 18, 2025</span>
+                    <p>Person who wants to expand the usage of “slurs” (as defined by “people”) - Free speech advocate</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 18, 2025</span>
+                    <p>I have a short essay about it but I also want to get into college and i dont think its that big of a deal and I dont think its worth it</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 18, 2025</span>
+                    <p>I think it should be okay for people to say the word r*tard and I have some political and philosophical basis for this</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 18, 2025</span>
+                    <p>Cognitively disabled thing people say:
+
+it’s their first time living too!
+
+Yeah thats fucking cognitively disabled</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 17, 2025</span>
+                    <p>I am my lab rat- Experiment: Keep my door and windows open the entire day all day no matter what. For maybe a month.
+
+Exceptions: I will close my door at 11pm.
+
+I think this will make me happier and more productive. I also think it will be fun and interesting.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 17, 2025</span>
+                    <p>Yes multivariable calculus test should be about who can take the most longest partial derivatives with 0 mistakes in 45 minutes YES we should make two questions (of five) That is literally fucking 5 expressions concatonated 50 fucking product rule thrice differentiated for each variable And then produce a constant at the end so Grading is easy OK man NICE man</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 17, 2025</span>
+                    <p>Are you fucking serious man this fucking math thing is getting out of hand There is not a profanity ugly enough for me to describe how much I hate this fucking pig shit class I cannot focus I think YES part of it is that I&#x27;m lazy and fucking stupid but I Actually felt confidentgoing in and Left completely rotten to the marrow Seriously the test is 45 minutes of who can type the fastest into their calculator I fucking hate it so much it is so bullshit hard and if your number is wromg you lose like 60% credit Oh mu god like Dude I fucking hate this stupid fucking class man</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 17, 2025</span>
+                    <p>Ok fun story on thursday people in my math class were talking about this olympiad they competed in for the school math team and we placed like 3rd or something out of n schools And I was like oh thats pretty good man Good job chris yang (smartest math guy I know) and I looked at the team who tied for 3rd with us And I saw Harker and I was like Wow no way we tied harker they are like the biggest nerd stem school in america thats awesome! and then I looked closer and it said Harker middle school. Ok. So the smartest math guys at my school people who I admire and look up to as like the smartest peopleI know got fucking fleeced by 12 year olds from a school That is like in my immediate vicinity Ok nice so I should fucking Die? Yeah. And thats how I feel about math. Like it is the highest mountain andtallest river I am too defeatist to climb. And so I hate it because I feel soinferior and unmotivated doing it.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 17, 2025</span>
+                    <p>I hate people who complain I think people who complain should either shut up or **** ********* but anyways Oh my gooooodddd math is so fucking stupidddddd Why do I have to learn this garbage I fucking HATE MATH So much its so disgusting I am cursed with this brain That is slightly good at everything but so fucking obese and worthless Godddddd</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 15, 2025</span>
+                    <p>Planning my Summer travelling already :D Dgoimg to all the best food destinations in China… 😅</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 14, 2025</span>
+                    <p>Not in picture Descartes meditations onfirst philosophy Actually surprisingly accessible and also short and its fucking descartes this is a 30 pages into hardcopy impulse buy</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 14, 2025</span>
+                    <p>LATEST performative reading pickups Finished my last hitchens Book (Phase is officially winding down a bit) (reviews on blog I willupdate soon) REALLY excited for Mr. Blackburn’s Think I found out about him through a Podcast on emotivism instantly love him has a pragmatist vibe to him. Some pop reading and I also got a hard copy of Animal Liberation because I&#x27;m Actually Vegan now (4th week tomorrow(!))</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 14, 2025</span>
+                    <p>I&#x27;m Dead bro i got cooked by the econ Onpaper quiz 20% for 5 answer MCQ Kind of diabolical</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 12, 2025</span>
+                    <p>i made this stupid ass email when I was 12 years old and my friend bought me a minecraft gift card to play hypixel Dude I was such an edge lord. It says Fuck you 69 backwards by the way.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 12, 2025</span>
+                    <p>I dont care what it says about me I will like that instagram reel. You cannot stop me. I WILL LIKE the reel.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 12, 2025</span>
+                    <p>I hate myself so much I have a chrmistry test tomorrow morning and I spent all studyhall reading instead of studying and them i played clash royale from 11 to like 12 and i spent th4 last hour making this fucking todo list organizer Check it out tho</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 10, 2025</span>
+                    <p>There exists people who see things that are stupid as fuck and think to themselves… that is the way things are! what should I do about it? and I respect this kind of person the least… the kind of person who thinks there is nothing to do and things will always be how they always have been.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 07, 2025</span>
+                    <p>Hello from my ipad I will plug my blog one last time NEW posts… about gossip, identity and tomato sandwiches. MORE to come soon. Very exciting time for the blog that ive left dead for so long.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 06, 2025</span>
+                    <p>Saying goodbye to my Phone forever… I dont know if I can do it TBH or if it will even be a net + but I’m deciding to do hard things again and I will try.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 05, 2025</span>
+                    <p>THIS deck is like crack I PROMISE i am playing clash royale at 8am ITS LIKE CRACK i cant stop doing it so much dopamine so much apm</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 05, 2025</span>
+                    <p>Every time I&#x27;m up in the morning I just cannot find anythingbetter to do so I expunge my brain vomit upon You all.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 05, 2025</span>
+                    <p>HM: Go to the olympics for something even more stupid like archery or pistoling or the one with the balls and mallets</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 05, 2025</span>
+                    <p>Best effort to reward sports to do for college tierlist (least genetic/talent constraint) (not ragebait)
+
+S: Sailing, fencing
+A: Softball, diving, skiing (any kind), lacrosse, water polo, volleyball, field/ice hockey, golf, weird track events
+B: Wrestling, rugby, squash
+C: baseball, basketball, football, soccer tennis, 
+F: Main track events, Crosscountry, swimming, rowing</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 04, 2025</span>
+                    <p>I&#x27;m chinese but i want to pursue humanities</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 02, 2025</span>
+                    <p>Mo light and faker cementing their Goat Legacy in the same week I could cry</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Nov 02, 2025</span>
+                    <p>My fucking goats in the finals I love you faker</p>
+                </div>
+            </div>
+            <h2>October 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Oct 31, 2025</span>
+                    <p>Ok tje fact that u can get 5 bossbandits or a book of books from a 5 star is absolutely disgusting this loot table is completely fucked what is this bro</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 31, 2025</span>
+                    <p>call me nuts but i miss suits like this</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 31, 2025</span>
+                    <p>Nobody understands what this means to me</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 30, 2025</span>
+                    <p>Is this true? Whos interested? Lets talk</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 29, 2025</span>
+                    <p>What the fuck does “talking” even fucking mean? Seriously I actually have no idea what that is actually supposed to mean. When does something go from not talking to talking and I dont mean in a pedantic pile of sand way but like actually the qualifications of talking. What the fuck? Am I going insane who are you guys talking to and what does that even mean??? Am I talking with anyone ?????? Or am I not. Who wants to be talk stagers? Thinking specifically of someone with beautiful luscious long golden hair.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 29, 2025</span>
+                    <p>I’ve been seeing this guy on my instagram reels he looks like a hotter michael cheng and it lowkey pisses me off because it reminds me of him does anyone else see it. I think its the eyes lmk guys.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 29, 2025</span>
+                    <p>Day 5 veganism I’ve been going kind of insane eating salad bar tofu and tomato sandwiches Fortunately you can get a In n out flavored tomato sandwich for 2 dollars</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 29, 2025</span>
+                    <p>Wtf i got a 59% on my math test wtf I didnt even know that was possible</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 27, 2025</span>
+                    <p>Just kidding I&#x27;m lowkey over it idgaf</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 27, 2025</span>
+                    <p>multi unit 3 TNB test Think I got a 50/100 SEE you guys at thebottom of a gutter</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 27, 2025</span>
+                    <p>Actually I feel strongly about this notion of identity, being, etc. The thing I find the most contemptuous in the act of living is the yearning for some greater identity, and to ask yourself the worst question, who am I. I find the former an utter joke… to align yourself with some sects of other wandering apes… is to admit your worth not in terms of your whole but instead a fraction of what is a caricature of another. Simply being, one cannot contend with, but to advertise, to flaunt such properties, to be a mere “man” or “chinese” is to say, I am no more nuanced, unique, or individual than all of the rest of them. As wittgenstein says, that identity….. is not a relation between two items is obvious….. two terms plainly are not identical, and one term cannot be, for what is it identical with
+
+And so naturally, one may ask then, what is such a relation, in its purpose for and otherwise, if not identity? To me, and to draw a simple answer to the latter idiocy, the answer is as plain and simple minded as those who choose to relate themselves as such: it is simply a costume of expression as to feel belonging socially, a crude biological instinct for survival, a sensus identitatis, to parody John Calvin’s sensus divinitatis. To wish to draw oneself in relation of others is driven either by complete ignorance of oneself or a pandering social performance for others. Either way, to obsess over such a labelling of self, which is nothing more than a referent, completely overlooks the formation of the ontological self. Such games of social circusing do not at all face the only important question in deciding that which exists in reality, what you think and what you do. To know who you are, ask only these simple questions, what do you want to do, and why? Higher order questioning will eventually lead to the set of truths in which ground your ontology, and thus, a sort of realist identity grounded in self.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 27, 2025</span>
+                    <p>Havent slept in like 40hrs NGL I am one Arclength parametrization away from ****** (kissing) myself.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 27, 2025</span>
+                    <p>I genuinely dont care how stupid and annoying people think I am I will keep doing whatevrr I want to do and say whatever I want to say. Someome told me Oh leon this person said in front of Allthese people theythink you are fucked up and weird and have issues Haha okay! I have issues! Leon they think you are a little offputting weird fat and stupid.
+
+Okay! Since when is life about proving yourself to other people? Since always? I dont care actually I will not listen to you sorry. Some people live their whole life proving themselves and it is so tiring I will not prove myself to colleges I will not prove myself to employers and I will definitelt not prove myself to you. Because I dont care what you think. I dont need to know who I am because I simply am, and any higher level thought is simply a distraction away from yourself</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 27, 2025</span>
+                    <p>I really hate working hard man I hate putting in effort seriously so much I am like Palo alto high school mexican biker level lazy all I want to do is eat blue takis and vape in the bathrooms And so when I actually have to fucking study it is soooooo painful I genuinely cant focus I dont want to do this at all I have hopped through sooooo many hoops to delay this and yet I will only face it the Morning of because it is just so fucking disgusting and awful. I dont even know how I’m still not completely shit at math I am the biggest fucking slacker inthe world I domt deserve anything Seriously I deserve nothing</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>Love how spermracing raised 10mil then burned it in like 2 months but it is actually so horrible even somehow eclipsing the maximum amount of horrible perfect for virality and has now fallen off the face of the planet</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>Ye nice bro i went 7-3 lost to fucking giant sparky evo ghost RG evo ghost and royal recruits evo ghost CAN WE just delete this abomination please</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>Holy shit I just won a game by like 20ms the RG bullet is literally about to Fuck me and then the game ends 😱😳😳😳</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>Actually I unironically just described a humungous social physiological phenomenon this might be some freud level shit
+
+Men shrug their shoulders upwards and outwards to display their pelvis (masculine = penis) and chest while women shrug their shoulders downwards and inwards to display their… mating readiness (hips and butt and breast)
+
+Maybe this is crude and surfacd analysis but I think I’m onto something.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>Heres how you can tell which one is the bottom  forward, confident posture, masculine and emphasis on the phallic region Shrugged back shoulders = bottom, hip pushed backwards to display “assets”</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>WHAT THE FUCK SAMA IS GAY???? WHAT THE FUCK???? Imean you could tell if you looked but i legit just thought he was bay area autistic not gay bro I didnt think he had enough sex to be gay but honestly good for him man. Kind of weird now that i know sam altman is a twink bottom I suppose this guy fucking ignited the ai revolution nice</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>Why am I getting sam altman shitposts on reels</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>Reasons why (nobody cares)
+
+- I like dieting unironically (both ways) 
+- I dont have an eating disorder
+- I really liked peter singer’s book Animal liberation (or at least around 60 pages and about 2 podcast episodes worth of book)
+- I like doing hard things
+- I’m getting too fat
+- I think it will improve my mood
+- I want to explore vegan cooking
+- I want to see if I think practically veganism is a good choice for people, and why I disagree with Singer’s arguments</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>Trying veganism for the next 6 months if I eat an animal part I will go bald Yep April 24 180 days</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 26, 2025</span>
+                    <p>I’be been so fucking locked in on my essays maybe nothing is impossible maybe I can get into college maybe I dont have to be a chud maybe I dont have to be fat WE can do it WE will succeed ❤️❤️</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 25, 2025</span>
+                    <p>Dude i swear super Cell spawns these monsters for me whenever I play pumpbow just to ragebait me How the fuck Am i supposed to win vs 6 minitanks arrows 500 groundcards megaknight 10000 heathpoint characters</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 25, 2025</span>
+                    <p>Are toy fucking serious dantes doaenel number 1 hecarim na famous for saying he would have incestual children with his mother got married to his league of legends girlfriend after their twitter breakup thread got 100 million impressions in 1 week This is a sign to get back with your ex.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 25, 2025</span>
+                    <p>Guy who cares: i dont even care</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 25, 2025</span>
+                    <p>holy FUCK from a 1 star my first 5star GOLD GOLD GOLD ALTERRRR</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 25, 2025</span>
+                    <p>Biggest problem in ai isnt reaching agi but rather society accepting and utilizing agi</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 24, 2025</span>
+                    <p>What the fuck does this mean can someone explain I have a test in 30 mins</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 24, 2025</span>
+                    <p>Thankfully saint peters university still makes me feel wanted</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 23, 2025</span>
+                    <p>This might be the leon zhou comeback LEON ZHOU comeback season</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 23, 2025</span>
+                    <p>Finished personal statement around 10pm today laid in my bed looking at my ceiling and cried for a while I am so relieved now I just have 3supplements 😃</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>Learned a new chinese word 奶0
+
+Means milk zero.
+
+Milk cuz cute young boys have light milky skin and youthtful infantile features
+
+the chinese have an excellent system to label the gays. 0 for bottoms and 1 for tops. its a photosemantic kind of system.
+
+I’m sure its not hard to extrapolate what this means</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>CALL me aces the way I be getting Cracked by JACKs fire poker joke who gets it? Also works with Kings or queens or tens. I guess idk. Joke writer conner sir haha</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>I am actuallya bit smart I PROMISE i swear I am I swearrrrr I ammmmmmmmmm Please I swear I am PLEASE give me a chance its about whats on the INSIDE not the LARD casing around it please Just notice me @universities</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>ON THIS Day last year Nice1 bro kappa chungus deluxe</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>Never kill yourself actually no matter how bad it gets I love you Daniel Naroditsky so many people reallyloved you and you have broigjt me so much joy in thelast few months I am so heartbroken that I hadnt known you for longer and I wish someone could have told you that so many people really do love you and I really really think you deserved to live a good life</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>Am I just a horrible person who deserves to be punished? Is College my sisyphean boulder? The only difference is that I am weak and tired and I have not the will to stop it from running me over</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>Holybfuck I wrote like 200 words of my personalststement on notepad forgot to save I opened every single note in my compupter kept finding letters to Huyen yep God is just telling me to end it all Thanks bro</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>I h The food influencers CANT KEEP their hands off me.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>Quarter2 depression season hitting really fucking hard Rn on some #rs</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>I havent woken up at 6am in like 5months IDEK what to do except shitpost and scroll reels nice life kappachungus</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>Bathrooms on campus with the best lighting:
+
+1. Dining hall left bathroom
+2. Day east boys bathroom 
+3. Talbott 
+4. Douglas hall (nice side lighting) 
+5. Chapel
+6. TI (surprisingly decent)
+
+absolute shit tier
+
+5. Art building
+6. Rosen 2nd floor
+7. Rosen 1st floor
+
+Let me know what you guys think</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>Places In america  A map of america with red crosses drawn over it with no particular correlation with what I think about those places and what should happen to those places and what I wish would happen to those places. I’m serious I drew these crosses randomly. There is actually literally no further meaning than this.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>Honorable mentions:
+
+Riverside
+Baltimore 
+Miami
+Las vegas (this one should have made the list)
+Tacoma washington
+bellvue washington
+Renton washington</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>American cities with the highest proportion of terrible people (I saw this in a dream)
+
+5. San francisco - 34.5%
+4. Los gatos - 41%
+3. Jacksonville - 43.1%
+2. Seattle - 48.2%
+1. Atherton - 61.2%</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 22, 2025</span>
+                    <p>Bad morning the week hasnt even began and I already hate everything #Negativity #Hatred</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 21, 2025</span>
+                    <p>This is mu fabourite book of all time I’ve genuinely never read a book I like more I read it again this weekend and it is genuinely the most goodest words ever written ever God I recommend it more than any other book ever IDGAF what people think of me liking this book I just cannot recommend it more</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 21, 2025</span>
+                    <p>we will win this clan war inshallah</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 21, 2025</span>
+                    <p>I fucking hate people who tell you Ummm actually isnt it mandarin? Yeah fucking dumb fuck yes it is but its fucking implied isnt it. You are literally fucking white do not tell me what to call my own language bro shut the fuck upppopppp. Oh my god. I&#x27;m so tilted even thinking about ityou are such a fucking self righteous fuck. Thabks for standing up for the rest of the dialects!!!! The chinese regional dialect speakers just cheered for you!!!! Lol fucking dumbass. Name literally one other chinese dialect. You fucking cant. Dumb fuck. Imagine I corrected you every time Yeah dont you mean American english? Fucking stupid fuck you would look stupid as fuck wouldnt you</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 20, 2025</span>
+                    <p>😭😭😭😭😭😭😭😭😭😭 danya 😭😭😭😭😭😭😭😭😭😭😭😭😭 😭😭😭😭😭😭😭 Need a sadder emoji for this. I love you danya please come back</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 19, 2025</span>
+                    <p>I FUCKING HATE IT WHEN Asianpeople ARE USED FOR THE CONSERVATIVE white Mans AGENDA. NOT TO BE FUCKING WOKE OR ANYTHING BUT I FUCKING HATE It so much. Man it pisses me off. Seriously. Stand tf up bro.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 19, 2025</span>
+                    <p>Open twitter dot com first thing I see is a silicon valley twitter bro (Peter thiel glaze in bio) sexually harassing a homophobic  nationalist fascist maga shill</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 19, 2025</span>
+                    <p>Fucking HATE it when some 45kg guy goes around calling himself fat Lol!!! I&#x27;m so fat!!! I just ate a whole fucking burger Gooodddd I&#x27;m so fat Lol I love being fat. Shut the fuck up. My culture is not your fucking costume. Stop appropriating fatness Okay? If you have never been like 30bmi you cannot call yourself fat. This is not the kind of thing you get to self identify as okay? Only real oppressed fat people get to make this kind of joke.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 19, 2025</span>
+                    <p>Im stupid as fuck and fat as fuck on purpose so people know I&#x27;m not a threat</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 19, 2025</span>
+                    <p>Niche sociology hypothesis: political ideology of big tech originating in sf is going to landslide to the right in n years.
+
+Premise 1. Silicon valley is full of npc ass sniffer insecure nerds who will do anything for success (insane hivemind) (literally everuone thinks they are crazy except themselves) (they think they arent crazy enough)
+
+Premise 2. Young men are ideological sheep
+
+Premise 3. 99% of young entreprenurial men in SF is permastuck social climbing on twitter (far right brainrot cesspool) (imagine LA instagram models trying to collab except its computer nerds onntwitter)
+
+Premise 4. Young entreprenurial men will spend their time on twitter interacting with far right fascists and view far right fascist propoganda because they are larpers and have nothing better to do
+
+Conclusion: Silicon valley will quickly transform politically, elon musk will personally catalyze this event through his humungous levers (and already has been)</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 19, 2025</span>
+                    <p>I see the future of America and it is not looking bright</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 16, 2025</span>
+                    <p>Things I would do to get into college:
+
+- Eat 1 pound of raw pig brains
+- Be bald for a year
+- Never be able to itch an itch again
+- Gain 100 pounds
+- Have my toenails removed
+- Be 30% deaf in my left ear
+
+Things I would not do
+
+- Write my essays
+- Complete my common app
+- Get good grades
+- Form strong relationship with my teachers
+- Do extracurriculars
+- Research the colleges I want to go to</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 14, 2025</span>
+                    <p>There are some words I would really like to say but society would never let me say them.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 14, 2025</span>
+                    <p>Today I asked 5 chinese peopel wether or not they would kill every single other chinese person at stevenson to get into their dream school and all of them said yes within like 4 seconds and supposedly I’m the bad guy</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 14, 2025</span>
+                    <p>I’m not a racist but I hate races</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 14, 2025</span>
+                    <p>My fucking goat 😭😭😭 i’ll never beat the fat greasy lesgue of legends player allegations</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 13, 2025</span>
+                    <p>Bro I love you somuch Faker 😭😭❤️❤️❤️❤️</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 13, 2025</span>
+                    <p>Brooo Opened twitter this is the first thing I see</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 12, 2025</span>
+                    <p>Insane people in 2025 go out with their friends to take photos of each other Sorry whatthe fuck is that I dont get it bro</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 12, 2025</span>
+                    <p>They talk about prime leon zhou like 2013 lebron</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 12, 2025</span>
+                    <p>Day 1 chinese pop singer training regiment</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 12, 2025</span>
+                    <p>Lowkey scientists use the word theory the way normal people use fact. And they use the word hypothesis the same way normal people use theory.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 12, 2025</span>
+                    <p>I think if a vietnamese person had a child with a korean person the child would be chinese. Not sure though. Currently investigating this hypothesis.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 12, 2025</span>
+                    <p>I&#x27;m giving up on college apps I&#x27;m just going to become a chinese entertainment industry plant i cba going to start doing a skin whitenining regimens</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 11, 2025</span>
+                    <p>Terrible things are happening to this world and all of these things originate fom Silicon Valley. We need to fucking stop them seriously Now right now we need to stop them. Because I’m fucking scared of them. Can we please stop them now? Please? Destroy every computer on the planet. Terrible things are coming.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 10, 2025</span>
+                    <p>I boiled 2 quarts of beans and then ate tjem all Yep going to be farting a lot for the next 24 hours stay awau guys</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 10, 2025</span>
+                    <p>Some people try to talk to me seriously about Normal tasteful music but my favourite song is a league of legends song</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 10, 2025</span>
+                    <p>Is anyone still normal? Lmk guys.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 09, 2025</span>
+                    <p>I dont usually gaf about actors and film but this guy is really awesome bro</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 09, 2025</span>
+                    <p>This nick digiovanni guy wants me so bad 😭😭😭😭😭</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 09, 2025</span>
+                    <p>Me and Oli Duhigg in English class</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 09, 2025</span>
+                    <p>If you listen to 2hollis immjust hoing to assume you are a bad person</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 08, 2025</span>
+                    <p>Podcast ep2 tonight  let me know if you guys have interesting ideas you want to hear sbout</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 08, 2025</span>
+                    <p>I literally hate everyone who is evil and scheming about college Its not that deep bro we’re all applying lets all be happy okay?</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 08, 2025</span>
+                    <p>Just look at his fucking bastard face tell me hes not evil</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 08, 2025</span>
+                    <p>Not feeling so good My league of legends team fucki g lost today I’m going to suffer the consequences for my decisions now that means nobody should percieve me for the next four or so days while I recover</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 08, 2025</span>
+                    <p>stayed up until 3am watching league of legends esports</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 07, 2025</span>
+                    <p>I cant stop winning bro why am I so fucking good ignore acc</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 07, 2025</span>
+                    <p>I’m almost certain October is the month of getting back with your Ex. Not sure who needs to hear this.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 07, 2025</span>
+                    <p>Going to fucking gorge myself later  I dont want to face reality</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 07, 2025</span>
+                    <p>I’ve had friends of almost every race and ethnicity now. Naturally maybe like 80% of my friends have been asian males but recently its become more diverse. But. I’ve  Never Ever had a white woman friend. Like a white white woman. What’s a little chinese boy have to do to have a White Woman fw him? Seriously i dont get it let me know guys what should I do.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 07, 2025</span>
+                    <p>wonder how snakes feel when they shed like socially ykwim. Like is it kinda like private or is it like a ceremony or is it even kinda like intimate ykwim. liwk taking off your clothes. Lmkwhat you guys think</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 06, 2025</span>
+                    <p>I tried to compile my best most banging most funny most insightful posts in my highlights byt I ended up just inclduing everything Goodness I am doomed</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 06, 2025</span>
+                    <p>I accidentally pressed close friends but Everyone is my close friend you are all dear to me my lovelies Ha ha ha my little… creatures</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 06, 2025</span>
+                    <p>When I&#x27;m old enough and talented enough Yes I will spend my entire life cooking little aesthetic dishes okay. I will Actually care about how my food is arranged. Because my life will have then had no more left to offer and I will no longer have intrigue.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 06, 2025</span>
+                    <p>Just saying but I made this 2 months ago I fucking own this dish okay? Ok? Damn.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 05, 2025</span>
+                    <p>Dude no way I’m a shitter person than Huyen I refuse to believe this I might be a bit of a trainwreck right now but I will get my shit together because ai cannot let that happen</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 05, 2025</span>
+                    <p>I fucking love Christian lore so much it is so weird and cool and kind of horrible. And interesting. I’m just starting Exodus but man Genesis is such a doozy here sre my favourite quotes so far from genesis 
+
+“Cursed be Canaan, a servant of servants shall he be unto his brethren” Guy and his entire fucking bloodline gets enslaved (lol)
+
+“One day the older daughter said to the younger, Our father is old, and there is no man around here to give us children… Let’s get our father to drink wine and then sleep with him and preserve our family line through our father. That night they got their father to drink wine, and the older daughter went in and slept with him. He was not aware of it when she lay down or when she got up. The next day the older daughter said to the younger, “last night I slept with my father. lets get him to drink wine again tonight, and you go in and sleep with him so we can preserve our family line through our father.” So thwy got their father to drink wine that night also, and the younger daughter went in and slept with him. Again he was not aware of it when she lay down or when she got up. So both of Lot’s daughters became pregnant by their father.”
+
+What the fuck???? this guys fucking daughters literally drug and rape their father???? and birth 2 children??? what the fuck?????</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 05, 2025</span>
+                    <p>Started a small batch of kombucha i hope I dont fucking kill myself and grow small bacteria colonies. Hope it goes well. And turns out delicious.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 05, 2025</span>
+                    <p>I’m really … kind of emotional. Actually. Like I would probably say I am a rather logical person but I think that is far from true. I think actually I would argue that 1. it is important to be quite emotional, and far more controversially, 2. value judgements cannot occur without emotions, therefore all moral agents must be emotional. Of course i know that when people characterize someone as “logical” they dont quite mean devoid of emotion but I would perhaps just prefer to point out that people are far more emotional than they think, insofar as every single instance of considering something to be good or bad is an emotional decision. And I have a lot of these kinds of opinions, even if its simply because I think about it often</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 05, 2025</span>
+                    <p>I’ve always thought of bad things happening to me as a kind of self determining fatalist consequence of being a terrible human but I think it makes my life just so much more miserable. So now I’m going to start blaming everyone else and everything and the real telos of worldly punishment being that I am jesus and I am simply suffering for everyone elses mistakes. Maybe I will feel better about myself this way.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 05, 2025</span>
+                    <p>Me and my chud friends hanging out at Virgin Avenue.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 05, 2025</span>
+                    <p>Dude I keep getting fucking chinese twink crossdressing reels is it time to lock in so I can look beautiful as a woman let me know guys Would I make a beautiful woman? Or do I look to masculine.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 05, 2025</span>
+                    <p>Why the fuck am I 18 years old and I already live like a divorcee I fucking hate my life man bro just go next please get me out reroll samsara please</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 04, 2025</span>
+                    <p>I had such an interestinf thought that just occured to me in a dream but I forgot what it was because I was kind of groggy and my stupid dopamine whore brain started playing a csgo case opening gambling compliation while I reoriented myself. It was such a banger too man.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 03, 2025</span>
+                    <p>The only reason I&#x27;m not a hedonist is the prospectof being a far more sucessful hedonist</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 03, 2025</span>
+                    <p>Things that motivate me:
+
+- Deadlines
+- Beautiful things
+- Reading nice things
+- Hatred
+- Delicious food</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 03, 2025</span>
+                    <p>“Like a mosquito in a nudist colony i’m not sure where to begin” Okay apologetics can be funny too thank you Mr dsouza</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 02, 2025</span>
+                    <p>Bro 😭😭😭 I went +8-2=6 into this serbian grandpa in 10+0 literally played a 2 hour match vs this guy and I flagged him 3 times and the last game i cheesed him with a greek gift fishing pole thing down 8pts of material 😭😭😭😭😭 and I was BMing him the entire match cuz he emoted me after he won the first game i lowkey feel bad</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 02, 2025</span>
+                    <p>Can you guys like my linkedin post I dont want to flop when I&#x27;m flamingThe hill school that would be embarassing I have to clown them for posting their niche ranking</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 02, 2025</span>
+                    <p>Person obsessed with men: i hate men</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 02, 2025</span>
+                    <p>I&#x27;m having a midday crisis oh my god what is happening in my lifeim losing control Please help me… its okag though I had my deconstructed domato sandwich</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 02, 2025</span>
+                    <p>Little something to take the edge off</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 02, 2025</span>
+                    <p>Saw someone i  the msoy insane outfit today almost broke my  neck wow Shocked jaw on the floor I&#x27;m not saying who though #gatekeeping</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 02, 2025</span>
+                    <p>Hello! Maybe listen to my podcast. I talk about Hypermasculinity, aesthetics, the future of AI, democratic realism, existentialism and more in this 70 minute solo ramble. Don’t share this with your mothers! Don’t share this with Stevenson administrators! Listen on a little stroll outside today! thanks guys 😃</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 01, 2025</span>
+                    <p>Podcast episode1. My phone has no storage so my video cut like 5 mins in Lol. So i recorded a voicenote instead. Talked to myself the whole time for 1 hour 10 minutes only because my throat was getting kind of dry. I talked about Tumblr girls Looksmaxxing  Philosophy of Language Existentialism Tiktok Aesthetics Love and Crushes Narcissism Determinism How pointless metaphysics is the future of AI and society and democratic realism</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 01, 2025</span>
+                    <p>This class is literally fucking violating me rn man I’ve never been so relieved to see a B in my life</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Oct 01, 2025</span>
+                    <p>I took TOEFLs today but the thing is I ate like a huge fucking gluttonous meal before hand so I was food coma&#x27;d trying to parse grammar puzzles Goodness bro that was a fucking nightmare and I took a giga fucking monster nap. Holy fuck.</p>
+                </div>
+            </div>
+            <h2>September 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Sep 30, 2025</span>
+                    <p>Dude I fucking hate shoe people. Like I genuinely despise them. I dont know why. They just so get on my nerve. Like not shoe enjoyers but like Normie resell hobbyists. Ykwim? Idk why though. Dont really want to get into it.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 30, 2025</span>
+                    <p>Yes I&#x27;m losing in low bro I cannot focus IDK HOW to win this matchup like I CANT WIN this matchup IDK how bro IDK HOW. Bro idk how man</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 30, 2025</span>
+                    <p>Feeling really defeated today. Had a really rough. Math test. Took a nap after school because I was so exhausted from all the numbers I was thinking about.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 30, 2025</span>
+                    <p>Really interested in the tumblr girl blackpill boy dichotomy.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 29, 2025</span>
+                    <p>Its crazy because Euler literally classified hyperbolic parabaloids in 1750 and the victorian era began in 1850 so I cant even make the joke that a victorian child would faint at the sight of one because they probably knew more about quadrics than me anyways</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 29, 2025</span>
+                    <p>Do not fucking email me again bro we are not chill like that</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 29, 2025</span>
+                    <p>The thing is I really fucking hate reading like the act of reading is so disgusting and laborious and my eyes hurt but man the words going in my brain is so excellent goodness.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 29, 2025</span>
+                    <p>Guess who I&#x27;m a reallt big fan of 😃</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 29, 2025</span>
+                    <p>Iphone storage full I have to delete photos but I cant bear deleting the ones I have with Huyen no mayter how much I hate her because these are precious memories to me so I just delete photos of myself instead #emo as fuck rn</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 29, 2025</span>
+                    <p>I hate this stupid prison. Lovely dinner I had with my mother 😃😃</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 29, 2025</span>
+                    <p>From now on 😃 only smiling 😃 positivity 😃 mental fortitude 😃 flaccid acceptance of the status quo 😃 work hard to achieve your goals 😃 manifestation brainwaves 😃 bury negativity 😃 my ex girlfriend is a stupid hoe 😃 i am handsome and smart 😃 not fat not chud not incel 😃 my college application process is going well 😃 i am going to hit challenger in league of legends 😃</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 29, 2025</span>
+                    <p>I fucking hate this school I&#x27;m constantly getting ragebaited by the entire administration and every single faculty member I cannot take it anymore I am just upset thinking about what is happening to me</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 29, 2025</span>
+                    <p>IDK if I&#x27;m using tiktok wrong but i genuinely cannot spend more than like 5 minutes on that app without actually literally wanting to kill myself. Like its actually pure ragebait Legit the twitter of shortform content. Chinese propagandist spyware taking revenge on me perhaps. I always feel much more comfortable in my youtube shorts family guy funny moments Sorry this will be my preferred method of brainrot consumption</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 28, 2025</span>
+                    <p>I&#x27;m fucking hysterical right now XDDDDDDDDDDDDDDDDD</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 27, 2025</span>
+                    <p>chovy you’re so handsome and good at league of legends I want to kiss you and run away and you’re so tall and smart and cool I love you chovy My dearest</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 26, 2025</span>
+                    <p>Happy birthday to my lovely mother I might be a disgusting human but she always loves me and I am always forever grateful</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 26, 2025</span>
+                    <p>Unfortunately every single macro description of the world is wrong. And the only way to truly understand anything is to look Really. Really. Really. Closely. Newtonian mechanics are really just quantum mechanics at a scale without wavelength interference. Macroeconomics is the aggregate of individual choice etc. etc. but you can’t truly understand how a ball falls or why the market moves without first understanding what jimmyjohn from north dakota knows and thinks and desires or how a singular atom behaves. it’s not even about reconciling these two lenses but at least. Being able to make inferences with scale. Thats what I hate the most about anything to do with humans especially. Like history politics sociology economics psychology religion philosophy whatever it is. Macro lenses blur the ultimate motivation for all human activity… desire for… whatever it may be. It’s frustrating to learn things at such a scale and neglect the jarring imperfections we are too embarrassed to admit to. And I think this is the ultimate paradox of democracy, that individual choice MATTERS, but in that each desire is dangerously fallable and malleable. by understanding individuals. we can be turned into groups, and that is when we lose any semblance of autonomy</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 25, 2025</span>
+                    <p>When I want to say something controversial but I feel Koshi’s Gentle Fragrant Aromatic Ambrosial breath on the hairs of my nape and I delete it but nobody will know how funny what I was going to say was</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 25, 2025</span>
+                    <p>Really funny quotes from the wikipedia entry about the wittgenstein family (The one with Ludwig) Honestly they are so funny and amazing in a really sort of disturbing morbid way. I really must share them.
+
+From Paul to a young Ludwig, while practicing the piano: “I cannot play when you are in the house, as I feel your skepticism seeping towards me from under the door!” 
+
+“I ought to have ... become a star in the sky. Instead of which I have remained stuck on earth.”
+
+Anyways three of five brothers committed suicide. The Wittgensteins were the second richest family in europe, only behind the Rothschilds, who were also Jewish. Not saying theres a pattern or anything.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 24, 2025</span>
+                    <p>I also got subday work crew for washing my face at 12 LOOOOL XDDD 🤣🤣🤣🤣 Hi lean 😊</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 22, 2025</span>
+                    <p>You know maybe one day someone will feel bad for me and think to themselves Aw what a poor little chudlite ldar ngmi ltn… I’ve been watching a lot of epstein conspiracy videos lately. Ans like Peter Thiel documentaries. Anyways theres this one person I know theyre always like Omg I hate Israel I hate palantir!!! I&#x27;m pro marxist!!! and then when at all engaged with any meaningful question about literally anything adjacent they have 0 idea about anything. This is a lot of people. And At least I wont pretend to know. This is why I hate criticism.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 22, 2025</span>
+                    <p>Im sorry I keep coming back to Instagram I need to think of a more logistically feasable way of integrating brain morsels into my blog</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 22, 2025</span>
+                    <p>Listening to leon zhou talk about having crushes and loving and whatever must be weird like listening to jeffrey epstein talk about his work as a teacher. Nonchalantly reviewing food is like my sex trafficking of minors.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 22, 2025</span>
+                    <p>Well at least for me I would imagine that the reason why liking someone particularly is so painful that I actively avoid liking anyone to any extent… would be probably something like an external manefestation of my personal inadequacy. Me not feeling deserving of liking people. But who fucking cares about me. Anyways from my notes app these are the people I liked in my life. A bit embarassing but when I was 13 years old or something in middle school I really liked this one girl I was very close with and then One random day I told her over discord and I was so embarrassed I never felt the same again. Andthat was particularly terrible. The rest are a bit self explanatory. I would say I was only particularly infatuated with in my life was my middle school friend and since then everyone else that I’ve liked was in a sort of doting idolizing way that wasnt really … romantic and moreso an aesthetic fantasy. Keen leon zhou fans will notice the intentional omission of a certain person but. It’s also important to note that even throughout our relationship I would seriously consider categorizing her rather as an aesthetic fantasy than a helpless infatuation in that fairy tale sense.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 22, 2025</span>
+                    <p>Thinking about crushes right now. Not sure why they are so disgusting and awful. I sort of pity psychologists. I almost feel like psychology is… wrong. Maybe not wrong but it’s difficult for me to imagine any sort of unifying psychological theories that explain anything that isnt particularly obvious in a way that is satisfying.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 22, 2025</span>
+                    <p>My last 24hr notepad collection</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 22, 2025</span>
+                    <p>Okay the thing about a blog is that I have to fucking boot up my compiuter and theres no wifi and i have like 0.1megabit service and I havw to make a new fucking page and cms element and find a thumbnail and shit like Bro i just want to make an instagram story. Fuck my chungus life. Why do they keep ruining social media? I just want a void to scream into that isnt going to ejaculate white supremacist maga ragebait back at me. I fucking miss twitter man but it is just so disgusting And this app sucks too I am playing instagram reels dodging simulator I am too disgustingly monkeybrained I cannot help myself to Instagram droolfeed sometimes. So I have to save my ideas somewhere and write about it later and it ruins the funnyness and spontaneity and thrill of it. And I&#x27;m reading my notepad back at myself and I&#x27;m like Damn this guy really wanted to say this shit Like yes I feel this way all the time when I read my Instagram Stories back at myself.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 19, 2025</span>
+                    <p>Dear friends. Instagram has failed me as a medium of sharing and so I will henceforth share my thoughts on my blog. Hopefully this way I will be happier and freer 😃</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 19, 2025</span>
+                    <p>blogpost 1 ! Will probably be a lot of formatting issues on the site still but i cba tbh</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 19, 2025</span>
+                    <p>Final instagram story for FOREVER!!!!! blogginf from now on. Check it out…</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 19, 2025</span>
+                    <p>Just discovered democratic realism this
+will be my personalitu for the next 12 hours</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 19, 2025</span>
+                    <p>No way 😭😭😭😭😭 my fucking goat 😭😭😭😭 Singing a league of legends song 😭😭😭😭</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 18, 2025</span>
+                    <p>One last instagram … Taking a bit to set up my blog … coming soon? 🙂. Paul Graham style. Anyways sometimes i see people and I&#x27;m just shocked theres probably around 100 people ive met in my lifetime that are truly incredible and amazing in a lot of different ways</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 17, 2025</span>
+                    <p>Getting off this dumbfuck app actually I&#x27;m so mad Send me a message if you need me. 9293315389. Or email me. Or tiktok me. Or whatever. I’m going to start a blog tomorrow when I have internet I’ll update again when i set that up.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 17, 2025</span>
+                    <p>Theres this specific kind of person I dont like. The kind of performative marxist. I hate this person the most. Like the political virtue signalers. I hate you. specifically. Get a fucking job.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 17, 2025</span>
+                    <p>I also made a cringe aesthetic literature photo dump sorry guys. Oomf me up too I will follow you back on Tiktok I’m in my influencer era.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 17, 2025</span>
+                    <p>I bought this tiktok username a couple years ago and its just been sitting there… But I need to be at least more famous than Huyen on tiktok please support me thanks guys.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 17, 2025</span>
+                    <p>Did you guys like my red hair or not really</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 17, 2025</span>
+                    <p>Wow I was just walking around and serving face like this bro icant believe this is the same person</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 17, 2025</span>
+                    <p>Looking at my old photos I used ti be so fkin cool and handsome dude did i fucking fall off? I used to care soo much about being cool so my Girlfriend liked me but now I dont have to do such a thing and so I dont bother…</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 16, 2025</span>
+                    <p>I always feel really uncomfortable hearing the word rape but in a literary sense I don&#x27;t feel that I should. Because words are simply words for the purpose of conveying greater meaning and any means to that end makes it better literature. And if it means to say what I mean I must say rape then so be it. I dislike this greatly about Americans and I have since found out that this is particular to a particularly reactionary and contextual and individual and subjectivist metacritical theories… a sort of anti realist position that I find to be absurd. Sort of even subverting rationalism entirely and entering a sort of aesthetic nihilism. where nothing is particularly correct except in that it is objective to the reader. In a similarly absurd way as is moral subjectivism.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 16, 2025</span>
+                    <p>Anyone ever get that feeling like yep I dont deserve human rights i do not deserve the capacity to have moral judgement i am not allowed to like anyone or anything everything I do or say or think is a rape of whatever subject</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 16, 2025</span>
+                    <p>day 1 potato diet I ate 2 pounds of sweet potato today i am satiated yet I am hungry. I am slowly going mad. evil demon style.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 16, 2025</span>
+                    <p>Been really liking my giga enormous mug (proton for scale)</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 16, 2025</span>
+                    <p>I made a jar of pickles but yhe video is too long so heres the end</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 15, 2025</span>
+                    <p>7 day pototo chalkenge… attempt 2. Day 0 sweet potato prelude</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 15, 2025</span>
+                    <p>Types of book readers:
+
+- chill guy just reading bro
+- kafka dostoyevsky camus guy
+- only reads sexy sex books
+- yaoi
+- self help reader
+- fantasy ya booktok
+- psychopath narcissist psychology/behavioral nonfiction reader</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 15, 2025</span>
+                    <p>Does anyone want to help me maintain Michelle’s Legacy in the Stevenson book club? Read lovers… club lovers… let me know guys…</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 15, 2025</span>
+                    <p>I uploaded 5 minutes of just me talking to myself but then I realized nobody fucking cares about me and I should go do my homework anyways i dont even know why I&#x27;m saying this now well I do its so you guys know how much of a stupid embarassing fuck i am</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 15, 2025</span>
+                    <p>Post exam existential dread i also scored iris low on my econ quiz i need to be shot asap</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 15, 2025</span>
+                    <p>Yep this vector is definitely orthogonal to my gaping asshole rn thanks Mr. Akshan</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 15, 2025</span>
+                    <p>Its 4:30am and ive been grinding clash of clans i finally look at my canvas page and i have a math test today Like nice bro fucking molested by reality yet again</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 15, 2025</span>
+                    <p>Nothing wrong with being a pick me I&#x27;m sooooo uglyyyyyyyyyyyyy I&#x27;m sooooooochopppedddddddds ughhhhh guysssssss I&#x27;m sooooo uglyyyyy and fattttttt guyssssssssss</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 15, 2025</span>
+                    <p>Dude its just like I’m really grateful no matter how stupid chopped and fat I am my mom and brother will always love me and I wilm always love them ❤️ me and my wholesome chungus family ❤️ shoutout evolution for making us irrationally attached to each other ❤️</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 14, 2025</span>
+                    <p>Sorry if I did not keep up with your messages this week…. Ihung out with my mom this weekend and I was happy I rarely feel really happy with other people except my mom and brother I always feel at least a bit happy with them like genuine smile Ha ha you know what I mean? I think well I just feel like I can be the most me. I never really notice how muted I am with everyone Like kind of npc vibes. And I feel like I can sort of say what I want to them. I think thats why I say so many things here because I cant really want to say it to anyone else. Sorry if this is too #Real</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 13, 2025</span>
+                    <p>I also love chestnuts shoutout chestnuts</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 13, 2025</span>
+                    <p>Lit kimbap today I freaking love the radioactive yellow pickled radish steroided with vinegar and aspartame I will always love you</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 13, 2025</span>
+                    <p>Been lowkey spamming this order recently tomatomaxxing 4 hamburgers tomato wrapped extra tomato light lettuce side spread animal style</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 13, 2025</span>
+                    <p>This guy pulled out my sheets to check under my bed… for… something… Is this normal? Lmk guys. Or am I on a list.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 12, 2025</span>
+                    <p>i hate my personality bro I am like actually just a loser man Like no larp I&#x27;m on some incel shit Negative socialskills bro I am so fucking npc</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 11, 2025</span>
+                    <p>I dont care how performative I seem. It would be performative to care if people thought I was performative or not. I refuse to spend effort lying to other people and myself for any purposes. I will always love clairo And matcha.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 11, 2025</span>
+                    <p>My dad needs to stop fkin  List of people I’m a huge fan of like actually I would react very hysterically If i saw them 
+
+Faker
+Clairo
+Christopher Hitchens
+Thomas Keller
+Marco Pierre White
+Dominique crenn
+William lane craig</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 11, 2025</span>
+                    <p>Yes I&#x27;m stupid as fuck Ok ? I get it. Okay? I fucking am. Stupid fuck. Dumb fat idiot.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 11, 2025</span>
+                    <p>Holy fuck dude i hate this econ class so much it is so brainrot its 2:21 pm and there is negative glycogen in my body and i could not tell you the difference between right and left and now i have to answer 20 consecutive questions multiple choice questions with 5 identically worded answers with strange permutations of increasing and decreasing outcomes Like I cant fucking focus rn bro Dont do this to me</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 10, 2025</span>
+                    <p>Make leftwing sexy again. Really annoyed that the right have many more slogans and Aesthetic ideologies for young men.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 10, 2025</span>
+                    <p>Leon zhou lives to see another day. I have triumphed in the Surprisingly fair assessment of my character and behavior. I am very pleasantly grateful. Thank you Stevenson for not Hilling me . May more mischief come in the following montjs.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 09, 2025</span>
+                    <p>My mom told me that Everyone is your enemy. Looking out at everyone here too.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 09, 2025</span>
+                    <p>Does abyone want to go out for dinner together I’m so fucking depressed</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 09, 2025</span>
+                    <p>Just kidding guys the monitor broke in transit ai just wanted to make a silly post And Mrs. Bates says I have to be careful about what I post online and indicate BOLDLY that it was SATIRE!!!! I personally dislike the person that shared my post to indict me I hope you know I will never respect you as a human again.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 09, 2025</span>
+                    <p>I fucking hate league of legends</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 09, 2025</span>
+                    <p>Really annoying  day really fkin annoyed stupid bastard life</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 08, 2025</span>
+                    <p>Genuine question why are we lumping south asians and middle easterns in one affinity group? Like what? Idk bro whats up with that lmk guys</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 08, 2025</span>
+                    <p>Apparently I have fucking opps. Looking at all of you intently. Pledge your loyalty to me by Blood oath tomorrow at dawn.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 08, 2025</span>
+                    <p>Advertising the food review videos I make for my close friends at @leonzhousecretaccount</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 08, 2025</span>
+                    <p>Unfortunately recently my life has been consumed by the philosophy of religion. It is so incredibly pointless to care about religion and the truth of God and theology (because it is almost certainly false). I’ve been sucked so far deep into this dumb pointless hole I dont know what to do with my life anymore. It’s not even like I question God I just find it fascinating to learn about.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 08, 2025</span>
+                    <p>Trying to grapple with thia disgusting reality that God forced upon me.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 07, 2025</span>
+                    <p>Going to try a thing where I pronounce things with weird intonations Like those old white professors.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>havent hit 30k…in a while… tomorrow I might just Never leave my room though. Not sure yet.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>Does anyone notice the inflection point in this societal libertarian movement? Like we no longer care about stripping identity and values from attributes. E.g. “wokeism” saying anyone can be X and have long hair etc. Especially in lgbt communities? I dont like the term woke but I’ll use it here… but it seems the “woke movement” has been sort of culturally rejected in that things like being a certain way once again requires a certain type of identity. But in like 2017-2022 it felt like anyone could be anything as long as its self determined 
+
+I FEEL STRONGLY THIS WAY ABOUT THE LABEL OF PERFORMATIVE. I KNOW IT SEEMS SELF INCRIMINATING TO SAY THIS. ESPECIALLY BECAUSE I’VE BEEN DRINKING MATCHA AND LISTENING TO CLAIRO SINCE LIKE FOREVER. But. I actually feel like its sort of once again tying certain stereotypes back to whatever orentational or gender identity which i think is bad. 
+
+I HATE that ANTIWOKETRUMP is winning but st the same time I do think it went too far. I dont deny the sociological psychological evolutionary truths of identity but also I hope as a society we can do more to accept and encourage a diverse and inclusive development of This one needs its own thing:</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>Sorry I have too many drafts I’m releasing them all here at once now:
+
+“[on a christian worldview] a serial killer who spent his life killing and raping children need only come to God on death row and after a final meal of fried chicken to spend an eternity in heaven” - Sam Harris. I love watching these 2005 debates because this is clearly a … racially motivated statement
+
+What are reasonable presuppositions to make when devising thought experiments? I have an emotional quarrel with Sam Harris’ Greatest suffering model but i cant quite describe it
+
+Does anyone like William Craig? I actually think hes brilliant. I dont respect any Christian more than him and I love his pompous voice and how sharp and concise he is. Seriously one of my idols in theology.
+
+I wonder who the best person from niche countries are. Like who is the best ever moldovan. Or the best ever scot? Well it’s probably adam smith or David Hume. Actually scotland has made some really cool people.
+
+Smart people believe in stupid things all the time man.
+
+I wish I liked being with people it would make having friends much easier. And making friends.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>Fucking hate the ideas that animals have moral worth relative to their sense of companionship. I’ve watched so many reels of dogs … forcfully copulating with other dogs and animals and inanimate objects … they are no more civilized and intelligent than pigs but we have no problem gassing 1.5billion pigs everyear… Disturbs me. Seriously. All this to say that dogs qualify for (some nonzero real value) moral value just as pigs and cows and chickens and humans do. Animal ethics and determinism are two such irrefutably “true” things it amazes me that probably 95% of people hold completely contradictory worldviews.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>unsettled goat debates:
+
+1. Plato vs aristotle
+2. Kasparov vs Carlsen
+3. Ruler vs Uzi
+4. Jordan vs Lebron
+5. Euler vs Gauss
+6. Jesus vs buddha</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>Wish I had more good spots to go around here. Do any Locals have Recommendations? Any cool restaurants or stores or Cool rocks I should visit? I would love to know guys</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>It really triggers me when I watch kpop fancams and some middle aged men are yelling Please dont do that actually. Don’t go at all thats embarassing for you.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>Most insane thing I saw today a stand selling labubu clothes and maga merch nice nice Monterey california guys.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>Getting tired of the “it was promised to them” punchline making fun of Jewish people. And I dislike Israel and hate religious fundamentalism as much as people reasonably do. But well first of all it’s getting boring and overused and 80% of being funny is being unexpected. Also if you want to make fun of fundamentalists why dont we going around making fun of christian fundamentalists and leviticus or the slaughter of amalekites or midianites and say idk “God instructed them to kill every man woman child and animal! lol!”. Anyways I think we’re getting too comfortable with being anti jew. I still hate alex karp and genocidal oligarchs but some jews are chill bro</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 06, 2025</span>
+                    <p>I have to force myself to listen to happy songs. No more damn joy left to spare.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 05, 2025</span>
+                    <p>I’m actually really funny and smart and hot and skinny you just dont know me that well.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 04, 2025</span>
+                    <p>I wonder what its like to be a chopped wasian</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 04, 2025</span>
+                    <p>It’s actually my moral duty to be a little fat and funny. Aristotle says so. It would be virtuous to be a little fat and chill. It would be eudaimonious.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 02, 2025</span>
+                    <p>My fav song recently reminds me of the simpler times when I used to be happy</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 02, 2025</span>
+                    <p>One of my favourite things to look at is light peeking through Trees</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Sep 01, 2025</span>
+                    <p>the most atteacive person in tbe world used to be george clooney now people argue wether or not jordan barrett no diff blackpill hypermogs hunter eye HTLN NEET NGMI changbob  sean opry</p>
+                </div>
+            </div>
+            <h2>August 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Aug 30, 2025</span>
+                    <p>Does anyone fw me? Who gafs me? Anyone? Yes thank you. Thabk you ha ha. Thank you all for Gaffinf and fwing me. Ha ha. Eberuone loves a little boy like me. I’m just s little boy.  alittle small boy. A jolly small boy the little fat bakers boy.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 30, 2025</span>
+                    <p>Sorry I’m not aesthetic enough I’ll be aesthetics maxxing soon 30kg -100 exposure black only noface 1am photoshopt coming</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 30, 2025</span>
+                    <p>sort of absurd how beautiful it is in Califonia I wish I was any good at taking photos</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 28, 2025</span>
+                    <p>Bro ngl I kinda wanna be in Canada rn</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 26, 2025</span>
+                    <p>my Least favourite words spoken frequently by people who are very evil (often in combination of each other):
+
+1. Niche
+2. Esoteric
+3. Aesthetic
+4. Oblique
+5. Heuristic
+6. Patina
+7. Neo-x/Pseudo-x</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 26, 2025</span>
+                    <p>Guys I’m not chopped ? Ok? I’ve just become ausipicious. Prosperous. Serendipitous. Providential. Blessed. 😃</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 26, 2025</span>
+                    <p>I got a kinda chopped haircut but I’m honestly happy you know. Like maybe a while ago I’d be sulking but I now understand that the chopped shit haircut is actually a blessing from the Gods. Really looking forwards to my recluse area coming ahead really going to be #Lockedin</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 26, 2025</span>
+                    <p>Is being a man and woman like being left or right? Like what’s on the end of these axes? Once you get too far left where do you end up? Does it keep going or do you fall over the edge or does it come all the way back? When you are too much of a man or woman are you just a very masculine man? What does the most concievablg masculine man look like? Is it a woman? Asking important questions here let me jnow what you guys think ok?</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 20, 2025</span>
+                    <p>They put me in charge of the big ass thing of tuna this week I’ve never been happier</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 18, 2025</span>
+                    <p>How to do nihilism. 
+
+Step 1: Empistemological nihilism. First acknowledge no knowledge is certain.
+
+Step 2: Moral nihilism. Naturally then infer that nothing can be good nor bad objectively and everything that is described as good or bad morally is just aesthetics.
+
+Step 3: There does not exist free will, and so moral responsibility, objective or not, can be assigned personally
+
+Step 4: Postulate that since you know nothing and nothing is good or bad and you arent responsible for doing good or bad things then therefore it doesnt matter what you strive to do. Therefore the only thing that matters is that you do things you desire
+
+Step 5: Enjoy your life without worrying about things that you dont care about</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 18, 2025</span>
+                    <p>Been doing Nihilism really liking it so far</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 18, 2025</span>
+                    <p>No I haven’t gotten fat I’m just more fortuitous. Resplendent. Bountiful. Lush. Ample. Flourishing. Sumptuous.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 18, 2025</span>
+                    <p>I prefer songs sung by women not sure why. I like the female voice is more beautiful and pleasing to me. Or at least feminine sounding not too much testosterone please. Not sure why this is and I’m not personally attached to the singer usually (one exception applies)</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 17, 2025</span>
+                    <p>Whatever happened to activism? What happened to Malala and Greta and throwing soup at Monets? Please bring back activism man. Hope we get some more crazy shit because I’m tired of reading about whatever new Bastardly shit Donald Trump is doing.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 16, 2025</span>
+                    <p>Really dont like that nihilism is associated with like murdering people i think existential nihilism can just be playing league and eating food too</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 09, 2025</span>
+                    <p>this 6 year old girl drew me making silly faces at her I love little kids 😭😭 so cute</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 09, 2025</span>
+                    <p>Gotta twinkmaxx too many clothes i wanna wear bur I&#x27;m too fucking fat # lol # relatable # not</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 09, 2025</span>
+                    <p>Am i the only one that gets fucking annoyed when these dumb fuck annoying ass influencers go around in like Asia or something and they go around and buy things for whatever they’re supposed to cost there and they go like OMG!!! A WHOLE MEAL FOR 500 RUPEES!!! THATS LIKE SIX DOLLARS OMG!!! like yeah bro thats how much fucking food costs dumb fuck you actually got kind of ripped off too shut the fuck up man we get it America is expensive and everyone is rich why is this shocking to you</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 08, 2025</span>
+                    <p>spotted dalton caldwell accrosd the street #ycombinator #paloalto</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Aug 05, 2025</span>
+                    <p>One of the most delicious things… fresh tomato juice, salt, celery leaf, pepper, olive oil</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 24, 2025</span>
+                    <p>Noticing a trend where young teenage boys are starting to outglam women. The only edge women seem to have so far is Makeup but once young teenage boys start to get on that the glam power boulder will start landsliding.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 22, 2025</span>
+                    <p>Dont believe the burgers and fries psyop I&#x27;m forever eating two fucking burgers IDGAF</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 18, 2025</span>
+                    <p>Bro I randomly saw magnus carlsen 😭😭😭</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 17, 2025</span>
+                    <p>Never listening to people tell me not to do something I want to do God I’ve missed so many things bexause of this</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 17, 2025</span>
+                    <p>I’m scared its never safe in Palo Alto what if Peter Thiel has a nanodrone pointed at me right now seriously I’m basically a chinese spy???</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 16, 2025</span>
+                    <p>Fuck my chungus chinese life I just want to be a lebanese goat farmer and eat shawarma all day 😭😭😭 🇱🇧</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 14, 2025</span>
+                    <p>My skyblock positions Rn
+
+120k enchanted obsidian @2.45
+6k enchanted dandelion @ 13.5k
+115k enchanted string @ 0.62k
+2.7k enchanted flint @ 3.65k
+135k undead essence @ 0.62k
+
+total assets @ around 700m Right now… looking for further investments…</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 14, 2025</span>
+                    <p>Going down the Hypixel skyblock quant route Going to make the First Ever Leon Zhou Proprietary Skyblock Bazaar auto Trader.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 13, 2025</span>
+                    <p>Running a skyblock hedge fund Loan me your coins for 300% montly return</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 13, 2025</span>
+                    <p>Coke zero… you’re all i’ll need in this life…</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 11, 2025</span>
+                    <p>Never thought id say this but I&#x27;m excited to go to Canada rn</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jul 04, 2025</span>
+                    <p>I am in a perpetual  negative feedback loop of eating and making chicken stock</p>
+                </div>
+            <h2>June 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Jun 30, 2025</span>
+                    <p>I love sparrows truly the best common bird I love how plump yet elegant they look sort of reminds me of an early victorian woman’s bodice… and unlike the pidgeon they have a blended plumage and a curiously upright and full tail… I love observing them  Much more than pidgeons I honestly have somewhat of an annoyance for pidgeons but sparrows I love a lot</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jun 29, 2025</span>
+                    <p>Gluttony into bath into nap most op combo highly recommend</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jun 26, 2025</span>
+                    <p>Made one (1) 5am pancake out of the random shit in my pantry and I burnt the edges of course I burnt it this is all I deserve in life one (1) burnt brown butter buckwheat chocolate malt buttermilk pancake with a little button of butter and a lot of Syrup. Fuck my fat chungus life. I miss my ex. #breakupszn</p>
+                    <p>Recipe for one (1) pancake:
+
+    2tablespoon buckwheat flour
+    2tablespoon ap flour
+    6tablespoon milk
+    1/2 egg
+    baking powder
+    2tablespoon malt powder
+    1tablespoon cocao powder
+    1tablespoon butter browned
+    1tablespoon sugar
+    salt
+
+    Mix and cook. Eat with whatever.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jun 26, 2025</span>
+                    <p>Ok some of my thoughts I am recollecting them.
+
+GUI (pronounced gooey) as instagrammable/aesthetic packaging
+
+Trends within arts as influenced by tech:
+
+1. Instant capturing of aesthetic
+2. Broader mainstream appeal
+3. Hatred amongst early adopters 
+4. AI is a massive threat to the status quo of the arts, in a much more macro level, but not as damaging as people think, or at least in a different way
+5. Pop art is cooked (it’s always cooked)
+6. Pinterest will mark this trend of AI in the arts
+
+Seems like its really easy to market dating apps
+
+Vertical LLM wrapper agent b2b saas is Not The Future (needs some kind of local integrability).
+
+Consumer is unironically undervalued (ai consumer sucks rn)
+
+Consumer focused consumer!!! Hitting the end of the Anticonsumer cycle!!</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jun 04, 2025</span>
+                    <p>U guys dont love alex oconnor like I do</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jun 03, 2025</span>
+                    <p>Guys not to be that guy but people really be drinking Fkin Dunkin Donuts matcha telling me it tastes like ass Yeah man wonder why like wat bro 🖕🖕🖕</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jun 02, 2025</span>
+                    <p>Really like this emoji because look even though they are crying they are still holding out a little sheepish smile and i appreciate that 🥲</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jun 01, 2025</span>
+                    <p>It’s me they’re talking about. With the labubu and the tote bag and the clairo merch. It’s fucking ME.</p>
+                </div>
+            </div>
+            <h2>May 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">May 30, 2025</span>
+                    <p>The secret best looksmaxxing hack is actually to love yourself and live life with whimsy but some people aren’t ready to hear that</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 28, 2025</span>
+                    <p>Qualitative analysis of proprietary Stevenson hot sauces mixed with honey</p>
+                    <p>Methodology and results:
+
+15cc of each hot sauce (L to R: Tabasco, Cholula, The Pepper Plant, Sriracha) mixed with 15cc of honey, dipped into and tested with sliced english cucumbers (Cucumis sativus)
+
+Each sample is reviewed on it’s taste, consistency and spice to sweetness ratio. A general score is given, considering each of these variables.
+
+Tabasco: Very spicy. The acid of the Louisiana vinegar based hot sauces overwhelms the flavor of the honey. Not balanced at all. The sauce is very runny. Poor flavor, and the one-dimensionality of Tabasco does not shine here. Score: 2.0/10.0
+
+Cholula: Well balanced sweetness and spice. The distinct smoky flavor of this hot sauce pairs well with honey. The consistency of this sauce is excellent, holding a thick, luscious, glazed texture.  Score: 8.8/10.0
+
+The Pepper Plant: Very sweet honey forward. A very flavorful, unique hot sauce. Very interesting, well balanced notes of spice and acidity. This has the best flavor, but it looks like vomit and isnt’t very spicy. It retains the consistency of honey. Score: 8.6/10.0
+
+Sriracha: So bad. Only tastes like garlic. Super awful fbaor. This brand of sriracha sucks but its probably simolar  enough to predict the original one. The sonsistenxy is nice. Flavor is so bad. Score: 2.2/10.0</p>
+                 <p>Conclusion:
+
+Honey combines well with milder sauces with low acidity and fresh flavors. Sauces with overly acidic profiles or low quality flavors will not combine well with honey. This condiment is an excellent pairing on sandwiches and cucumbers alike. Personally, I’m excited to test this new idea on a tomato sandwich once Stevenson brings back tomatos. Please soon @stevenson_school</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 26, 2025</span>
+                    <p>I forgot 😭 sorry… this is the most important one because it’s like THE face emoji for young people. I’m not really a fan because it’s used in a way thats almost entirely reactionary and I don’t like that. And in the cases where it isn’t it simply conveys a magnitude of expression that is nearly never genuine to my true feelings. So it’s B tier as a benchmark emoji and it’s popularity</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 26, 2025</span>
+                    <p>Face emoji tier list
+
+z:😛
+s:😅😂😊🙂😗😟😕🙁😶🤕
+a:😃☺️🥰😋🙂‍↕️😒☹️😨😓🫢😦😧🥱🫩🤮
+b:😆🥲😙😝🥸🙂‍↔️😠🤭🤫😐😴😪🤑🤠
+c:😄😁🤣😍😚😎🥳😞😢😡🤬😶‍🌫️😰😥🤔🤥🫤🙄😯😮😲😮‍💨🤢🤧
+d:😀😇😌😘🤨🧐🤓😔😣😖🫠😑😬😮‍💨😵😵‍💫🤐🥴😷🤒
+f: 🥹🙃😉😜🤪🤩😏😫😩🥺😤🤯😳🥵🥶😱🤗🫣🫥🫨🤤😈👿</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 23, 2025</span>
+                    <p>Just found the most insane dopamine hack basically what you wanna do is intentionally asphyxiate yourself by first exhaling deeply and holding your breath and then chug like a whole glass of water and then when U inhale it feels like crack highly recommend guys</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 22, 2025</span>
+                    <p>852hz productivity hack? 香港手機號 誤卷秘方 400WPM 24MIN 852hz productivity hack? 香港手機號 誤卷秘方 400WPM 24MIN</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 21, 2025</span>
+                    <p>How it feels to be born a fresh pair of raw denim excited to be worn in by a rugged handsome strong railroad laborer and bear a beautiful worn fade but instead U end up being faded between a fat lazy asian dudes ass and his chair while he queues his 12th evelynn game of the night in d4</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 20, 2025</span>
+                    <p>My top 10 cooking inspirations:
+
+1. Nathan Myhrvold
+2. MPW
+3. Kenji
+4. Pierre Koffmann
+5. Tom Keller
+6. Escoffier
+7. Bourdain
+8. Dominique Crenn
+9. Horny tiktok sex chef guy
+10. Grandma</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 20, 2025</span>
+                    <p>Dominique crenn’s favourite food is tomato sandwich 😭😭😭😭😭😭😭 Omg 😭😭😭😭 I will dedicate my life to you my dear beloved tomato sandwich</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 16, 2025</span>
+                    <p>jordan peterson fans: i hate trans people
+speople: ihatet didn’t run me
+peterson: what do you mean by yogurt
+gurt: yo</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 16, 2025</span>
+                    <p>Watched 5 hours of jordan peterson peter hitchins debate last night still havent slept so if you try to talk to me about anything today I will hold you to the same ridiculous semantic scrutiny as peterson does</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 14, 2025</span>
+                    <p>Context is such an important part of art…I think that in every part of human communication there is some amount of context that is to be had (i.e. empiricism)… at the very least in language there is the understanding of words and in art which is kind of a language there is the deciphering of visual elements… art is the aesthetic capturing of meaning and so naturally without the context of the experience or the context of the viewer (which are more similar than you may think) art cannot have meaning… and so it upsets me that some things are denied meaning because its context is stripped from it. Even for example if I’m me and I make a joke it would be more funny than if a comedian did because I’m such a dry boring guy that the context of me would make it funnier than if a funny guy you expect to be funny said it. Or if Hitler drew something it would be a more meaningful piece of art than if some random guy did because its something beautiful an ugly guy made. or if the Sistine Chapel ceiling was just in some dude’s bedroom… Yeah… Lmk if u agree</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 14, 2025</span>
+                    <p>The most evil people I know compare themselves to anthropomorphized deer</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 14, 2025</span>
+                    <p>Maybe some people can run 5 miles in 26 minutes but I can eat nachos for 4 people who who’s really more accomplished</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 13, 2025</span>
+                    <p>I wish I was born a little slovenian twink in the heart of the motherland fuck my stupid chungus fat chinese life 😭😭😭💔💔💔💔</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 12, 2025</span>
+                    <p>2 kinds of people on gronda 90% is like random gastroscience normiemaxxed michellin guide pilled immersion blender sea cum foam 10% is literally nazi eugenicist innoculating bird spit microbiome with amylase plasmid to maximise the its immediate sweetness like some actual schizo useless bullshit 
+
+Like if you agree</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 05, 2025</span>
+                    <p>Summer is coming which means i start listening to pre immunity clairo again</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 05, 2025</span>
+                    <p>My least favourite male fashion silhouette absolutely abhorrent upscale/classy-horny pinterest uniform Cropped jacket + disgusting Egregiously baggy rickets-esque barrel pants cant stand it sorry. Bonus points if it’s a bomber + jeans</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 04, 2025</span>
+                    <p>Me in 10 years riding down the eastern border of the slovenian alps with my newborn in one arm and goat cheese wheel in another</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 04, 2025</span>
+                    <p>Classic leonzhou watch league of legends 70 minutes per class into 20 missing assignments into panic the night before AP pipeline why do I do this to myself</p>
+                </div>
+                <div class="thought">
+                    <span class="date">May 01, 2025</span>
+                    <p>Does anyone wanna go canvas todolist for canvas todolist mine is like 40 items long</p>
+                </div>
+            </div>
+            <h2>April 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Apr 30, 2025</span>
+                    <p>So busy with work i’ve forgotten to be suicidal</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 30, 2025</span>
+                    <p>if you are any more conservative than me in any way you are uninteresting brainwashed sheep and if you are any more liberal than me in any way you are a mentally insane performative harlot</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 30, 2025</span>
+                    <p>Haha nooo Leon we love you… you are so sexy and smart haha… And funny you are so funny and charming and we love you… Dont go to slovenia… stay with us forever… okay… Just because I love you guys… I’ll do it for you.,.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 30, 2025</span>
+                    <p>Accepting my fate as retarded chopped shyt I&#x27;m going to become a cheese farmer in the alps with my family of goats but I wont be on the fancy west side of the alps i’ll be an eastern alper like slovenia alps … the kind of place where people dont wear underwear and they eat whole grains … I’ll be okay and the world will be beautifully plain again</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 30, 2025</span>
+                    <p>Room cleanliness serving as some sort of proxy for my mental state</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 29, 2025</span>
+                    <p>Oddly enough people who race to “grow up too fast” (which isn’t growing up too fast, I think) are the ones who are stuck as adult infants their whole lives</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 28, 2025</span>
+                    <p>Sometimes I just want someone to put a number on my life so I can determine whether or not i’m actually worth anything</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 25, 2025</span>
+                    <p>Seaside is my new favourite city it literally smells like fish man I got this raw marinated squid banchan from this grocery store man it was so good I love eating food so much… Its the only way I feel something anymore.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 18, 2025</span>
+                    <p>In carnage, I bloom, like a flower in the dawn</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 18, 2025</span>
+                    <p>Hypothesis older people are more emotive because young people are bombarded with so much data that they have learned to process information more logically to seperate truth from garbage (influence of media and internet) Also social factors definitely matter… but maybe older people experience more empathy</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 17, 2025</span>
+                    <p>The most important thing to understand in all of cooking is how heat changes the chemistry of food</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 16, 2025</span>
+                    <p>Also I’m actually not convinced that Hume is right about being wrong about the shades of blue thing. I think he’s wrong about being wrong. Let me know what you guys think.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 16, 2025</span>
+                    <p>Low iq take but being on the internet and seeing right wing politics discourse has been a great reminder of how democracy gives people the illusion of choice and political ownership when in fact it cannot exist under this American capitalist system. Maybe I’m crazy but somehow individuals are so convinced that their opinions are real and important when they actually dont exist at all. Or maybe. I’m brainwashed. Who cares.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 15, 2025</span>
+                    <p>My mom said to me once You dont have to prove yourself to anyone and since then I just do it for me</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 15, 2025</span>
+                    <p>I have two moods one is brown and black and the other one is green and white. Charred and roasted or poached and steamed. Burning hot or tepid.</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 07, 2025</span>
+                    <p>A penis taught me how to play the piano</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 05, 2025</span>
+                    <p>God I love it when people know what they want and tell everyone else to shut the fuck up</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 03, 2025</span>
+                    <p>Just go for a dinner sometimes</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Apr 01, 2025</span>
+                    <p>Daily tomato sandwich… beautiful center cut tomato slices… liberally salt and pepper… on warm whole wheat… delicious…</p>
+                </div>
+            </div>
+            <h2>March 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Mar 29, 2025</span>
+                    <p>Koji everything fuck it koji fish koji soda koji koji</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Mar 29, 2025</span>
+                    <p>Noo Nooooo Nyt cooking editor dont put miso in that noooo 🥲🥲</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Mar 29, 2025</span>
+                    <p>I often think about little ants that snip my individual face hairs off instead of shaving that would be good i think a lot of ants</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Mar 28, 2025</span>
+                    <p>One thing I’m very jealous of Europeans about is how cool their names are. Well Chinese names are cool too but Niccolo Machiavelli just has too much aura</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Mar 28, 2025</span>
+                    <p>I have a weird obsession with mailboxes</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Mar 26, 2025</span>
+                    <p>I sort of like Maximalist minimalist ykwim like when you have the most interesting weird version of something really basic No colors no frills no layering just a lot of weird details n shit I like that</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Mar 25, 2025</span>
+                    <p>Thinking about how much Clairo has shaped me I think like top 10 most key figures in my life after like my dad #parasocial</p>
+                </div>
+            <h2>February 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Feb 25, 2025</span>
+                    <p>You know what I’m a damn hoot I’m a hoot to be around I’m totally a hoot nobody appreciates how much of a hoot I am… totally a hoot</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 25, 2025</span>
+                    <p>Brown butter miso gochujang chili crisp garlic confit black sesame dubai pistachio chocolate bar sea salt lemon frangipane custard cheesecake pie cookie croissant</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 24, 2025</span>
+                    <p>Personality trait people dont talk about enough is irritability</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 24, 2025</span>
+                    <p>Benefits of being a good person is that people like you</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 24, 2025</span>
+                    <p>A lot of people overcompensate for their shortcomings in a lot of ways but I do it by holding onto the last shreds of my masculinity with rage and misery</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 22, 2025</span>
+                    <p>Sometimes I like to imagine the ripples of the ocean to be the ridges of a sour cream cheddar ruffles chip</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 21, 2025</span>
+                    <p>Immediately identify a gay man by their usage of the word patina</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 20, 2025</span>
+                    <p>A lot of the time I want to ask a stupid silly pointless question and then I remember it doesnt matter and I dont care</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 20, 2025</span>
+                    <p>Something different about the colors of a nice sunny day</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 11, 2025</span>
+                    <p>the only person who you can judge for knowinf nothing is your past self who knew nothing</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 11, 2025</span>
+                    <p>Need to stop being scared of things feels unreasonable to be scared of the things people are scared of</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 06, 2025</span>
+                    <p>One such symptom of our modern obsession with fleeting aesthetics is the rise of packaging as a product</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 05, 2025</span>
+                    <p>Watching my friends go to elite universities is motivating me to rot in bed every day even more</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 01, 2025</span>
+                    <p>Life is good to me I’m living really well i miss everyone a lot</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 01, 2025</span>
+                    <p>When I wake up I want to be wrung out and then soak mysekf again</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Feb 01, 2025</span>
+                    <p>No more… death… Every day is the last day last day no more</p>
+                </div>
+            </div>
+            <h2>January 2025</h2>
+            <div class="month-content">
+                <div class="thought">
+                    <span class="date">Jan 29, 2025</span>
+                    <p>Nothing happy about this damn new year</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Jan 15, 2025</span>
+                    <p>I think we have lost all sense of meaning and purpose in the pursuit of aesthetics</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 20, 2024</span>
+                    <p>On my way! back to Seattle WA today 😊 🤎</p>
+                </div>
+                <div class="thought">
+                    <span class="date">Dec 19, 2024</span>
+                    <p>Finals… over… soon… where is the time going… Christmas… 2025… 18 years old… college… death… Existential collapse…</p>
+                </div>
         </section>
     </main>
 
