@@ -133,6 +133,22 @@ nav img:not([class*="size-"]) {
     transition: transform 0.6s cubic-bezier(0.68, -0.4, 0.265, 1.35);
 }
 
+/* Blinking box for first-time visitors */
+@keyframes blinkBorder {
+    0%, 100% {
+        outline: 2px solid #000;
+        outline-offset: 4px;
+    }
+    50% {
+        outline: 2px solid transparent;
+        outline-offset: 4px;
+    }
+}
+
+.dropdown-trigger.first-visit-hint .nav-dropdown-toggle {
+    animation: blinkBorder 1s ease-in-out infinite;
+}
+
 .dropdown-trigger.active .nav-dropdown-toggle {
     transform: rotate(180deg) scale(1.1);
 }
@@ -200,6 +216,22 @@ nav img:not([class*="size-"]) {
 .dropdown-item a {
     display: block;
     flex: 1;
+}
+
+/* Page fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+main {
+    animation: fadeIn 0.5s ease-out;
 }
 
 /* Main Content Area */
@@ -276,13 +308,17 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .filter-btn {
     font-family: 'Newsreader', Georgia, serif;
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.65rem;
     border: 1px solid #000;
     background: transparent;
     color: #000;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
+    height: auto;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
 }
 
 .filter-btn:hover {
@@ -381,6 +417,14 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     font-size: 0.85rem;
     color: #666;
     text-align: left;
+}
+
+/* Blog post clipart on individual pages */
+.blog-post-clipart {
+    max-width: 200px;
+    height: auto;
+    display: block;
+    margin: 0;
 }
 
 /* Blog post text justification */
@@ -509,11 +553,19 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 main a:has(.content-divider) {
     display: inline-block;
     line-height: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 main a:has(.content-divider):hover {
-    opacity: 0.6;
+    opacity: 0.75;
+    animation: starRotate 0.8s ease-in-out;
+}
+
+@keyframes starRotate {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+    100% { transform: rotate(0deg); }
 }
 
 /* Footer */
@@ -548,6 +600,216 @@ footer a img {
     height: 1.5rem;
     display: block;
     object-fit: contain;
+}
+
+/* Thoughts Page Styles */
+.thoughts-container {
+    max-width: 800px;
+}
+
+.thoughts-container h2 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.5rem;
+}
+
+.thoughts-container h2:first-child {
+    margin-top: 0;
+}
+
+.month-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.thought {
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+    border-bottom: 1px dotted #ccc;
+}
+
+.thought:last-child {
+    border-bottom: none;
+}
+
+.thought .date {
+    font-size: 0.85rem;
+    color: #666;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.thought p {
+    margin-bottom: 0;
+    white-space: pre-wrap;
+    text-align: left;
+}
+
+/* Thoughts Controls */
+.thoughts-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-top: 0.5rem;
+    align-items: stretch;
+    max-width: 800px;
+}
+
+.thoughts-filters {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.thoughts-sort {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+    margin-left: auto;
+}
+
+.reverse-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.reverse-btn img {
+    height: 0.75rem;
+    transition: transform 0.3s ease;
+    opacity: 0.7;
+    transform: rotate(100deg);
+}
+
+.reverse-btn:hover img {
+    opacity: 1;
+}
+
+.reverse-btn.reversed img {
+    transform: rotate(280deg);
+}
+
+.thoughts-controls input[type="text"] {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid #000;
+    background: transparent;
+    width: 140px;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.thoughts-controls input[type="text"]:focus {
+    outline: none;
+}
+
+.thoughts-controls input[type="text"]::placeholder {
+    color: #666;
+}
+
+.thoughts-controls select {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid #000;
+    background: transparent;
+    cursor: pointer;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.thoughts-controls select:focus {
+    outline: none;
+}
+
+.thought-count {
+    font-size: 0.8rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0;
+}
+
+/* Like container and button on each thought */
+.thought {
+    position: relative;
+    padding-top: 0.5rem;
+}
+
+.like-container {
+    position: absolute;
+    top: 0.5rem;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.like-count {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+    min-width: 1.2rem;
+    text-align: right;
+}
+
+.fav-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.fav-btn:hover {
+    color: #000;
+    transform: scale(1.1);
+}
+
+.fav-btn.active {
+    color: #000;
+}
+
+/* Reordering animation */
+.thoughts-container {
+    position: relative;
+}
+
+.thought {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+}
+
+.thoughts-container.reordering .thought {
+    opacity: 0;
+}
+
+.thought.fade-in {
+    animation: fadeSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Responsive Design */
@@ -622,7 +884,8 @@ footer a img {
 
     /* Adjust dropdown for tablets */
     .dropdown-trigger {
-        height: 1.1rem;
+        height: auto;
+        overflow: visible;
     }
 
     .dropdown-content {
@@ -760,7 +1023,8 @@ footer a img {
 
     /* Adjust dropdown for mobile */
     .dropdown-trigger {
-        height: 1rem;
+        height: auto;
+        overflow: visible;
         width: 100%;  /* Force dropdown to start on new row */
     }
 
@@ -831,5 +1095,39 @@ footer a img {
 
     .card-title img.size-7 {
         max-height: 3.15rem;
+    }
+
+    /* Thoughts controls mobile */
+    .thoughts-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .thoughts-filters {
+        justify-content: center;
+    }
+
+    .thoughts-sort {
+        flex-direction: row;
+        margin-left: 0;
+        gap: 0.5rem;
+    }
+
+    .reverse-btn {
+        flex-shrink: 0;
+    }
+
+    .thoughts-controls input[type="text"] {
+        width: 100%;
+    }
+
+    .thoughts-controls select {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .thought-count {
+        text-align: center;
     }
 }

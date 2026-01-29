@@ -4,3 +4,6 @@
 node_modules/
 blog/_drafts/
 build.py
+
+# Instagram raw data exports
+assets/instagram-*/
