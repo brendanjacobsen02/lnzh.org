@@ -201,8 +201,12 @@ function renderComments() {
     statusText.textContent = `${commentsCache.length} comment${commentsCache.length === 1 ? '' : 's'}.`;
     const threaded = buildThread(commentsCache);
     const sortedRoots = sortRootComments(threaded);
-    sortedRoots.forEach((comment) => {
+    sortedRoots.forEach((comment, index) => {
         commentsList.appendChild(renderComment(comment));
+        if (index < sortedRoots.length - 1) {
+            const divider = document.createElement('hr');
+            commentsList.appendChild(divider);
+        }
     });
 }
 
