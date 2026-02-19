@@ -822,15 +822,15 @@ footer a img {
 
 #coffee-comments-list hr {
     border: none;
-    border-top: 2px solid #000;
+    border-top: 1px solid #000;
     width: 60%;
-    margin: 10px 0;
+    margin: 18px 0;
 }
 
 #coffee-comments-list .comment-divider {
-    border-top: 2px solid #000;
+    border-top: 1px solid #000;
     width: 60%;
-    margin: 10px 0;
+    margin: 18px 0;
 }
 
 .thoughts-controls select {
