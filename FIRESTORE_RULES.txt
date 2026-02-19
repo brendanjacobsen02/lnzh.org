@@ -20,6 +20,12 @@ service cloud.firestore {
       allow delete: if true;
     }
 
+
+    // Coffee devblog comments
+    match /coffeeComments/{commentId} {
+      allow read, write: if true;
+    }
+
     // Slot counts for limiting orders
     match /orderSlots/{slotId} {
       allow read, write: if true;

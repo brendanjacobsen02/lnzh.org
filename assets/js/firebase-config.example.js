@@ -1,5 +1,5 @@
 // Example Firebase config loader.
-// Copy this file to firebase-config.local.js and replace the values.
+// Copy this file to firebase-config.local.js or firebase-config.public.js and replace the values.
 window.__FIREBASE_CONFIG__ = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -8,3 +8,5 @@ window.__FIREBASE_CONFIG__ = {
   messagingSenderId: "YOUR_SENDER_ID",
   appId: "YOUR_APP_ID"
 };
+
+window.__ORDERS_PASSWORD__ = "change-me";
