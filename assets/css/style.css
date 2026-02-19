@@ -807,6 +807,14 @@ footer a img {
     margin-bottom: 0.75rem;
 }
 
+#coffee-comments-list [data-reply-form] {
+    display: none;
+}
+
+#coffee-comments-list [data-reply-form].is-open {
+    display: flex;
+}
+
 .thoughts-controls select {
     font-family: 'Newsreader', Georgia, serif;
     font-size: 0.9rem;

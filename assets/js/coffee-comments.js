@@ -105,7 +105,7 @@ function sortRootComments(comments) {
 
 function renderComment(comment, depth = 0) {
     const wrapper = document.createElement('div');
-    wrapper.style.marginLeft = depth ? '1rem' : '0';
+    wrapper.style.marginLeft = depth ? '2rem' : '0';
 
     const name = comment.name && comment.name.trim() ? comment.name.trim() : 'anonymous';
     const timestamp = formatTimestamp(comment.createdAt);
@@ -154,7 +154,7 @@ function renderComment(comment, depth = 0) {
     wrapper.appendChild(actions);
 
     const replyForm = document.createElement('div');
-    replyForm.hidden = true;
+    replyForm.classList.remove('is-open');
     replyForm.dataset.replyForm = comment.id;
     replyForm.className = 'thoughts-controls';
 
@@ -295,7 +295,7 @@ commentsList.addEventListener('click', async (event) => {
         const allReplyButtons = commentsList.querySelectorAll('[data-action="reply"]');
         allForms.forEach((form) => {
             if (form !== formEl) {
-                form.hidden = true;
+                form.classList.remove('is-open');
             }
         });
         allReplyButtons.forEach((btn) => {
@@ -304,8 +304,8 @@ commentsList.addEventListener('click', async (event) => {
             }
         });
         if (formEl) {
-            const shouldOpen = formEl.hidden;
-            formEl.hidden = !shouldOpen;
+            const shouldOpen = !formEl.classList.contains('is-open');
+            formEl.classList.toggle('is-open', shouldOpen);
             target.classList.toggle('active', shouldOpen);
         }
     }
