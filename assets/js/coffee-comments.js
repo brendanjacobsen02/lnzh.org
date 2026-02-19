@@ -204,7 +204,8 @@ function renderComments() {
     sortedRoots.forEach((comment, index) => {
         commentsList.appendChild(renderComment(comment));
         if (index < sortedRoots.length - 1) {
-            const divider = document.createElement('hr');
+            const divider = document.createElement('div');
+            divider.className = 'comment-divider';
             commentsList.appendChild(divider);
         }
     });
