@@ -47,8 +47,15 @@
         <a href="../"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
 
         <section class="content">
-            <div id="coffee-latest-update"></div>
-            <p><a href="./devblog/">coffee devblog</a></p>
+            <div>
+                <p><i>Thursday, Feb 19;</i></p>
+                <p><i>Menu will remain the same for Friday, but with some small QOL changes. Hot lattes will include foamed milk, and perhaps the first few orders of iced coffees will have ice (working on a good solution!) Also, I'm moving on from red solo cups (potentially carcinogenic microplastics) to some paper cups.</i></p>
+                <p><i>For next week (Monday, Feb 23rd), look out for homemade desserts and matcha! Potential candidates for menu items: espresso tonic (my favourite), caramel latte (popular), fruit matchas?</i></p>
+            </div>
+            <div class="list-dropdown-trigger">previous updates <img src="../assets/images/ui/arrow0.png" alt="arrow" class="list-arrow0"></div>
+            <ul class="list-dropdown-content">
+                <li><i>no older updates yet</i></li>
+            </ul>
             <div id="step-drink">
                 <h2>Choose your drink</h2>
                 <div class="filter-buttons">
@@ -101,6 +108,17 @@
                 <p></p>
                 <p>We only open the order window from 7:30 AM to 8:15 AM. If you miss it, check back tomorrow.</p>
             </div>
+
+            <h2 id="comments">comments</h2>
+            <form id="coffee-comment-form" class="thoughts-controls">
+                <label for="coffee-comment-name">Name (optional)</label>
+                <input id="coffee-comment-name" type="text" placeholder="Name" maxlength="40">
+                <label for="coffee-comment-text">Comment</label>
+                <textarea id="coffee-comment-text" placeholder="Write a comment..." rows="6" cols="60" maxlength="500" required></textarea>
+                <button class="filter-btn" type="submit">post</button>
+            </form>
+            <p id="coffee-comments-status">Loading comments...</p>
+            <div id="coffee-comments-list"></div>
         </section>
     </main>
 
@@ -117,8 +135,7 @@
 
     <script src="../assets/js/firebase-config.local.js"></script>
     <script src="../assets/js/firebase-config.public.js"></script>
-    <script src="./devblog/entries.js"></script>
-    <script src="../assets/js/coffee-devblog.js"></script>
     <script type="module" src="../assets/js/coffee-order.js"></script>
+    <script type="module" src="../assets/js/coffee-comments.js"></script>
 </body>
 </html>
