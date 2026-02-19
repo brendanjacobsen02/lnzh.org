@@ -538,6 +538,53 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     text-indent: -1.5rem;
 }
 
+.coffee-updates-trigger {
+    cursor: pointer;
+    display: block;
+    padding: 0;
+    margin: 0;
+    color: #000000;
+}
+
+.coffee-updates-arrow {
+    height: 0.5rem;
+    width: auto;
+    transition: transform 0.3s ease;
+    padding-left: 0.5rem;
+}
+
+.coffee-updates-trigger.active .coffee-updates-arrow {
+    transform: rotate(90deg);
+}
+
+.coffee-updates-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+    list-style: none;
+    margin: 0;
+    padding-top: 0.8rem;
+    font-style: italic;
+}
+
+.coffee-updates-list.active {
+    max-height: 500px;
+    margin-bottom: 0.5rem;
+}
+
+.coffee-updates-list li {
+    padding: 0.15rem 0;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    color: #0e0e0e;
+}
+
+.coffee-updates-list.active li {
+    opacity: 1;
+    transform: translateX(0);
+}
+
 .list-dropdown-content.active li {
     opacity: 1;
     transform: translateX(0);
@@ -715,6 +762,32 @@ footer a img {
 
 .thoughts-controls input[type="text"]::placeholder {
     color: #666;
+}
+
+#coffee-comment-form textarea {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid #000;
+    background: transparent;
+    width: 100%;
+    min-height: 160px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+#coffee-comment-form textarea:focus {
+    outline: none;
+}
+
+#coffee-comment-form {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 720px;
+}
+
+#coffee-comment-form input[type="text"] {
+    width: 100%;
 }
 
 .thoughts-controls select {
