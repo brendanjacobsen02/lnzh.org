@@ -564,7 +564,12 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     list-style: none;
     margin: 0;
     padding-top: 0.8rem;
-    font-style: italic;
+}
+.update-header {
+    font-weight: bold;
+}
+.update-content{
+    font-style:italic;
 }
 
 .coffee-updates-list.active {
@@ -788,6 +793,11 @@ footer a img {
 
 #coffee-comment-form input[type="text"] {
     width: 100%;
+}
+
+#coffee-comment-form .filter-btn {
+    width: 90px;
+    padding: 0.25rem 0.5rem;
 }
 
 .thoughts-controls select {

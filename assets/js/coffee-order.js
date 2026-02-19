@@ -36,6 +36,11 @@ const ORDER_WINDOW = {
     interval: 5
 };
 
+const HIGH_CAPACITY_START = 8 * 60;
+const HIGH_CAPACITY_END = 8 * 60 + 15;
+const DEFAULT_CAPACITY = 5;
+const HIGH_CAPACITY = 10;
+
 let selectedDrink = null;
 let selectedTemp = null;
 let selectedMilk = null;
@@ -99,6 +104,13 @@ function animateIn(element) {
     element.style.animation = 'none';
     void element.offsetHeight;
     element.style.animation = 'fadeIn 0.5s ease-out';
+}
+
+function getSlotCapacity(minutes) {
+    if (minutes >= HIGH_CAPACITY_START && minutes <= HIGH_CAPACITY_END) {
+        return HIGH_CAPACITY;
+    }
+    return DEFAULT_CAPACITY;
 }
 
 function setVisibility({ showTemp, showMilk, showDetails, showConfirm }) {
@@ -175,7 +187,10 @@ function renderSlots(dateKey) {
     }
 
     const availableSlots = slots.filter((slot) => slot.minutes >= earliestMinute);
-    const filteredSlots = availableSlots.filter((slot) => (slotCounts[slot.value] || 0) < 5);
+    const filteredSlots = availableSlots.filter((slot) => {
+        const capacity = getSlotCapacity(slot.minutes);
+        return (slotCounts[slot.value] || 0) < capacity;
+    });
 
     if (filteredSlots.length === 0) {
         slotNote.hidden = false;
@@ -292,6 +307,7 @@ async function placeOrder() {
 
     const pickupDate = getDateStringForKey(selectedDateKey);
     const slotKey = `${pickupDate}_${selectedSlot.value}`;
+    const capacity = getSlotCapacity(selectedSlot.minutes);
 
     try {
         const { db, firestore } = await getFirebase();
@@ -301,7 +317,7 @@ async function placeOrder() {
             const slotSnap = await transaction.get(slotRef);
             const currentCount = slotSnap.exists() ? (slotSnap.data().count || 0) : 0;
 
-            if (currentCount >= 5) {
+            if (currentCount >= capacity) {
                 throw new Error('Slot full');
             }
 
