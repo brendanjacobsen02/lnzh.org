@@ -820,6 +820,13 @@ footer a img {
     padding-left: 1rem;
 }
 
+#coffee-comments-list hr {
+    border: none;
+    border-top: 2px solid #000;
+    width: 60%;
+    margin: 10px 0;
+}
+
 .thoughts-controls select {
     font-family: 'Newsreader', Georgia, serif;
     font-size: 0.9rem;
