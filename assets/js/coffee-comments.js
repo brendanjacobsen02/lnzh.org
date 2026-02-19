@@ -291,8 +291,22 @@ commentsList.addEventListener('click', async (event) => {
     }
     if (action === 'reply') {
         const formEl = commentsList.querySelector(`[data-reply-form="${id}"]`);
+        const allForms = commentsList.querySelectorAll('[data-reply-form]');
+        const allReplyButtons = commentsList.querySelectorAll('[data-action="reply"]');
+        allForms.forEach((form) => {
+            if (form !== formEl) {
+                form.hidden = true;
+            }
+        });
+        allReplyButtons.forEach((btn) => {
+            if (btn !== target) {
+                btn.classList.remove('active');
+            }
+        });
         if (formEl) {
-            formEl.hidden = !formEl.hidden;
+            const shouldOpen = formEl.hidden;
+            formEl.hidden = !shouldOpen;
+            target.classList.toggle('active', shouldOpen);
         }
     }
     if (action === 'submit-reply') {
