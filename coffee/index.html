@@ -58,7 +58,7 @@
                     <p class="update-content">Initialized with basic functions.</p>
                 </li>
             </ul>
-            <div><p><a href="#comments">jump to comments</a></p></div>
+            <div><p><a href="#comments">leave a review or suggestion!</a></p></div>
             <div id="step-drink">
                 <h2>Choose your drink</h2>
                 <div class="filter-buttons">
@@ -112,8 +112,25 @@
                 <p>We only open the order window from 7:30 AM to 8:15 AM. If you miss it, check back tomorrow.</p>
             </div>
 
-            <h2 id="comments">comments</h2>
+            <h2 id="comments">reviews</h2>
+            <div class="thoughts-controls">
+                <label for="coffee-comments-sort">Sort</label>
+                <select id="coffee-comments-sort">
+                    <option value="date-desc">date (newest)</option>
+                    <option value="date-asc">date (oldest)</option>
+                    <option value="stars-desc">stars (high to low)</option>
+                    <option value="stars-asc">stars (low to high)</option>
+                </select>
+            </div>
             <form id="coffee-comment-form" class="thoughts-controls">
+                <label for="coffee-comment-stars">Stars</label>
+                <div class="filter-buttons" id="coffee-comment-stars">
+                    <button class="filter-btn" type="button" data-stars="1" aria-label="1 star">★</button>
+                    <button class="filter-btn" type="button" data-stars="2" aria-label="2 stars">★★</button>
+                    <button class="filter-btn" type="button" data-stars="3" aria-label="3 stars">★★★</button>
+                    <button class="filter-btn" type="button" data-stars="4" aria-label="4 stars">★★★★</button>
+                    <button class="filter-btn" type="button" data-stars="5" aria-label="5 stars">★★★★★</button>
+                </div>
                 <label for="coffee-comment-name">Name (optional)</label>
                 <input id="coffee-comment-name" type="text" placeholder="Name" maxlength="40">
                 <label for="coffee-comment-text">Comment</label>

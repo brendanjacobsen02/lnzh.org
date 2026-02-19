@@ -13,10 +13,14 @@ import {
 const form = document.getElementById('coffee-comment-form');
 const nameInput = document.getElementById('coffee-comment-name');
 const textInput = document.getElementById('coffee-comment-text');
+const starButtons = document.querySelectorAll('#coffee-comment-stars [data-stars]');
+const sortSelect = document.getElementById('coffee-comments-sort');
 const commentsList = document.getElementById('coffee-comments-list');
 const statusText = document.getElementById('coffee-comments-status');
 
 let commentsCache = [];
+let selectedStars = 5;
+let sortState = 'date-desc';
 
 function formatTimestamp(timestamp) {
     if (!timestamp) {
@@ -54,12 +58,48 @@ function buildThread(comments) {
     return roots;
 }
 
+function renderStars(count) {
+    if (!count || Number.isNaN(count)) {
+        return '';
+    }
+    const filled = '★'.repeat(count);
+    const empty = '☆'.repeat(Math.max(0, 5 - count));
+    return `${filled}${empty}`;
+}
+
+function sortRootComments(comments) {
+    const sorted = comments.slice();
+    switch (sortState) {
+        case 'date-asc':
+            sorted.sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
+            break;
+        case 'date-desc':
+            sorted.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+            break;
+        case 'stars-asc':
+            sorted.sort((a, b) => (a.stars || 0) - (b.stars || 0));
+            break;
+        case 'stars-desc':
+            sorted.sort((a, b) => (b.stars || 0) - (a.stars || 0));
+            break;
+        default:
+            break;
+    }
+    return sorted;
+}
+
 function renderComment(comment, depth = 0) {
     const wrapper = document.createElement('div');
     wrapper.style.marginLeft = depth ? '1rem' : '0';
 
     const name = comment.name && comment.name.trim() ? comment.name.trim() : 'anonymous';
     const timestamp = formatTimestamp(comment.createdAt);
+
+    if (comment.stars) {
+        const starsEl = document.createElement('p');
+        starsEl.textContent = renderStars(comment.stars);
+        wrapper.appendChild(starsEl);
+    }
 
     const header = document.createElement('p');
     header.innerHTML = `<strong>${name}</strong> · ${timestamp}`;
@@ -142,7 +182,8 @@ function renderComments() {
     }
     statusText.textContent = `${commentsCache.length} comment${commentsCache.length === 1 ? '' : 's'}.`;
     const threaded = buildThread(commentsCache);
-    threaded.forEach((comment) => {
+    const sortedRoots = sortRootComments(threaded);
+    sortedRoots.forEach((comment) => {
         commentsList.appendChild(renderComment(comment));
     });
 }
@@ -164,7 +205,7 @@ async function loadComments() {
     }
 }
 
-async function submitComment({ name, text, parentId = null }) {
+async function submitComment({ name, text, parentId = null, stars = null }) {
     const trimmed = text.trim();
     if (!trimmed) {
         alert('Comment cannot be empty.');
@@ -174,6 +215,7 @@ async function submitComment({ name, text, parentId = null }) {
         name: name.trim() || null,
         text: trimmed,
         parentId: parentId || null,
+        stars: parentId ? null : stars,
         likes: 0,
         dislikes: 0,
         createdAt: serverTimestamp()
@@ -205,7 +247,8 @@ form.addEventListener('submit', async (event) => {
     event.preventDefault();
     await submitComment({
         name: nameInput.value,
-        text: textInput.value
+        text: textInput.value,
+        stars: selectedStars
     });
     nameInput.value = '';
     textInput.value = '';
@@ -242,5 +285,28 @@ commentsList.addEventListener('click', async (event) => {
         await submitComment({ name: replyName, text: replyText, parentId: id });
     }
 });
+
+starButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        starButtons.forEach((btn) => btn.classList.remove('active'));
+        button.classList.add('active');
+        selectedStars = Number(button.dataset.stars);
+    });
+});
+
+if (starButtons.length) {
+    const defaultButton = Array.from(starButtons).find((btn) => btn.dataset.stars === '5') || starButtons[0];
+    if (defaultButton) {
+        defaultButton.classList.add('active');
+        selectedStars = Number(defaultButton.dataset.stars);
+    }
+}
+
+if (sortSelect) {
+    sortSelect.addEventListener('change', () => {
+        sortState = sortSelect.value;
+        renderComments();
+    });
+}
 
 loadComments();
