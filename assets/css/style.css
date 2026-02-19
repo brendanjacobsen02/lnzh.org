@@ -796,8 +796,15 @@ footer a img {
 }
 
 #coffee-comment-form .filter-btn {
-    width: auto;
-    padding: 0.4rem 0.75rem;
+    width: fit-content;
+    padding: 0.6rem 0.75rem;
+}
+
+.comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .thoughts-controls select {

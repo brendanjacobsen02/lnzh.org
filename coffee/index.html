@@ -113,15 +113,6 @@
             </div>
 
             <h2 id="comments">reviews</h2>
-            <div class="thoughts-controls">
-                <label for="coffee-comments-sort">Sort</label>
-                <select id="coffee-comments-sort">
-                    <option value="date-desc">date (newest)</option>
-                    <option value="date-asc">date (oldest)</option>
-                    <option value="starred-desc">starred (high to low)</option>
-                    <option value="starred-asc">starred (low to high)</option>
-                </select>
-            </div>
             <form id="coffee-comment-form" class="thoughts-controls">
                 <label for="coffee-comment-stars">Stars</label>
                 <div class="filter-buttons" id="coffee-comment-stars">
@@ -137,6 +128,17 @@
                 <textarea id="coffee-comment-text" placeholder="Write a comment..." rows="6" cols="60" maxlength="500" required></textarea>
                 <button class="filter-btn" type="submit">post</button>
             </form>
+            <div class="thoughts-controls">
+                <div class="thoughts-sort">
+                    <button id="coffee-comments-reverse" class="reverse-btn" title="Reverse order">
+                        <img src="../assets/images/ui/arrow0.png" alt="reverse order">
+                    </button>
+                    <select id="coffee-comments-sort">
+                        <option value="date">date</option>
+                        <option value="starred">starred</option>
+                    </select>
+                </div>
+            </div>
             <p id="coffee-comments-status">Loading comments...</p>
             <div id="coffee-comments-list"></div>
         </section>

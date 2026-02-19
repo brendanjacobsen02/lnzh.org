@@ -15,12 +15,14 @@ const nameInput = document.getElementById('coffee-comment-name');
 const textInput = document.getElementById('coffee-comment-text');
 const starButtons = document.querySelectorAll('#coffee-comment-stars [data-stars]');
 const sortSelect = document.getElementById('coffee-comments-sort');
+const reverseBtn = document.getElementById('coffee-comments-reverse');
 const commentsList = document.getElementById('coffee-comments-list');
 const statusText = document.getElementById('coffee-comments-status');
 
 let commentsCache = [];
 let selectedStars = 5;
-let sortState = 'date-desc';
+let sortBy = 'date';
+let isReversed = false;
 
 function getStarredComments() {
     try {
@@ -85,21 +87,18 @@ function renderStars(count) {
 
 function sortRootComments(comments) {
     const sorted = comments.slice();
-    switch (sortState) {
-        case 'date-asc':
-            sorted.sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
-            break;
-        case 'date-desc':
+    switch (sortBy) {
+        case 'date':
             sorted.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
             break;
-        case 'starred-asc':
-            sorted.sort((a, b) => (a.starCount || 0) - (b.starCount || 0));
-            break;
-        case 'starred-desc':
+        case 'starred':
             sorted.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
             break;
         default:
             break;
+    }
+    if (isReversed) {
+        sorted.reverse();
     }
     return sorted;
 }
@@ -126,15 +125,18 @@ function renderComment(comment, depth = 0) {
     wrapper.appendChild(body);
 
     const actions = document.createElement('div');
-    actions.className = 'filter-buttons';
+    actions.className = 'comment-actions';
+
+    const starCount = document.createElement('span');
+    starCount.className = 'like-count';
+    starCount.textContent = comment.starCount || 0;
 
     const starBtn = document.createElement('button');
-    starBtn.className = 'filter-btn';
+    starBtn.className = 'fav-btn';
     starBtn.type = 'button';
     starBtn.dataset.action = 'star';
     starBtn.dataset.id = comment.id;
-    const starCount = comment.starCount || 0;
-    starBtn.textContent = `★ ${starCount}`;
+    starBtn.textContent = '★';
     if (hasStarred(comment.id)) {
         starBtn.classList.add('active');
     }
@@ -146,6 +148,7 @@ function renderComment(comment, depth = 0) {
     replyBtn.dataset.id = comment.id;
     replyBtn.textContent = 'reply';
 
+    actions.appendChild(starCount);
     actions.appendChild(starBtn);
     actions.appendChild(replyBtn);
     wrapper.appendChild(actions);
@@ -322,7 +325,15 @@ if (starButtons.length) {
 
 if (sortSelect) {
     sortSelect.addEventListener('change', () => {
-        sortState = sortSelect.value;
+        sortBy = sortSelect.value;
+        renderComments();
+    });
+}
+
+if (reverseBtn) {
+    reverseBtn.addEventListener('click', () => {
+        isReversed = !isReversed;
+        reverseBtn.classList.toggle('reversed', isReversed);
         renderComments();
     });
 }
