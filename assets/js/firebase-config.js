@@ -65,3 +65,5 @@ export async function incrementLike(thoughtIndex, delta = 1) {
         return 0;
     }
 }
+
+export { app, db, firebaseConfig };

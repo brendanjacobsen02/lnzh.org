@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Place a quick coffee order for pickup.">
+    <meta name="author" content="Leon Zhou">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com;">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <title>lnzhCoffee</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="icon" type="image/png" href="../assets/images/content/favicon.png">
+    <script src="../assets/js/nav-dropdown.js"></script>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="../"><img src="../assets/images/content/lnzh.org.png" alt="home" class="size-5"></a></li>
+        </ul>
+        <img src="../assets/images/ui/hr.png" alt="" class="nav-divider">
+        <ul>
+            <li class="dropdown-trigger">
+                <img src="../assets/images/ui/4star.png" alt="more" class="nav-dropdown-toggle">
+            </li>
+            <li class="dropdown-content" style="display: none;">
+                <ul class="dropdown-list">
+                    <li class="dropdown-item"><a href="../blog/"><img src="../assets/images/content/blog0.png" alt="blog" class="size-4"></a></li>
+                    <li class="dropdown-item"><a href="../thoughts/"><img src="../assets/images/content/thoughts.png" alt="thoughts and aphorisms" class="size-4"></a></li>
+                    <li class="dropdown-item"><a href="../list/"><img src="../assets/images/content/list.png" alt="list" class="size-3"></a></li>
+                    <li class="dropdown-item"><a href="../about/"><img src="../assets/images/content/about.png" alt="about" class="size-1"></a></li>
+                    <li class="dropdown-item"><a href="../now/"><img src="../assets/images/content/now.png" alt="now" class="size-0"></a></li>
+                    <li class="dropdown-item"><a href="../next/"><img src="../assets/images/content/next.png" alt="next" class="size-1"></a></li>
+                    <li class="dropdown-item"><a href="../why/"><img src="../assets/images/content/why_.png" alt="why" class="size-4"></a></li>
+                    <li class="dropdown-item"><a href="../ai/"><img src="../assets/images/content/AI.png" alt="ai" class="size-2"></a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <main>
+        <header class="intro">
+            <h1>coffee</h1>
+        </header>
+
+        <a href="../"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
+
+        <section class="content">
+            <p>Sorry if this is super scuffed I made this in like 45 minutes so if something goes wrong you can come to me and order directly. Unfortunately I have not figured out good logistics for ice yet, and you are drinking it out of a red solo cup, but if you guys are interested in this the product will get far far better. while you're here check out my blog btw ... lol ...</p>
+            <p>Pick your drink, choose a pickup time, and we will have it ready between 7:30 and 8:15. Only five orders per slot.</p>
+            <div id="step-drink">
+                <h2>1. Choose your drink</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn" type="button" data-drink="Espresso">espresso</button>
+                    <button class="filter-btn" type="button" data-drink="Latte">latte</button>
+                    <button class="filter-btn" type="button" data-drink="Americano">americano</button>
+                </div>
+            </div>
+
+            <div id="step-temp" hidden>
+                <h2>2. Hot or cold?</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn" type="button" data-temp="Hot">hot</button>
+                    <button class="filter-btn" type="button" data-temp="Cold (no ice)">cold (no ice)</button>
+                </div>
+            </div>
+
+            <div id="step-milk" hidden>
+                <h2>3. Milk type (latte only)</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn" type="button" data-milk="Whole">whole</button>
+                    <button class="filter-btn" type="button" data-milk="Soy">soy</button>
+                </div>
+            </div>
+
+            <div id="step-details" hidden>
+                <h2>4. Your name and pickup time</h2>
+                <div class="thoughts-controls">
+                    <label for="customer-name">Name</label>
+                    <input id="customer-name" type="text" placeholder="Your name" maxlength="40">
+                </div>
+                <p>Pickup day</p>
+                <div class="filter-buttons" id="date-buttons">
+                    <button class="filter-btn" type="button" data-date="today">today</button>
+                    <button class="filter-btn" type="button" data-date="tomorrow">tomorrow</button>
+                </div>
+                <p>Pickup time</p>
+                <div class="filter-buttons" id="slot-list"></div>
+                <p id="slot-note" hidden></p>
+                <div class="filter-buttons">
+                    <button class="filter-btn" type="button" id="back-button">back</button>
+                    <button class="filter-btn" type="button" id="submit-button">place order</button>
+                </div>
+            </div>
+
+            <div id="step-confirm" hidden>
+                <h2>Order confirmed</h2>
+                <div id="order-summary"></div>
+                <p>Pickup instructions: Please arrive right at your time slot, look for the green door, and share your name at the window.</p>
+                <p></p>
+                <p>We only open the order window from 7:30 AM to 8:15 AM. If you miss it, check back tomorrow.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-icons">
+            <a href="https://www.chess.com/member/leonzhou7" target="_blank" rel="noopener noreferrer"><img src="../assets/images/icons/chess.png" alt="Chess.com"></a>
+            <a href="mailto:crowded@gmail.com"><img src="../assets/images/icons/gmail.png" alt="Email"></a>
+            <a href="https://www.instagram.com/lnzh07/" target="_blank" rel="noopener noreferrer"><img src="../assets/images/icons/instagram.png" alt="Instagram"></a>
+            <a href="https://www.linkedin.com/in/leon-zhou-66b7182b0/" target="_blank" rel="noopener noreferrer"><img src="../assets/images/icons/linkedin.png" alt="LinkedIn"></a>
+            <a href="https://getxd.app/" target="_blank" rel="noopener noreferrer"><img src="../assets/images/icons/XD.png" alt="XD"></a>
+            <a href="https://www.yelp.com/user_details?userid=VF0qY_FihoZUKrObEiy__g" target="_blank" rel="noopener noreferrer"><img src="../assets/images/icons/yelp.png" alt="Yelp"></a>
+        </div>
+    </footer>
+
+    <script type="module" src="../assets/js/coffee-order.js"></script>
+</body>
+</html>

@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Apply mode
         if (mode === 'favs') {
-            const favs = getFavourites();
+            const favs = getUserLikedThoughts();
             filtered = filtered.filter(t => favs.includes(t.index));
         } else if (mode === 'random' && filtered.length > 0) {
             const randomIndex = Math.floor(Math.random() * filtered.length);

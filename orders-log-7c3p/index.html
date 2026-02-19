@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="About Leon Zhou">
+    <meta name="description" content="Coffee orders log.">
     <meta name="author" content="Leon Zhou">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com;">
     <meta name="referrer" content="no-referrer-when-downgrade">
-    <title>lnzhAbout</title>
+    <title>lnzhOrders</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="icon" type="image/png" href="../assets/images/content/favicon.png">
     <script src="../assets/js/nav-dropdown.js"></script>
 </head>
 <body>
@@ -40,24 +41,19 @@
 
     <main>
         <header class="intro">
-            <h1>I...</h1>
+            <h1>orders log</h1>
+            <p>Private view of submitted coffee orders.</p>
         </header>
 
         <a href="../"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
 
         <section class="content">
-            <p>...am a staunch opponent of the status quo</p>
-            <p>...am really bad at doing homework</p>
-            <p>...was defeated by college applications</p>
-            <p>...like tending to my ferments</p>
-            <p>...enjoy solitude</p>
-            <p>...wish to be a chef-philosopher-writer</p>
-            <p>...will never be any good at any of the above</p>
-            <p>...am exploring AI/ML research</p>
-            <p>...hate calling myself a contrarian</p>
-            <p>...never have enough time to read</p>
-            <p>...will cook for you if you come see me</p>
-            <p>reach out to crowded [at] gmail [dot] com</p>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="today" type="button">today</button>
+                <button class="filter-btn" data-filter="all" type="button">all</button>
+            </div>
+            <div id="orders-body"></div>
+            <p id="status-text">Loading orders...</p>
         </section>
     </main>
 
@@ -71,5 +67,7 @@
             <a href="https://www.yelp.com/user_details?userid=VF0qY_FihoZUKrObEiy__g" target="_blank" rel="noopener noreferrer"><img src="../assets/images/icons/yelp.png" alt="Yelp"></a>
         </div>
     </footer>
+
+    <script type="module" src="../assets/js/orders-log.js"></script>
 </body>
 </html>

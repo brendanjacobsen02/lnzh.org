@@ -13,6 +13,17 @@ service cloud.firestore {
       allow create: if true;
     }
 
+    // Coffee orders: allow creation + read for the private log
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read: if true;
+    }
+
+    // Slot counts for limiting orders
+    match /orderSlots/{slotId} {
+      allow read, write: if true;
+    }
+
     // Deny all other access by default
     match /{document=**} {
       allow read, write: if false;
