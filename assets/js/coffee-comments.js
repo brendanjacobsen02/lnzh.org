@@ -22,6 +22,22 @@ let commentsCache = [];
 let selectedStars = 5;
 let sortState = 'date-desc';
 
+function getStarredComments() {
+    try {
+        return JSON.parse(localStorage.getItem('coffeeCommentStarred') || '[]');
+    } catch {
+        return [];
+    }
+}
+
+function saveStarredComments(ids) {
+    localStorage.setItem('coffeeCommentStarred', JSON.stringify(ids));
+}
+
+function hasStarred(commentId) {
+    return getStarredComments().includes(commentId);
+}
+
 function formatTimestamp(timestamp) {
     if (!timestamp) {
         return '—';
@@ -76,11 +92,11 @@ function sortRootComments(comments) {
         case 'date-desc':
             sorted.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
             break;
-        case 'stars-asc':
-            sorted.sort((a, b) => (a.stars || 0) - (b.stars || 0));
+        case 'starred-asc':
+            sorted.sort((a, b) => (a.starCount || 0) - (b.starCount || 0));
             break;
-        case 'stars-desc':
-            sorted.sort((a, b) => (b.stars || 0) - (a.stars || 0));
+        case 'starred-desc':
+            sorted.sort((a, b) => (b.starCount || 0) - (a.starCount || 0));
             break;
         default:
             break;
@@ -112,19 +128,16 @@ function renderComment(comment, depth = 0) {
     const actions = document.createElement('div');
     actions.className = 'filter-buttons';
 
-    const likeBtn = document.createElement('button');
-    likeBtn.className = 'filter-btn';
-    likeBtn.type = 'button';
-    likeBtn.dataset.action = 'like';
-    likeBtn.dataset.id = comment.id;
-    likeBtn.textContent = `like (${comment.likes || 0})`;
-
-    const dislikeBtn = document.createElement('button');
-    dislikeBtn.className = 'filter-btn';
-    dislikeBtn.type = 'button';
-    dislikeBtn.dataset.action = 'dislike';
-    dislikeBtn.dataset.id = comment.id;
-    dislikeBtn.textContent = `dislike (${comment.dislikes || 0})`;
+    const starBtn = document.createElement('button');
+    starBtn.className = 'filter-btn';
+    starBtn.type = 'button';
+    starBtn.dataset.action = 'star';
+    starBtn.dataset.id = comment.id;
+    const starCount = comment.starCount || 0;
+    starBtn.textContent = `★ ${starCount}`;
+    if (hasStarred(comment.id)) {
+        starBtn.classList.add('active');
+    }
 
     const replyBtn = document.createElement('button');
     replyBtn.className = 'filter-btn';
@@ -133,8 +146,7 @@ function renderComment(comment, depth = 0) {
     replyBtn.dataset.id = comment.id;
     replyBtn.textContent = 'reply';
 
-    actions.appendChild(likeBtn);
-    actions.appendChild(dislikeBtn);
+    actions.appendChild(starBtn);
     actions.appendChild(replyBtn);
     wrapper.appendChild(actions);
 
@@ -216,17 +228,19 @@ async function submitComment({ name, text, parentId = null, stars = null }) {
         text: trimmed,
         parentId: parentId || null,
         stars: parentId ? null : stars,
-        likes: 0,
-        dislikes: 0,
+        starCount: 0,
         createdAt: serverTimestamp()
     });
     await loadComments();
 }
 
-async function reactToComment(commentId, field) {
+async function toggleStar(commentId) {
     if (!commentId) {
         return;
     }
+    const starred = getStarredComments();
+    const alreadyStarred = starred.includes(commentId);
+    const delta = alreadyStarred ? -1 : 1;
     try {
         await runTransaction(db, async (transaction) => {
             const ref = doc(db, 'coffeeComments', commentId);
@@ -234,12 +248,19 @@ async function reactToComment(commentId, field) {
             if (!snap.exists()) {
                 return;
             }
-            const current = snap.data()[field] || 0;
-            transaction.update(ref, { [field]: current + 1 });
+            const current = snap.data().starCount || 0;
+            const next = Math.max(0, current + delta);
+            transaction.update(ref, { starCount: next });
         });
+        if (alreadyStarred) {
+            saveStarredComments(starred.filter((id) => id !== commentId));
+        } else {
+            starred.push(commentId);
+            saveStarredComments(starred);
+        }
         await loadComments();
     } catch (error) {
-        console.error('Reaction failed', error);
+        console.error('Star failed', error);
     }
 }
 
@@ -262,11 +283,8 @@ commentsList.addEventListener('click', async (event) => {
     const action = target.dataset.action;
     const id = target.dataset.id;
 
-    if (action === 'like') {
-        await reactToComment(id, 'likes');
-    }
-    if (action === 'dislike') {
-        await reactToComment(id, 'dislikes');
+    if (action === 'star') {
+        await toggleStar(id);
     }
     if (action === 'reply') {
         const formEl = commentsList.querySelector(`[data-reply-form="${id}"]`);
