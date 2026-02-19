@@ -2,14 +2,11 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, doc, getDoc, setDoc, increment, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-const firebaseConfig = {
-  apiKey: "REDACTED",
-  authDomain: "lnzh-108b0.firebaseapp.com",
-  projectId: "lnzh-108b0",
-  storageBucket: "lnzh-108b0.firebasestorage.app",
-  messagingSenderId: "365246686274",
-  appId: "1:365246686274:web:457107f16e3255fec839db"
-};
+const firebaseConfig = window.__FIREBASE_CONFIG__;
+
+if (!firebaseConfig) {
+    throw new Error('Missing Firebase config. Create assets/js/firebase-config.local.js (see firebase-config.example.js).');
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

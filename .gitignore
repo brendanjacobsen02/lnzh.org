@@ -7,3 +7,4 @@ build.py
 
 # Instagram raw data exports
 assets/instagram-*/
+assets/js/firebase-config.local.js
