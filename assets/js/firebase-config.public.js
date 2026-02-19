@@ -6,3 +6,5 @@ window.__FIREBASE_CONFIG__ = {
   messagingSenderId: "365246686274",
   appId: "1:365246686274:web:457107f16e3255fec839db"
 };
+
+window.__ORDERS_PASSWORD__ = "pleasedonthackme";

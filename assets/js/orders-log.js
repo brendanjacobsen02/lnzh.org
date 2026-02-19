@@ -1,15 +1,28 @@
 import { db } from './firebase-config.js';
 import {
     collection,
+    doc,
     getDocs,
-    orderBy,
     query,
+    runTransaction,
     where
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const ordersBody = document.getElementById('orders-body');
 const statusText = document.getElementById('status-text');
 const filterButtons = document.querySelectorAll('[data-filter]');
+const sortButtons = document.querySelectorAll('[data-sort]');
+const loginSection = document.getElementById('orders-login');
+const loginInput = document.getElementById('orders-password');
+const loginButton = document.getElementById('orders-login-btn');
+const loginError = document.getElementById('orders-login-error');
+const ordersPanel = document.getElementById('orders-panel');
+
+const ORDERS_PASSWORD = window.__ORDERS_PASSWORD__ || '';
+
+let ordersCache = [];
+let activeFilter = 'today';
+let sortState = { key: 'createdAt', direction: 'desc' };
 
 function getLocalDateString(date = new Date()) {
     const year = date.getFullYear();
@@ -30,11 +43,57 @@ function formatTimestamp(timestamp) {
     return `${displayHour}:${mins} ${period}`;
 }
 
-function formatPickup(order) {
-    if (!order.pickupDate || !order.pickupTime) {
+function formatDateLabel(dateString) {
+    if (!dateString) {
         return '—';
     }
-    return `${order.pickupDate} ${order.pickupTime}`;
+    return dateString;
+}
+
+function getStyleText(order) {
+    const styleParts = [];
+    if (order.temp) {
+        styleParts.push(order.temp);
+    }
+    if (order.milk) {
+        styleParts.push(order.milk);
+    }
+    return styleParts.length ? styleParts.join(' / ') : '—';
+}
+
+function getSortValue(order, key) {
+    switch (key) {
+        case 'name':
+            return (order.name || '').toLowerCase();
+        case 'drink':
+            return (order.drink || '').toLowerCase();
+        case 'style':
+            return getStyleText(order).toLowerCase();
+        case 'pickupDate':
+            return order.pickupDate || '';
+        case 'pickupTime':
+            return order.pickupTime || '';
+        case 'createdAt':
+            return order.createdAt ? order.createdAt.toMillis() : 0;
+        default:
+            return '';
+    }
+}
+
+function sortOrders(orders) {
+    const { key, direction } = sortState;
+    const modifier = direction === 'asc' ? 1 : -1;
+    return orders.slice().sort((a, b) => {
+        const aValue = getSortValue(a, key);
+        const bValue = getSortValue(b, key);
+        if (aValue < bValue) {
+            return -1 * modifier;
+        }
+        if (aValue > bValue) {
+            return 1 * modifier;
+        }
+        return 0;
+    });
 }
 
 function renderOrders(orders) {
@@ -45,20 +104,20 @@ function renderOrders(orders) {
         return;
     }
 
-    orders.forEach((order) => {
-        const styleParts = [];
-        if (order.temp) {
-            styleParts.push(order.temp);
-        }
-        if (order.milk) {
-            styleParts.push(order.milk);
-        }
-        const styleText = styleParts.length ? styleParts.join(' / ') : '—';
-        const line = document.createElement('p');
-        line.innerHTML = `
-            <strong>${order.name || '—'}</strong> — ${order.drink || '—'} — ${styleText} — ${formatPickup(order)} — placed ${formatTimestamp(order.createdAt)}
+    const sorted = sortOrders(orders);
+
+    sorted.forEach((order) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${order.name || '—'}</td>
+            <td>${order.drink || '—'}</td>
+            <td>${getStyleText(order)}</td>
+            <td>${formatDateLabel(order.pickupDate)}</td>
+            <td>${order.pickupTime || '—'}</td>
+            <td>${formatTimestamp(order.createdAt)}</td>
+            <td><button class="filter-btn" type="button" data-delete="${order.id}">delete</button></td>
         `;
-        ordersBody.appendChild(line);
+        ordersBody.appendChild(row);
     });
 
     statusText.textContent = `${orders.length} order${orders.length === 1 ? '' : 's'} shown.`;
@@ -68,7 +127,7 @@ async function loadOrders(filter) {
     statusText.textContent = 'Loading orders...';
 
     const ordersRef = collection(db, 'orders');
-    let ordersQuery = query(ordersRef, orderBy('createdAt', 'desc'));
+    let ordersQuery = query(ordersRef);
 
     if (filter === 'today') {
         const today = getLocalDateString();
@@ -79,29 +138,111 @@ async function loadOrders(filter) {
         const snap = await getDocs(ordersQuery);
         const orders = [];
         snap.forEach((docSnap) => {
-            orders.push(docSnap.data());
+            orders.push({ id: docSnap.id, ...docSnap.data() });
         });
-
-        if (filter === 'today') {
-            orders.sort((a, b) => {
-                const aTime = a.createdAt ? a.createdAt.toMillis() : 0;
-                const bTime = b.createdAt ? b.createdAt.toMillis() : 0;
-                return bTime - aTime;
-            });
-        }
-        renderOrders(orders);
+        ordersCache = orders;
+        renderOrders(ordersCache);
     } catch (error) {
         console.error('Failed to load orders', error);
         statusText.textContent = 'Unable to load orders. Check your connection.';
     }
 }
 
+async function deleteOrder(order) {
+    if (!order || !order.id) {
+        return;
+    }
+    const confirmed = window.confirm(`Delete order for ${order.name || 'this customer'}?`);
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const orderRef = doc(db, 'orders', order.id);
+            transaction.delete(orderRef);
+
+            if (order.pickupDate && order.pickupTime) {
+                const slotRef = doc(db, 'orderSlots', `${order.pickupDate}_${order.pickupTime}`);
+                const slotSnap = await transaction.get(slotRef);
+                if (slotSnap.exists()) {
+                    const currentCount = slotSnap.data().count || 0;
+                    transaction.set(slotRef, { count: Math.max(0, currentCount - 1) }, { merge: true });
+                }
+            }
+        });
+
+        ordersCache = ordersCache.filter((item) => item.id !== order.id);
+        renderOrders(ordersCache);
+    } catch (error) {
+        console.error('Failed to delete order', error);
+        alert('Unable to delete order. Please try again.');
+    }
+}
+
+ordersBody.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-delete]');
+    if (!button) {
+        return;
+    }
+    const orderId = button.dataset.delete;
+    const order = ordersCache.find((item) => item.id === orderId);
+    deleteOrder(order);
+});
+
 filterButtons.forEach((button) => {
     button.addEventListener('click', () => {
         filterButtons.forEach((btn) => btn.classList.remove('active'));
         button.classList.add('active');
-        loadOrders(button.dataset.filter);
+        activeFilter = button.dataset.filter;
+        loadOrders(activeFilter);
     });
 });
 
-loadOrders('today');
+sortButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        const key = button.dataset.sort;
+        if (sortState.key === key) {
+            sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortState = { key, direction: 'asc' };
+        }
+        renderOrders(ordersCache);
+    });
+});
+
+function setAuthed(isAuthed) {
+    loginSection.hidden = isAuthed;
+    ordersPanel.hidden = !isAuthed;
+    if (isAuthed) {
+        loadOrders(activeFilter);
+    }
+}
+
+function checkPassword() {
+    if (!ORDERS_PASSWORD) {
+        setAuthed(true);
+        return;
+    }
+    const value = loginInput.value.trim();
+    if (value === ORDERS_PASSWORD) {
+        sessionStorage.setItem('ordersAuthed', 'true');
+        loginError.hidden = true;
+        setAuthed(true);
+    } else {
+        loginError.hidden = false;
+    }
+}
+
+loginButton.addEventListener('click', checkPassword);
+loginInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        checkPassword();
+    }
+});
+
+if (sessionStorage.getItem('ordersAuthed') === 'true') {
+    setAuthed(true);
+} else {
+    setAuthed(false);
+}
