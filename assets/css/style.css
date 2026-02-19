@@ -815,6 +815,11 @@ footer a img {
     display: flex;
 }
 
+.comment-reply {
+    border-left: 1px solid #000;
+    padding-left: 1rem;
+}
+
 .thoughts-controls select {
     font-family: 'Newsreader', Georgia, serif;
     font-size: 0.9rem;

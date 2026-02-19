@@ -105,7 +105,10 @@ function sortRootComments(comments) {
 
 function renderComment(comment, depth = 0) {
     const wrapper = document.createElement('div');
-    wrapper.style.marginLeft = depth ? '2rem' : '0';
+    if (depth) {
+        wrapper.classList.add('comment-reply');
+        wrapper.style.marginLeft = `${depth * 2.5}rem`;
+    }
 
     const name = comment.name && comment.name.trim() ? comment.name.trim() : 'anonymous';
     const timestamp = formatTimestamp(comment.createdAt);
