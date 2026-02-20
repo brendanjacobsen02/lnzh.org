@@ -756,6 +756,16 @@ footer a img {
     margin-left: auto;
 }
 
+.reviews-meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.reviews-meta .thought-count {
+    padding: 0;
+}
+
 .reverse-btn {
     background: none;
     border: none;

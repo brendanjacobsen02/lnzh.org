@@ -144,12 +144,14 @@
                 <textarea id="coffee-comment-text" placeholder="Write a review..." rows="6" cols="60" maxlength="500" required></textarea>
                 <button class="filter-btn" type="submit">post</button>
             </form>
-                        <hr class="coffee-divider">
+            <hr class="coffee-divider">
 
             <div class="thoughts-controls">
-                
-                <div class="thoughts-sort">
+                <div class="reviews-meta">
+                    <span id="coffee-rating" class="thought-count">rating: —</span>
                     <span id="coffee-comments-status" class="thought-count">Loading reviews...</span>
+                </div>
+                <div class="thoughts-sort">
                     <button id="coffee-comments-reverse" class="reverse-btn" title="Reverse order">
                         <img src="../assets/images/ui/arrow0.png" alt="reverse order">
                     </button>
@@ -157,7 +159,6 @@
                         <option value="date">date</option>
                         <option value="starred">likes</option>
                     </select>
- 
                 </div>
             </div>
             <div id="coffee-comments-list"></div>

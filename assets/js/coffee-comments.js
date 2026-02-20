@@ -18,6 +18,7 @@ const sortSelect = document.getElementById('coffee-comments-sort');
 const reverseBtn = document.getElementById('coffee-comments-reverse');
 const commentsList = document.getElementById('coffee-comments-list');
 const statusText = document.getElementById('coffee-comments-status');
+const ratingText = document.getElementById('coffee-rating');
 
 let commentsCache = [];
 let selectedStars = 5;
@@ -83,6 +84,36 @@ function renderStars(count) {
     const filled = '★'.repeat(count);
     const empty = '☆'.repeat(Math.max(0, 5 - count));
     return `${filled}${empty}`;
+}
+
+function roundToHalf(value) {
+    return Math.round(value * 2) / 2;
+}
+
+function renderAverageStars(value) {
+    if (!value || Number.isNaN(value)) {
+        return '';
+    }
+    const full = Math.floor(value);
+    const hasHalf = value - full >= 0.5;
+    const empty = Math.max(0, 5 - full - (hasHalf ? 1 : 0));
+    return `${'★'.repeat(full)}${hasHalf ? '⯪' : ''}${'☆'.repeat(empty)}`;
+}
+
+function updateRating() {
+    if (!ratingText) {
+        return;
+    }
+    const parents = commentsCache.filter((comment) => !comment.parentId);
+    const rated = parents.filter((comment) => typeof comment.stars === 'number' && comment.stars > 0);
+    if (!rated.length) {
+        ratingText.textContent = 'ratings: —';
+        return;
+    }
+    const total = rated.reduce((sum, comment) => sum + comment.stars, 0);
+    const average = total / rated.length;
+    const rounded = roundToHalf(average);
+    ratingText.textContent = `ratings: ${renderAverageStars(rounded)} (${rounded.toFixed(1)})`;
 }
 
 function sortRootComments(comments) {
@@ -195,11 +226,13 @@ function renderComments() {
     commentsList.innerHTML = '';
     if (!commentsCache.length) {
         statusText.textContent = 'No reviews yet.';
+        updateRating();
         return;
     }
-    statusText.textContent = `${commentsCache.length} review${commentsCache.length === 1 ? '' : 's'}.`;
     const threaded = buildThread(commentsCache);
     const sortedRoots = sortRootComments(threaded);
+    statusText.textContent = `${sortedRoots.length} review${sortedRoots.length === 1 ? '' : 's'}.`;
+    updateRating();
     sortedRoots.forEach((comment, index) => {
         commentsList.appendChild(renderComment(comment));
         if (index < sortedRoots.length - 1) {
