@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Coffee orders log.">
+    <meta name="description" content="Support the coffee project with a donation.">
     <meta name="author" content="Leon Zhou">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com;">
     <meta name="referrer" content="no-referrer-when-downgrade">
-    <title>lnzhOrders</title>
+    <title>lnzhDonations</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="icon" type="image/png" href="../assets/images/content/favicon.png">
     <script src="../assets/js/nav-dropdown.js"></script>
@@ -27,7 +27,6 @@
             <li class="dropdown-content" style="display: none;">
                 <ul class="dropdown-list">
                     <li class="dropdown-item"><a href="../blog/"><img src="../assets/images/content/blog0.png" alt="blog" class="size-4"></a></li>
-
                     <li class="dropdown-item"><a href="../coffee/"><img src="../assets/images/content/coffee.png" alt="coffee" class="size-3"></a></li>
                     <li class="dropdown-item"><a href="../thoughts/"><img src="../assets/images/content/thoughts.png" alt="thoughts and aphorisms" class="size-4"></a></li>
                     <li class="dropdown-item"><a href="../list/"><img src="../assets/images/content/list.png" alt="list" class="size-3"></a></li>
@@ -43,46 +42,29 @@
 
     <main>
         <header class="intro">
-            <h1>orders log</h1>
-            <p>Private view of submitted coffee orders.</p>
+            <h1>donations</h1>
         </header>
 
         <a href="../"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
 
         <section class="content">
-            <div id="orders-login">
-                <p>Enter the password to view orders.</p>
-                <div class="thoughts-controls">
-                    <label for="orders-password">Password</label>
-                    <input id="orders-password" type="password" placeholder="Password">
-                    <button class="filter-btn" type="button" id="orders-login-btn">enter</button>
-                </div>
-                <p id="orders-login-error" hidden>Wrong password. Try again.</p>
-            </div>
-
-            <div id="orders-panel" hidden>
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="incomplete" type="button">incomplete</button>
-                    <button class="filter-btn" data-filter="complete" type="button">completed</button>
-                </div>
-                <div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th><button class="filter-btn" type="button" data-sort="name">name</button></th>
-                                <th><button class="filter-btn" type="button" data-sort="drink">drink</button></th>
-                                <th><button class="filter-btn" type="button" data-sort="style">style</button></th>
-                                <th><button class="filter-btn" type="button" data-sort="pickupDate">pickup date</button></th>
-                                <th><button class="filter-btn" type="button" data-sort="pickupTime">pickup time</button></th>
-                                <th><button class="filter-btn" type="button" data-sort="createdAt">placed</button></th>
-                                <th>status</th>
-                                <th>action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orders-body"></tbody>
-                    </table>
-                </div>
-                <p id="status-text">Loading orders...</p>
+            <p><b>donations keep the coffee project alive. thank you!</b></p>
+            <div class="blog-grid">
+                <a class="blog-card" href="https://venmo.com/u/Shan-Li-152" target="_blank" rel="noopener noreferrer">
+                    <div class="card-title"><img src="../assets/images/content/venmologo.png" alt="venmo" class="size-3"></div>
+                    <div class="card-image"><img src="../assets/images/content/venmo.png" alt="Venmo QR code"></div>
+                    <div class="card-tags">venmo</div>
+                </a>
+                <a class="blog-card" href="https://cash.app/$brendanjacobsen02" target="_blank" rel="noopener noreferrer">
+                    <div class="card-title"><img src="../assets/images/content/cashapplogo.png" alt="cash app" class="size-3"></div>
+                    <div class="card-image"><img src="../assets/images/content/cashapp.png" alt="Cash App QR code"></div>
+                    <div class="card-tags">cash app</div>
+                </a>
+                <a class="blog-card" href="https://enroll.zellepay.com/qr-codes?data=eyJuYW1lIjoiTEVPTiIsImFjdGlvbiI6InBheW1lbnQiLCJ0b2tlbiI6ImNyb3dkZWRAZ21haWwuY29tIn0=" target="_blank" rel="noopener noreferrer">
+                    <div class="card-title"><img src="../assets/images/content/zellelogo.png" alt="zelle" class="size-3"></div>
+                    <div class="card-image"><img src="../assets/images/content/zelle.png" alt="Zelle QR code"></div>
+                    <div class="card-tags">zelle</div>
+                </a>
             </div>
         </section>
     </main>
@@ -97,9 +79,5 @@
             <a href="https://www.yelp.com/user_details?userid=VF0qY_FihoZUKrObEiy__g" target="_blank" rel="noopener noreferrer"><img src="../assets/images/icons/yelp.png" alt="Yelp"></a>
         </div>
     </footer>
-
-    <script src="../assets/js/firebase-config.local.js"></script>
-    <script src="../assets/js/firebase-config.public.js"></script>
-    <script type="module" src="../assets/js/orders-log.js"></script>
 </body>
 </html>

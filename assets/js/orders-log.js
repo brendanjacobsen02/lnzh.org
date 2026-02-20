@@ -5,7 +5,7 @@ import {
     deleteDoc,
     getDocs,
     query,
-    where
+    updateDoc
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const ordersBody = document.getElementById('orders-body');
@@ -21,15 +21,8 @@ const ordersPanel = document.getElementById('orders-panel');
 const ORDERS_PASSWORD = window.__ORDERS_PASSWORD__ || '';
 
 let ordersCache = [];
-let activeFilter = 'today';
+let activeFilter = 'incomplete';
 let sortState = { key: 'createdAt', direction: 'desc' };
-
-function getLocalDateString(date = new Date()) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
 
 function formatTimestamp(timestamp) {
     if (!timestamp) {
@@ -48,6 +41,10 @@ function formatDateLabel(dateString) {
         return '—';
     }
     return dateString;
+}
+
+function isComplete(order) {
+    return order.status === 'complete';
 }
 
 function getStyleText(order) {
@@ -99,14 +96,22 @@ function sortOrders(orders) {
 function renderOrders(orders) {
     ordersBody.innerHTML = '';
 
-    if (orders.length === 0) {
+    const filtered = orders.filter((order) => {
+        if (activeFilter === 'complete') {
+            return isComplete(order);
+        }
+        return !isComplete(order);
+    });
+
+    if (filtered.length === 0) {
         statusText.textContent = 'No orders found for this view.';
         return;
     }
 
-    const sorted = sortOrders(orders);
+    const sorted = sortOrders(filtered);
 
     sorted.forEach((order) => {
+        const completed = isComplete(order);
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${order.name || '—'}</td>
@@ -115,12 +120,18 @@ function renderOrders(orders) {
             <td>${formatDateLabel(order.pickupDate)}</td>
             <td>${order.pickupTime || '—'}</td>
             <td>${formatTimestamp(order.createdAt)}</td>
-            <td><button class="filter-btn" type="button" data-delete="${order.id}">delete</button></td>
+            <td>${completed ? 'completed' : 'incomplete'}</td>
+            <td>
+                <button class="filter-btn" type="button" data-toggle-status="${order.id}">
+                    ${completed ? 'mark incomplete' : 'mark complete'}
+                </button>
+                <button class="filter-btn" type="button" data-delete="${order.id}">delete</button>
+            </td>
         `;
         ordersBody.appendChild(row);
     });
 
-    statusText.textContent = `${orders.length} order${orders.length === 1 ? '' : 's'} shown.`;
+    statusText.textContent = `${filtered.length} order${filtered.length === 1 ? '' : 's'} shown.`;
 }
 
 async function loadOrders(filter) {
@@ -128,11 +139,6 @@ async function loadOrders(filter) {
 
     const ordersRef = collection(db, 'orders');
     let ordersQuery = query(ordersRef);
-
-    if (filter === 'today') {
-        const today = getLocalDateString();
-        ordersQuery = query(ordersRef, where('pickupDate', '==', today));
-    }
 
     try {
         const snap = await getDocs(ordersQuery);
@@ -168,14 +174,39 @@ async function deleteOrder(order) {
     }
 }
 
-ordersBody.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-delete]');
-    if (!button) {
+async function toggleOrderStatus(order) {
+    if (!order || !order.id) {
         return;
     }
-    const orderId = button.dataset.delete;
+    const nextStatus = isComplete(order) ? 'incomplete' : 'complete';
+    try {
+        await updateDoc(doc(db, 'orders', order.id), {
+            status: nextStatus
+        });
+        order.status = nextStatus;
+        renderOrders(ordersCache);
+    } catch (error) {
+        console.error('Failed to update status', error);
+        alert('Unable to update status. Please try again.');
+    }
+}
+
+ordersBody.addEventListener('click', (event) => {
+    const deleteButton = event.target.closest('[data-delete]');
+    if (deleteButton) {
+        const orderId = deleteButton.dataset.delete;
+        const order = ordersCache.find((item) => item.id === orderId);
+        deleteOrder(order);
+        return;
+    }
+
+    const statusButton = event.target.closest('[data-toggle-status]');
+    if (!statusButton) {
+        return;
+    }
+    const orderId = statusButton.dataset.toggleStatus;
     const order = ordersCache.find((item) => item.id === orderId);
-    deleteOrder(order);
+    toggleOrderStatus(order);
 });
 
 filterButtons.forEach((button) => {

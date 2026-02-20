@@ -360,6 +360,7 @@ async function placeOrder() {
             milk: requiresMilk(selectedDrink) ? selectedMilk : null,
             pickupDate: pickupDate,
             pickupTime: selectedSlot.value,
+            status: 'incomplete',
             createdAt: serverTimestamp()
         });
 
