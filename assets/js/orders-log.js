@@ -43,19 +43,22 @@ function formatDateLabel(dateString) {
     return dateString;
 }
 
-function isComplete(order) {
-    return order.status === 'complete';
+function formatMilk(milk) {
+    if (!milk) {
+        return '—';
+    }
+    const normalized = milk.toLowerCase();
+    if (normalized === 'whole') {
+        return 'W';
+    }
+    if (normalized === 'soy') {
+        return 'S';
+    }
+    return milk;
 }
 
-function getStyleText(order) {
-    const styleParts = [];
-    if (order.temp) {
-        styleParts.push(order.temp);
-    }
-    if (order.milk) {
-        styleParts.push(order.milk);
-    }
-    return styleParts.length ? styleParts.join(' / ') : '—';
+function isComplete(order) {
+    return order.status === 'complete';
 }
 
 function getSortValue(order, key) {
@@ -64,8 +67,10 @@ function getSortValue(order, key) {
             return (order.name || '').toLowerCase();
         case 'drink':
             return (order.drink || '').toLowerCase();
-        case 'style':
-            return getStyleText(order).toLowerCase();
+        case 'temp':
+            return (order.temp || '').toLowerCase();
+        case 'milk':
+            return (order.milk || '').toLowerCase();
         case 'pickupDate':
             return order.pickupDate || '';
         case 'pickupTime':
@@ -116,15 +121,17 @@ function renderOrders(orders) {
         row.innerHTML = `
             <td>${order.name || '—'}</td>
             <td>${order.drink || '—'}</td>
-            <td>${getStyleText(order)}</td>
+            <td>${order.temp || '—'}</td>
+            <td>${formatMilk(order.milk)}</td>
             <td>${formatDateLabel(order.pickupDate)}</td>
             <td>${order.pickupTime || '—'}</td>
             <td>${formatTimestamp(order.createdAt)}</td>
-            <td>${completed ? 'completed' : 'incomplete'}</td>
             <td>
                 <button class="filter-btn" type="button" data-toggle-status="${order.id}">
                     ${completed ? 'mark incomplete' : 'mark complete'}
                 </button>
+            </td>
+            <td>
                 <button class="filter-btn" type="button" data-delete="${order.id}">delete</button>
             </td>
         `;

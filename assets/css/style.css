@@ -356,6 +356,22 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     padding: 1rem;
 }
 
+#orders-panel table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#orders-panel th,
+#orders-panel td {
+    padding: 0.3rem 0.6rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+#orders-panel th {
+    font-weight: 700;
+}
+
 .blog-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -879,7 +895,7 @@ footer a img {
     font-size: 1rem;
     color: #666;
     display: flex;
-    align-items: center;
+    align-items: left;
     padding: 0.4rem 0;
 }
 
