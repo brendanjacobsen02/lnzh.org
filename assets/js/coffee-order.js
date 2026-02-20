@@ -17,7 +17,6 @@ const STEP_DRINK = document.getElementById('step-drink');
 const STEP_TEMP = document.getElementById('step-temp');
 const STEP_MILK = document.getElementById('step-milk');
 const STEP_DETAILS = document.getElementById('step-details');
-const STEP_CONFIRM = document.getElementById('step-confirm');
 
 const drinkButtons = STEP_DRINK.querySelectorAll('[data-drink]');
 const tempButtons = STEP_TEMP.querySelectorAll('[data-temp]');
@@ -28,7 +27,6 @@ const slotList = document.getElementById('slot-list');
 const slotNote = document.getElementById('slot-note');
 const backButton = document.getElementById('back-button');
 const submitButton = document.getElementById('submit-button');
-const summaryEl = document.getElementById('order-summary');
 
 const ORDER_WINDOW = {
     startMinutes: 7 * 60 + 30,
@@ -133,16 +131,14 @@ function animateIn(element) {
     element.style.animation = 'fadeIn 0.5s ease-out';
 }
 
-function setVisibility({ showTemp, showMilk, showDetails, showConfirm }) {
+function setVisibility({ showTemp, showMilk, showDetails }) {
     const wasTempHidden = STEP_TEMP.hidden;
     const wasMilkHidden = STEP_MILK.hidden;
     const wasDetailsHidden = STEP_DETAILS.hidden;
-    const wasConfirmHidden = STEP_CONFIRM.hidden;
 
     STEP_TEMP.hidden = !showTemp;
     STEP_MILK.hidden = !showMilk;
     STEP_DETAILS.hidden = !showDetails;
-    STEP_CONFIRM.hidden = !showConfirm;
 
     if (showTemp && wasTempHidden) {
         animateIn(STEP_TEMP);
@@ -153,13 +149,6 @@ function setVisibility({ showTemp, showMilk, showDetails, showConfirm }) {
     if (showDetails && wasDetailsHidden) {
         animateIn(STEP_DETAILS);
     }
-    if (showConfirm && wasConfirmHidden) {
-        animateIn(STEP_CONFIRM);
-    }
-}
-
-function hideConfirm() {
-    STEP_CONFIRM.hidden = true;
 }
 
 function clearSelections(buttons) {
@@ -203,7 +192,6 @@ function renderSlots(dateKey) {
             slotList.querySelectorAll('.filter-btn').forEach((btn) => btn.classList.remove('active'));
             button.classList.add('active');
             selectedSlot = slot;
-            hideConfirm();
         });
         slotList.appendChild(button);
     });
@@ -234,26 +222,6 @@ function getDateLabel(dateString) {
         return `${baseLabel} (preorder)`;
     }
     return `${baseLabel} (today)`;
-}
-
-function buildSummary() {
-    const dateString = selectedDateKey;
-    const dateLabel = getDateLabel(dateString);
-    const parts = [
-        `<div><strong>Name:</strong> ${selectedName()}</div>`,
-        `<div><strong>Drink:</strong> ${selectedDrink}</div>`
-    ];
-
-    if (requiresTemp(selectedDrink)) {
-        parts.push(`<div><strong>Style:</strong> ${getTempLabel()}</div>`);
-    }
-
-    if (requiresMilk(selectedDrink)) {
-        parts.push(`<div><strong>Milk:</strong> ${getMilkLabel()}</div>`);
-    }
-
-    parts.push(`<div><strong>Pickup:</strong> ${dateLabel} at ${selectedSlot.label}</div>`);
-    summaryEl.innerHTML = parts.join('');
 }
 
 function selectedName() {
@@ -363,13 +331,17 @@ async function placeOrder() {
             createdAt: serverTimestamp()
         });
 
-        buildSummary();
-        setVisibility({
-            showTemp: requiresTemp(selectedDrink),
-            showMilk: requiresMilk(selectedDrink),
-            showDetails: true,
-            showConfirm: true
-        });
+        const orderData = {
+            name: name,
+            drink: selectedDrink,
+            temp: requiresTemp(selectedDrink) ? selectedTemp : null,
+            milk: requiresMilk(selectedDrink) ? selectedMilk : null,
+            pickupDate: pickupDate,
+            pickupTime: selectedSlot.value,
+            pickupLabel: selectedSlot.label
+        };
+        localStorage.setItem('coffeeLastOrder', JSON.stringify(orderData));
+        window.location.href = './confirmed/';
     } catch (error) {
         console.error('Order failed', error);
         alert('Something went wrong placing your order. Please try again.');
@@ -392,12 +364,10 @@ function setupDrinkButtons() {
             clearSelections(milkButtons);
             slotList.innerHTML = '';
             slotNote.hidden = true;
-            hideConfirm();
-
             if (requiresTemp(selectedDrink)) {
-                setVisibility({ showTemp: true, showMilk: false, showDetails: false, showConfirm: false });
+                setVisibility({ showTemp: true, showMilk: false, showDetails: false });
             } else {
-                setVisibility({ showTemp: false, showMilk: false, showDetails: true, showConfirm: false });
+                setVisibility({ showTemp: false, showMilk: false, showDetails: true });
                 refreshSlots();
             }
         });
@@ -412,11 +382,10 @@ function setupTempButtons() {
             selectedTemp = button.dataset.temp;
             selectedMilk = null;
             clearSelections(milkButtons);
-            hideConfirm();
             if (requiresMilk(selectedDrink)) {
-                setVisibility({ showTemp: true, showMilk: true, showDetails: false, showConfirm: false });
+                setVisibility({ showTemp: true, showMilk: true, showDetails: false });
             } else {
-                setVisibility({ showTemp: true, showMilk: false, showDetails: true, showConfirm: false });
+                setVisibility({ showTemp: true, showMilk: false, showDetails: true });
                 refreshSlots();
             }
         });
@@ -429,8 +398,7 @@ function setupMilkButtons() {
             clearSelections(milkButtons);
             button.classList.add('active');
             selectedMilk = button.dataset.milk;
-            hideConfirm();
-            setVisibility({ showTemp: true, showMilk: true, showDetails: true, showConfirm: false });
+            setVisibility({ showTemp: true, showMilk: true, showDetails: true });
             refreshSlots();
         });
     });
@@ -481,7 +449,6 @@ function renderDateButtons() {
             button.classList.add('active');
             selectedDateKey = dateString;
             selectedSlot = null;
-            hideConfirm();
             refreshSlots();
         });
         dateButtonsWrapper.appendChild(button);
@@ -497,27 +464,24 @@ function renderDateButtons() {
 }
 
 backButton.addEventListener('click', () => {
-    hideConfirm();
     if (requiresTemp(selectedDrink)) {
         if (requiresMilk(selectedDrink)) {
             setVisibility({
                 showTemp: true,
                 showMilk: Boolean(selectedTemp),
-                showDetails: false,
-                showConfirm: false
+                showDetails: false
             });
         } else {
-            setVisibility({ showTemp: true, showMilk: false, showDetails: false, showConfirm: false });
+            setVisibility({ showTemp: true, showMilk: false, showDetails: false });
         }
     } else {
-        setVisibility({ showTemp: false, showMilk: false, showDetails: false, showConfirm: false });
+        setVisibility({ showTemp: false, showMilk: false, showDetails: false });
     }
 });
 
 submitButton.addEventListener('click', placeOrder);
-nameInput.addEventListener('input', hideConfirm);
 
-setVisibility({ showTemp: false, showMilk: false, showDetails: false, showConfirm: false });
+setVisibility({ showTemp: false, showMilk: false, showDetails: false });
 setupDrinkButtons();
 setupTempButtons();
 setupMilkButtons();
