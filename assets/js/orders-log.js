@@ -5,7 +5,9 @@ import {
     deleteDoc,
     getDocs,
     query,
-    updateDoc
+    updateDoc,
+    where,
+    writeBatch
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const ordersBody = document.getElementById('orders-body');
@@ -24,6 +26,13 @@ let ordersCache = [];
 let activeFilter = 'incomplete';
 let sortState = { key: 'createdAt', direction: 'desc' };
 let isAuthed = false;
+
+function getLocalDateString(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
 function formatTimestamp(timestamp) {
     if (!timestamp) {
@@ -162,6 +171,37 @@ async function loadOrders(filter) {
     }
 }
 
+async function autoCompletePastOrders() {
+    const today = getLocalDateString();
+    const lastRun = localStorage.getItem('ordersAutoComplete');
+    if (lastRun === today) {
+        return;
+    }
+    try {
+        const ordersRef = collection(db, 'orders');
+        const snap = await getDocs(query(ordersRef, where('pickupDate', '<', today)));
+        if (snap.empty) {
+            localStorage.setItem('ordersAutoComplete', today);
+            return;
+        }
+        const batch = writeBatch(db);
+        let updates = 0;
+        snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data && data.status !== 'complete') {
+                batch.update(docSnap.ref, { status: 'complete' });
+                updates += 1;
+            }
+        });
+        if (updates > 0) {
+            await batch.commit();
+        }
+        localStorage.setItem('ordersAutoComplete', today);
+    } catch (error) {
+        console.error('Failed to auto-complete past orders', error);
+    }
+}
+
 async function deleteOrder(order) {
     if (!order || !order.id) {
         return;
@@ -244,7 +284,7 @@ function setAuthed(nextAuthed) {
     ordersPanel.hidden = !isAuthed;
     if (isAuthed) {
         loginError.hidden = true;
-        loadOrders(activeFilter);
+        autoCompletePastOrders().finally(() => loadOrders(activeFilter));
     }
 }
 

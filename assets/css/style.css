@@ -263,6 +263,7 @@ p {
     margin-bottom: 1rem;
 }
 
+
 /* Links */
 a {
     color: #119c36;
@@ -599,7 +600,10 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 .update-header {
     font-weight: bold;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
+
 .update-content{
     font-style:italic;
 }

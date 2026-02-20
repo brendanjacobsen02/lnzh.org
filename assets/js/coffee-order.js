@@ -23,7 +23,7 @@ const drinkButtons = STEP_DRINK.querySelectorAll('[data-drink]');
 const tempButtons = STEP_TEMP.querySelectorAll('[data-temp]');
 const milkButtons = STEP_MILK.querySelectorAll('[data-milk]');
 const nameInput = document.getElementById('customer-name');
-const dateButtons = document.querySelectorAll('[data-date]');
+const dateButtonsWrapper = document.getElementById('date-buttons');
 const slotList = document.getElementById('slot-list');
 const slotNote = document.getElementById('slot-note');
 const backButton = document.getElementById('back-button');
@@ -41,7 +41,6 @@ let selectedTemp = null;
 let selectedMilk = null;
 let selectedSlot = null;
 let selectedDateKey = null;
-let isAfterWindow = false;
 
 function getLocalDateString(date = new Date()) {
     const year = date.getFullYear();
@@ -50,19 +49,10 @@ function getLocalDateString(date = new Date()) {
     return `${year}-${month}-${day}`;
 }
 
-function getDateStringForKey(key) {
-    const today = new Date();
-    if (key === 'tomorrow') {
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-        return getLocalDateString(tomorrow);
-    }
-    return getLocalDateString(today);
-}
-
-function formatDateLabel(dateString) {
+function formatDateLabel(dateString, includeWeekday = true) {
     const parsed = new Date(`${dateString}T00:00:00`);
-    return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const options = includeWeekday ? { weekday: 'short', month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric' };
+    return parsed.toLocaleDateString(undefined, options);
 }
 
 function minutesToLabel(minutes) {
@@ -189,7 +179,8 @@ function renderSlots(dateKey) {
     selectedSlot = null;
 
     const now = new Date();
-    const earliestMinute = dateKey === 'today' ? getEarliestMinute(now) : ORDER_WINDOW.startMinutes;
+    const todayKey = getLocalDateString(now);
+    const earliestMinute = dateKey === todayKey ? getEarliestMinute(now) : ORDER_WINDOW.startMinutes;
     const slots = getSlotMinutes();
 
     if (earliestMinute > ORDER_WINDOW.endMinutes) {
@@ -236,10 +227,18 @@ function getMilkLabel() {
     return selectedMilk ? selectedMilk : 'No milk selection';
 }
 
-function buildSummary() {
-    const dateString = getDateStringForKey(selectedDateKey);
+function getDateLabel(dateString) {
+    const today = getLocalDateString();
     const baseLabel = formatDateLabel(dateString);
-    const dateLabel = isAfterWindow ? `${baseLabel} (preorder)` : baseLabel;
+    if (dateString !== today) {
+        return `${baseLabel} (preorder)`;
+    }
+    return `${baseLabel} (today)`;
+}
+
+function buildSummary() {
+    const dateString = selectedDateKey;
+    const dateLabel = getDateLabel(dateString);
     const parts = [
         `<div><strong>Name:</strong> ${selectedName()}</div>`,
         `<div><strong>Drink:</strong> ${selectedDrink}</div>`
@@ -349,7 +348,7 @@ async function placeOrder() {
     submitButton.disabled = true;
     submitButton.textContent = 'Placing order...';
 
-    const pickupDate = getDateStringForKey(selectedDateKey);
+    const pickupDate = selectedDateKey;
     try {
         const { db, firestore } = await getFirebase();
         const { collection, addDoc, serverTimestamp } = firestore;
@@ -437,17 +436,64 @@ function setupMilkButtons() {
     });
 }
 
-function setupDateButtons() {
-    dateButtons.forEach((button) => {
+function isWeekday(date) {
+    const day = date.getDay();
+    return day >= 1 && day <= 5;
+}
+
+function getOrderDates() {
+    const dates = [];
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const includeToday = isWeekday(now) && nowMinutes <= ORDER_WINDOW.endMinutes;
+    const cursor = new Date(now);
+
+    if (includeToday) {
+        dates.push(getLocalDateString(cursor));
+    }
+
+    while (dates.length < 3) {
+        cursor.setDate(cursor.getDate() + 1);
+        if (isWeekday(cursor)) {
+            dates.push(getLocalDateString(cursor));
+        }
+    }
+
+    return dates;
+}
+
+function renderDateButtons() {
+    dateButtonsWrapper.innerHTML = '';
+    const dates = getOrderDates();
+    const todayKey = getLocalDateString();
+    dates.forEach((dateString) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'filter-btn';
+        button.dataset.date = dateString;
+        let label = formatDateLabel(dateString);
+        if (dateString === todayKey) {
+            label = `${label} (today)`;
+        }
+        button.textContent = label;
         button.addEventListener('click', () => {
-            dateButtons.forEach((btn) => btn.classList.remove('active'));
+            dateButtonsWrapper.querySelectorAll('.filter-btn').forEach((btn) => btn.classList.remove('active'));
             button.classList.add('active');
-            selectedDateKey = button.dataset.date;
+            selectedDateKey = dateString;
             selectedSlot = null;
             hideConfirm();
             refreshSlots();
         });
+        dateButtonsWrapper.appendChild(button);
     });
+
+    if (dates.length) {
+        const firstButton = dateButtonsWrapper.querySelector('.filter-btn');
+        if (firstButton) {
+            firstButton.classList.add('active');
+            selectedDateKey = firstButton.dataset.date;
+        }
+    }
 }
 
 backButton.addEventListener('click', () => {
@@ -475,22 +521,6 @@ setVisibility({ showTemp: false, showMilk: false, showDetails: false, showConfir
 setupDrinkButtons();
 setupTempButtons();
 setupMilkButtons();
-setupDateButtons();
+renderDateButtons();
 purgeMorningOrdersIfNeeded();
-
-const now = new Date();
-const nowMinutes = now.getHours() * 60 + now.getMinutes();
-isAfterWindow = nowMinutes > ORDER_WINDOW.endMinutes;
-selectedDateKey = isAfterWindow ? 'tomorrow' : 'today';
-dateButtons.forEach((button) => {
-    if (isAfterWindow && button.dataset.date === 'today') {
-        button.hidden = true;
-        return;
-    }
-    if (button.dataset.date === selectedDateKey) {
-        button.classList.add('active');
-    }
-    if (isAfterWindow && button.dataset.date === 'tomorrow') {
-        button.textContent = 'tomorrow (preorder)';
-    }
-});
+refreshSlots();
