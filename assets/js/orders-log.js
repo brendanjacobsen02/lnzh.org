@@ -2,9 +2,9 @@ import { db } from './firebase-config.js';
 import {
     collection,
     doc,
+    deleteDoc,
     getDocs,
     query,
-    runTransaction,
     where
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
@@ -158,19 +158,7 @@ async function deleteOrder(order) {
     }
 
     try {
-        await runTransaction(db, async (transaction) => {
-            const orderRef = doc(db, 'orders', order.id);
-            transaction.delete(orderRef);
-
-            if (order.pickupDate && order.pickupTime) {
-                const slotRef = doc(db, 'orderSlots', `${order.pickupDate}_${order.pickupTime}`);
-                const slotSnap = await transaction.get(slotRef);
-                if (slotSnap.exists()) {
-                    const currentCount = slotSnap.data().count || 0;
-                    transaction.set(slotRef, { count: Math.max(0, currentCount - 1) }, { merge: true });
-                }
-            }
-        });
+        await deleteDoc(doc(db, 'orders', order.id));
 
         ordersCache = ordersCache.filter((item) => item.id !== order.id);
         renderOrders(ordersCache);

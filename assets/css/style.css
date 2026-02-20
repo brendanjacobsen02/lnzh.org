@@ -361,6 +361,10 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.blog-card.active {
+    border-color: #000;
+}
+
 .card-title {
     padding: 0;
     display: flex;
@@ -376,29 +380,36 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     object-fit: contain;
 }
 
-.card-title img.size-2 {
-    max-height: 2rem;
-}
+.card-title img.size-0 {
+        max-height: 1.2rem;
+    }
+    .card-title img.size-1 {
+        max-height: 1.4rem;
+    }
 
-.card-title img.size-3 {
-    max-height: 2.5rem;
-}
+    .card-title img.size-2 {
+        max-height: 1.6rem;
+    }
 
-.card-title img.size-4 {
-    max-height: 3rem;
-}
+    .card-title img.size-3 {
+        max-height: 2rem;
+    }
 
-.card-title img.size-5 {
-    max-height: 3.5rem;
-}
+    .card-title img.size-4 {
+        max-height: 2.4rem;
+    }
 
-.card-title img.size-6 {
-    max-height: 4rem;
-}
+    .card-title img.size-5 {
+        max-height: 2.8rem;
+    }
 
-.card-title img.size-7 {
-    max-height: 4.5rem;
-}
+    .card-title img.size-6 {
+        max-height: 3.2rem;
+    }
+
+    .card-title img.size-7 {
+        max-height: 3.6rem;
+    }
 
 .card-image {
     width: 100%;
@@ -1063,6 +1074,14 @@ footer a img {
         max-height: 2rem;
     }
 
+
+    .card-title img.size-0 {
+        max-height: 1.2rem;
+    }
+    .card-title img.size-1 {
+        max-height: 1.4rem;
+    }
+
     .card-title img.size-2 {
         max-height: 1.6rem;
     }
@@ -1201,32 +1220,35 @@ footer a img {
         padding: 0;
     }
 
-    .card-title img {
-        max-height: 1.75rem;
+    .card-title img.size-0 {
+        max-height: 1.2rem;
     }
-
-    .card-title img.size-2 {
+    .card-title img.size-1 {
         max-height: 1.4rem;
     }
 
+    .card-title img.size-2 {
+        max-height: 1.6rem;
+    }
+
     .card-title img.size-3 {
-        max-height: 1.75rem;
+        max-height: 2rem;
     }
 
     .card-title img.size-4 {
-        max-height: 2.1rem;
+        max-height: 2.4rem;
     }
 
     .card-title img.size-5 {
-        max-height: 2.45rem;
-    }
-
-    .card-title img.size-6 {
         max-height: 2.8rem;
     }
 
+    .card-title img.size-6 {
+        max-height: 3.2rem;
+    }
+
     .card-title img.size-7 {
-        max-height: 3.15rem;
+        max-height: 3.6rem;
     }
 
     /* Thoughts controls mobile */
