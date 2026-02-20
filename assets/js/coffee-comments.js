@@ -150,10 +150,9 @@ function renderComment(comment, depth = 0) {
     replyBtn.dataset.action = 'reply';
     replyBtn.dataset.id = comment.id;
     replyBtn.textContent = 'reply';
-
-    actions.appendChild(starCount);
-    actions.appendChild(starBtn);
     actions.appendChild(replyBtn);
+    actions.appendChild(starBtn);
+    actions.appendChild(starCount);
     wrapper.appendChild(actions);
 
     const replyForm = document.createElement('div');
@@ -195,16 +194,16 @@ function renderComment(comment, depth = 0) {
 function renderComments() {
     commentsList.innerHTML = '';
     if (!commentsCache.length) {
-        statusText.textContent = 'No comments yet.';
+        statusText.textContent = 'No reviews yet.';
         return;
     }
-    statusText.textContent = `${commentsCache.length} comment${commentsCache.length === 1 ? '' : 's'}.`;
+    statusText.textContent = `${commentsCache.length} review${commentsCache.length === 1 ? '' : 's'}.`;
     const threaded = buildThread(commentsCache);
     const sortedRoots = sortRootComments(threaded);
     sortedRoots.forEach((comment, index) => {
         commentsList.appendChild(renderComment(comment));
         if (index < sortedRoots.length - 1) {
-            const divider = document.createElement('div');
+            const divider = document.createElement('hr');
             divider.className = 'comment-divider';
             commentsList.appendChild(divider);
         }
@@ -212,7 +211,7 @@ function renderComments() {
 }
 
 async function loadComments() {
-    statusText.textContent = 'Loading comments...';
+    statusText.textContent = 'Loading reviews...';
     try {
         const commentsRef = collection(db, 'coffeeComments');
         const snap = await getDocs(query(commentsRef, orderBy('createdAt', 'asc')));
@@ -224,14 +223,14 @@ async function loadComments() {
         renderComments();
     } catch (error) {
         console.error('Failed to load comments', error);
-        statusText.textContent = 'Unable to load comments.';
+        statusText.textContent = 'Unable to load reviews.';
     }
 }
 
 async function submitComment({ name, text, parentId = null, stars = null }) {
     const trimmed = text.trim();
     if (!trimmed) {
-        alert('Comment cannot be empty.');
+        alert('Review cannot be empty.');
         return;
     }
     await addDoc(collection(db, 'coffeeComments'), {

@@ -122,4 +122,27 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Coffee updates dropdown (uses same animation pattern as list dropdowns)
+    const coffeeUpdatesTrigger = document.querySelector('.coffee-updates-trigger');
+    if (coffeeUpdatesTrigger) {
+        const content = coffeeUpdatesTrigger.nextElementSibling;
+        if (content && content.classList.contains('coffee-updates-list')) {
+            coffeeUpdatesTrigger.addEventListener('click', function() {
+                const isActive = content.classList.contains('active');
+
+                if (isActive) {
+                    content.classList.remove('active');
+                    coffeeUpdatesTrigger.classList.remove('active');
+                    content.style.maxHeight = '0';
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    setTimeout(() => {
+                        content.classList.add('active');
+                        coffeeUpdatesTrigger.classList.add('active');
+                    }, 10);
+                }
+            });
+        }
+    }
 });

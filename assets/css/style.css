@@ -807,6 +807,21 @@ footer a img {
     margin-bottom: 0.75rem;
 }
 
+.comment-actions .fav-btn {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.comment-actions .like-count {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    min-width: auto;
+    text-align: left;
+    margin-left: -0.25rem;
+}
+
 #coffee-comments-list [data-reply-form] {
     display: none;
 }
@@ -816,21 +831,22 @@ footer a img {
 }
 
 .comment-reply {
-    border-left: 1px solid #000;
+    border-left: 1px dotted #ccc;
     padding-left: 1rem;
 }
 
-#coffee-comments-list hr {
+.comment-divider {
     border: none;
-    border-top: 1px solid #000;
-    width: 60%;
-    margin: 18px 0;
+    border-top: 2px dotted #ccc;
+    width: 70%;
+    margin: 1rem 0;
 }
 
-#coffee-comments-list .comment-divider {
+.coffee-divider {
+    border: none;
     border-top: 1px solid #000;
-    width: 60%;
-    margin: 18px 0;
+    width: 70%;
+    margin: 1rem 0;
 }
 
 .thoughts-controls select {
@@ -849,7 +865,7 @@ footer a img {
 }
 
 .thought-count {
-    font-size: 0.8rem;
+    font-size: 1rem;
     color: #666;
     display: flex;
     align-items: center;

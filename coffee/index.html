@@ -59,6 +59,7 @@
                 </li>
             </ul>
             <div><p><a href="#comments">leave a review or suggestion!</a></p></div>
+            <hr class="coffee-divider">
             <div id="step-drink">
                 <h2>Choose your drink</h2>
                 <div class="filter-buttons">
@@ -90,12 +91,10 @@
                     <label for="customer-name">Name</label>
                     <input id="customer-name" type="text" placeholder="Your name" maxlength="40">
                 </div>
-                <p>Pickup day</p>
                 <div class="filter-buttons" id="date-buttons">
                     <button class="filter-btn" type="button" data-date="today">today</button>
                     <button class="filter-btn" type="button" data-date="tomorrow">tomorrow</button>
                 </div>
-                <p>Pickup time</p>
                 <div class="filter-buttons" id="slot-list"></div>
                 <p id="slot-note" hidden></p>
                 <div class="filter-buttons">
@@ -112,9 +111,10 @@
                 <p>We only open the order window from 7:30 AM to 8:15 AM. If you miss it, check back tomorrow.</p>
             </div>
 
-            <h2 id="comments">reviews</h2>
+            <hr class="coffee-divider">
+
+            <h2 id="comments">reviews!</h2>
             <form id="coffee-comment-form" class="thoughts-controls">
-                <label for="coffee-comment-stars">Stars</label>
                 <div class="filter-buttons" id="coffee-comment-stars">
                     <button class="filter-btn" type="button" data-stars="1" aria-label="1 star">★</button>
                     <button class="filter-btn" type="button" data-stars="2" aria-label="2 stars">★★</button>
@@ -124,22 +124,26 @@
                 </div>
                 <label for="coffee-comment-name">Name (optional)</label>
                 <input id="coffee-comment-name" type="text" placeholder="Name" maxlength="40">
-                <label for="coffee-comment-text">Comment</label>
-                <textarea id="coffee-comment-text" placeholder="Write a comment..." rows="6" cols="60" maxlength="500" required></textarea>
+                <label for="coffee-comment-text">Review</label>
+                <textarea id="coffee-comment-text" placeholder="Write a review..." rows="6" cols="60" maxlength="500" required></textarea>
                 <button class="filter-btn" type="submit">post</button>
             </form>
+                        <hr class="coffee-divider">
+
             <div class="thoughts-controls">
+                
                 <div class="thoughts-sort">
+                    <span id="coffee-comments-status" class="thought-count">Loading reviews...</span>
                     <button id="coffee-comments-reverse" class="reverse-btn" title="Reverse order">
                         <img src="../assets/images/ui/arrow0.png" alt="reverse order">
                     </button>
                     <select id="coffee-comments-sort">
                         <option value="date">date</option>
-                        <option value="starred">starred</option>
+                        <option value="starred">likes</option>
                     </select>
+ 
                 </div>
             </div>
-            <p id="coffee-comments-status">Loading comments...</p>
             <div id="coffee-comments-list"></div>
         </section>
     </main>

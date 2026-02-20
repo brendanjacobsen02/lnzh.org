@@ -36,17 +36,11 @@ const ORDER_WINDOW = {
     interval: 5
 };
 
-const HIGH_CAPACITY_START = 8 * 60;
-const HIGH_CAPACITY_END = 8 * 60 + 15;
-const DEFAULT_CAPACITY = 5;
-const HIGH_CAPACITY = 10;
-
 let selectedDrink = null;
 let selectedTemp = null;
 let selectedMilk = null;
 let selectedSlot = null;
 let selectedDateKey = null;
-let slotCounts = {};
 let isAfterWindow = false;
 
 function getLocalDateString(date = new Date()) {
@@ -85,6 +79,49 @@ function minutesToValue(minutes) {
     return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
 }
 
+function timeValueToMinutes(value) {
+    if (!value) {
+        return null;
+    }
+    const [hours, mins] = value.split(':').map((part) => Number(part));
+    if (Number.isNaN(hours) || Number.isNaN(mins)) {
+        return null;
+    }
+    return hours * 60 + mins;
+}
+
+function getPacificNowParts() {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+    const parts = formatter.formatToParts(new Date());
+    const map = {};
+    parts.forEach((part) => {
+        map[part.type] = part.value;
+    });
+    return {
+        year: map.year,
+        month: map.month,
+        day: map.day,
+        hour: Number(map.hour),
+        minute: Number(map.minute)
+    };
+}
+
+function getPacificDateString() {
+    const parts = getPacificNowParts();
+    if (!parts || !parts.year) {
+        return getLocalDateString();
+    }
+    return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
 function getSlotMinutes() {
     const slots = [];
     for (let time = ORDER_WINDOW.startMinutes; time <= ORDER_WINDOW.endMinutes; time += ORDER_WINDOW.interval) {
@@ -104,13 +141,6 @@ function animateIn(element) {
     element.style.animation = 'none';
     void element.offsetHeight;
     element.style.animation = 'fadeIn 0.5s ease-out';
-}
-
-function getSlotCapacity(minutes) {
-    if (minutes >= HIGH_CAPACITY_START && minutes <= HIGH_CAPACITY_END) {
-        return HIGH_CAPACITY;
-    }
-    return DEFAULT_CAPACITY;
 }
 
 function setVisibility({ showTemp, showMilk, showDetails, showConfirm }) {
@@ -146,23 +176,6 @@ function clearSelections(buttons) {
     buttons.forEach((btn) => btn.classList.remove('active'));
 }
 
-async function loadSlotCounts(dateString) {
-    const { db, firestore } = await getFirebase();
-    const { collection, getDocs, query, where } = firestore;
-    const slotsQuery = query(
-        collection(db, 'orderSlots'),
-        where('date', '==', dateString)
-    );
-    const snap = await getDocs(slotsQuery);
-    slotCounts = {};
-    snap.forEach((docSnap) => {
-        const data = docSnap.data();
-        if (data && data.time) {
-            slotCounts[data.time] = data.count || 0;
-        }
-    });
-}
-
 function getEarliestMinute(now) {
     const nowMinutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
     if (nowMinutes <= ORDER_WINDOW.startMinutes) {
@@ -187,20 +200,9 @@ function renderSlots(dateKey) {
     }
 
     const availableSlots = slots.filter((slot) => slot.minutes >= earliestMinute);
-    const filteredSlots = availableSlots.filter((slot) => {
-        const capacity = getSlotCapacity(slot.minutes);
-        return (slotCounts[slot.value] || 0) < capacity;
-    });
-
-    if (filteredSlots.length === 0) {
-        slotNote.hidden = false;
-        slotNote.textContent = 'All pickup slots are full right now.';
-        animateIn(slotNote);
-        return;
-    }
 
     slotNote.hidden = true;
-    filteredSlots.forEach((slot) => {
+    availableSlots.forEach((slot) => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'filter-btn';
@@ -268,14 +270,56 @@ async function refreshSlots() {
             animateIn(slotNote);
             return;
         }
-        const dateString = getDateStringForKey(selectedDateKey);
-        await loadSlotCounts(dateString);
         renderSlots(selectedDateKey);
     } catch (error) {
         console.error('Error loading slots', error);
         slotNote.hidden = false;
         slotNote.textContent = 'Unable to load pickup times right now. Please refresh.';
         animateIn(slotNote);
+    }
+}
+
+async function purgeMorningOrdersIfNeeded() {
+    const pacificParts = getPacificNowParts();
+    if (!pacificParts || Number.isNaN(pacificParts.hour)) {
+        return;
+    }
+    if (pacificParts.hour < 12) {
+        return;
+    }
+    const dateString = getPacificDateString();
+    const lastCleanup = localStorage.getItem('coffeeMorningCleanup');
+    if (lastCleanup === dateString) {
+        return;
+    }
+    try {
+        const { db, firestore } = await getFirebase();
+        const { collection, getDocs, query, where, writeBatch } = firestore;
+        const ordersRef = collection(db, 'orders');
+        const snap = await getDocs(query(ordersRef, where('pickupDate', '==', dateString)));
+        if (snap.empty) {
+            localStorage.setItem('coffeeMorningCleanup', dateString);
+            return;
+        }
+        const batch = writeBatch(db);
+        let deleteCount = 0;
+        snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            const minutes = timeValueToMinutes(data ? data.pickupTime : null);
+            if (minutes === null) {
+                return;
+            }
+            if (minutes >= ORDER_WINDOW.startMinutes && minutes <= ORDER_WINDOW.endMinutes) {
+                batch.delete(docSnap.ref);
+                deleteCount += 1;
+            }
+        });
+        if (deleteCount > 0) {
+            await batch.commit();
+        }
+        localStorage.setItem('coffeeMorningCleanup', dateString);
+    } catch (error) {
+        console.error('Failed to purge morning orders', error);
     }
 }
 
@@ -306,38 +350,17 @@ async function placeOrder() {
     submitButton.textContent = 'Placing order...';
 
     const pickupDate = getDateStringForKey(selectedDateKey);
-    const slotKey = `${pickupDate}_${selectedSlot.value}`;
-    const capacity = getSlotCapacity(selectedSlot.minutes);
-
     try {
         const { db, firestore } = await getFirebase();
-        const { collection, doc, runTransaction, serverTimestamp } = firestore;
-        await runTransaction(db, async (transaction) => {
-            const slotRef = doc(db, 'orderSlots', slotKey);
-            const slotSnap = await transaction.get(slotRef);
-            const currentCount = slotSnap.exists() ? (slotSnap.data().count || 0) : 0;
-
-            if (currentCount >= capacity) {
-                throw new Error('Slot full');
-            }
-
-            transaction.set(slotRef, {
-                date: pickupDate,
-                time: selectedSlot.value,
-                count: currentCount + 1,
-                updatedAt: serverTimestamp()
-            }, { merge: true });
-
-            const orderRef = doc(collection(db, 'orders'));
-            transaction.set(orderRef, {
-                name: name,
-                drink: selectedDrink,
-                temp: requiresTemp(selectedDrink) ? selectedTemp : null,
-                milk: requiresMilk(selectedDrink) ? selectedMilk : null,
-                pickupDate: pickupDate,
-                pickupTime: selectedSlot.value,
-                createdAt: serverTimestamp()
-            });
+        const { collection, addDoc, serverTimestamp } = firestore;
+        await addDoc(collection(db, 'orders'), {
+            name: name,
+            drink: selectedDrink,
+            temp: requiresTemp(selectedDrink) ? selectedTemp : null,
+            milk: requiresMilk(selectedDrink) ? selectedMilk : null,
+            pickupDate: pickupDate,
+            pickupTime: selectedSlot.value,
+            createdAt: serverTimestamp()
         });
 
         buildSummary();
@@ -349,12 +372,7 @@ async function placeOrder() {
         });
     } catch (error) {
         console.error('Order failed', error);
-        if (error.message === 'Slot full') {
-            alert('That pickup time just filled up. Please choose another.');
-            await refreshSlots();
-        } else {
-            alert('Something went wrong placing your order. Please try again.');
-        }
+        alert('Something went wrong placing your order. Please try again.');
     } finally {
         submitButton.disabled = false;
         submitButton.textContent = 'Place order';
@@ -457,6 +475,7 @@ setupDrinkButtons();
 setupTempButtons();
 setupMilkButtons();
 setupDateButtons();
+purgeMorningOrdersIfNeeded();
 
 const now = new Date();
 const nowMinutes = now.getHours() * 60 + now.getMinutes();
