@@ -8,6 +8,7 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com;">
+    <meta name="robots" content="noindex,nofollow">
     <meta name="referrer" content="no-referrer-when-downgrade">
     <title>lnzhOrders</title>
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -52,6 +53,7 @@
         <section class="content">
             <div id="orders-login">
                 <p>Enter the password to edit orders.</p>
+                <p><b>Password:</b> <span id="orders-password-value"></span></p>
                 <div class="thoughts-controls">
                     <label for="orders-password">Password</label>
                     <input id="orders-password" type="password" placeholder="Password">
@@ -101,6 +103,12 @@
 
     <script src="../assets/js/firebase-config.local.js"></script>
     <script src="../assets/js/firebase-config.public.js"></script>
+    <script>
+        const passwordEl = document.getElementById('orders-password-value');
+        if (passwordEl && window.__ORDERS_PASSWORD__) {
+            passwordEl.textContent = window.__ORDERS_PASSWORD__;
+        }
+    </script>
     <script type="module" src="../assets/js/orders-log.js"></script>
 </body>
 </html>
