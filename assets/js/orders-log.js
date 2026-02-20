@@ -23,6 +23,7 @@ const ORDERS_PASSWORD = window.__ORDERS_PASSWORD__ || '';
 let ordersCache = [];
 let activeFilter = 'incomplete';
 let sortState = { key: 'createdAt', direction: 'desc' };
+let isAuthed = false;
 
 function formatTimestamp(timestamp) {
     if (!timestamp) {
@@ -118,6 +119,8 @@ function renderOrders(orders) {
     sorted.forEach((order) => {
         const completed = isComplete(order);
         const row = document.createElement('tr');
+        const disabledAttr = isAuthed ? '' : 'disabled';
+        const disabledTitle = isAuthed ? '' : 'title="Enter password to edit"';
         row.innerHTML = `
             <td>${order.name || '—'}</td>
             <td>${order.drink || '—'}</td>
@@ -127,12 +130,12 @@ function renderOrders(orders) {
             <td>${order.pickupTime || '—'}</td>
             <td>${formatTimestamp(order.createdAt)}</td>
             <td>
-                <button class="filter-btn" type="button" data-toggle-status="${order.id}">
+                <button class="filter-btn" type="button" data-toggle-status="${order.id}" ${disabledAttr} ${disabledTitle}>
                     ${completed ? 'mark incomplete' : 'mark complete'}
                 </button>
             </td>
             <td>
-                <button class="filter-btn" type="button" data-delete="${order.id}">delete</button>
+                <button class="filter-btn" type="button" data-delete="${order.id}" ${disabledAttr} ${disabledTitle}>delete</button>
             </td>
         `;
         ordersBody.appendChild(row);
@@ -201,6 +204,10 @@ async function toggleOrderStatus(order) {
 ordersBody.addEventListener('click', (event) => {
     const deleteButton = event.target.closest('[data-delete]');
     if (deleteButton) {
+        if (!isAuthed) {
+            alert('Enter the password to edit orders.');
+            return;
+        }
         const orderId = deleteButton.dataset.delete;
         const order = ordersCache.find((item) => item.id === orderId);
         deleteOrder(order);
@@ -209,6 +216,10 @@ ordersBody.addEventListener('click', (event) => {
 
     const statusButton = event.target.closest('[data-toggle-status]');
     if (!statusButton) {
+        return;
+    }
+    if (!isAuthed) {
+        alert('Enter the password to edit orders.');
         return;
     }
     const orderId = statusButton.dataset.toggleStatus;
@@ -237,16 +248,19 @@ sortButtons.forEach((button) => {
     });
 });
 
-function setAuthed(isAuthed) {
-    loginSection.hidden = isAuthed;
-    ordersPanel.hidden = !isAuthed;
+function setAuthed(nextAuthed) {
+    isAuthed = Boolean(nextAuthed);
+    loginSection.hidden = false;
+    ordersPanel.hidden = false;
     if (isAuthed) {
-        loadOrders(activeFilter);
+        loginError.hidden = true;
     }
+    loadOrders(activeFilter);
 }
 
 function checkPassword() {
     if (!ORDERS_PASSWORD) {
+        isAuthed = true;
         setAuthed(true);
         return;
     }
@@ -254,6 +268,7 @@ function checkPassword() {
     if (value === ORDERS_PASSWORD) {
         sessionStorage.setItem('ordersAuthed', 'true');
         loginError.hidden = true;
+        isAuthed = true;
         setAuthed(true);
     } else {
         loginError.hidden = false;
@@ -267,8 +282,5 @@ loginInput.addEventListener('keydown', (event) => {
     }
 });
 
-if (sessionStorage.getItem('ordersAuthed') === 'true') {
-    setAuthed(true);
-} else {
-    setAuthed(false);
-}
+isAuthed = sessionStorage.getItem('ordersAuthed') === 'true';
+setAuthed(isAuthed);

@@ -330,6 +330,11 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     color: #f2f2e4;
 }
 
+#orders-panel .filter-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
 /* Blog Grid */
 .content h2 {
     margin-top: 0;
