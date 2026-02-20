@@ -1,29 +1,18 @@
 import { db } from './firebase-config.js';
 import {
     collection,
-    doc,
-    deleteDoc,
     getDocs,
-    query,
-    updateDoc
+    query
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const ordersBody = document.getElementById('orders-body');
 const statusText = document.getElementById('status-text');
 const filterButtons = document.querySelectorAll('[data-filter]');
 const sortButtons = document.querySelectorAll('[data-sort]');
-const loginSection = document.getElementById('orders-login');
-const loginInput = document.getElementById('orders-password');
-const loginButton = document.getElementById('orders-login-btn');
-const loginError = document.getElementById('orders-login-error');
-const ordersPanel = document.getElementById('orders-panel');
-
-const ORDERS_PASSWORD = window.__ORDERS_PASSWORD__ || '';
 
 let ordersCache = [];
 let activeFilter = 'incomplete';
 let sortState = { key: 'createdAt', direction: 'desc' };
-let isAuthed = false;
 
 function formatTimestamp(timestamp) {
     if (!timestamp) {
@@ -117,7 +106,6 @@ function renderOrders(orders) {
     const sorted = sortOrders(filtered);
 
     sorted.forEach((order) => {
-        const completed = isComplete(order);
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${order.name || '—'}</td>
@@ -127,14 +115,6 @@ function renderOrders(orders) {
             <td>${formatDateLabel(order.pickupDate)}</td>
             <td>${order.pickupTime || '—'}</td>
             <td>${formatTimestamp(order.createdAt)}</td>
-            <td>
-                <button class="filter-btn" type="button" data-toggle-status="${order.id}">
-                    ${completed ? 'mark incomplete' : 'mark complete'}
-                </button>
-            </td>
-            <td>
-                <button class="filter-btn" type="button" data-delete="${order.id}">delete</button>
-            </td>
         `;
         ordersBody.appendChild(row);
     });
@@ -146,7 +126,7 @@ async function loadOrders(filter) {
     statusText.textContent = 'Loading orders...';
 
     const ordersRef = collection(db, 'orders');
-    let ordersQuery = query(ordersRef);
+    const ordersQuery = query(ordersRef);
 
     try {
         const snap = await getDocs(ordersQuery);
@@ -161,61 +141,6 @@ async function loadOrders(filter) {
         statusText.textContent = 'Unable to load orders. Check your connection.';
     }
 }
-
-async function deleteOrder(order) {
-    if (!order || !order.id) {
-        return;
-    }
-    const confirmed = window.confirm(`Delete order for ${order.name || 'this customer'}?`);
-    if (!confirmed) {
-        return;
-    }
-
-    try {
-        await deleteDoc(doc(db, 'orders', order.id));
-
-        ordersCache = ordersCache.filter((item) => item.id !== order.id);
-        renderOrders(ordersCache);
-    } catch (error) {
-        console.error('Failed to delete order', error);
-        alert('Unable to delete order. Please try again.');
-    }
-}
-
-async function toggleOrderStatus(order) {
-    if (!order || !order.id) {
-        return;
-    }
-    const nextStatus = isComplete(order) ? 'incomplete' : 'complete';
-    try {
-        await updateDoc(doc(db, 'orders', order.id), {
-            status: nextStatus
-        });
-        order.status = nextStatus;
-        renderOrders(ordersCache);
-    } catch (error) {
-        console.error('Failed to update status', error);
-        alert('Unable to update status. Please try again.');
-    }
-}
-
-ordersBody.addEventListener('click', (event) => {
-    const deleteButton = event.target.closest('[data-delete]');
-    if (deleteButton) {
-        const orderId = deleteButton.dataset.delete;
-        const order = ordersCache.find((item) => item.id === orderId);
-        deleteOrder(order);
-        return;
-    }
-
-    const statusButton = event.target.closest('[data-toggle-status]');
-    if (!statusButton) {
-        return;
-    }
-    const orderId = statusButton.dataset.toggleStatus;
-    const order = ordersCache.find((item) => item.id === orderId);
-    toggleOrderStatus(order);
-});
 
 filterButtons.forEach((button) => {
     button.addEventListener('click', () => {
@@ -238,39 +163,4 @@ sortButtons.forEach((button) => {
     });
 });
 
-function setAuthed(nextAuthed) {
-    isAuthed = Boolean(nextAuthed);
-    loginSection.hidden = isAuthed;
-    ordersPanel.hidden = !isAuthed;
-    if (isAuthed) {
-        loginError.hidden = true;
-        loadOrders(activeFilter);
-    }
-}
-
-function checkPassword() {
-    if (!ORDERS_PASSWORD) {
-        isAuthed = true;
-        setAuthed(true);
-        return;
-    }
-    const value = loginInput.value.trim();
-    if (value === ORDERS_PASSWORD) {
-        sessionStorage.setItem('ordersAuthed', 'true');
-        loginError.hidden = true;
-        isAuthed = true;
-        setAuthed(true);
-    } else {
-        loginError.hidden = false;
-    }
-}
-
-loginButton.addEventListener('click', checkPassword);
-loginInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        checkPassword();
-    }
-});
-
-isAuthed = sessionStorage.getItem('ordersAuthed') === 'true';
-setAuthed(isAuthed);
+loadOrders(activeFilter);

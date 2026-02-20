@@ -50,7 +50,17 @@
         <a href="../"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
 
         <section class="content">
-            <div id="orders-panel">
+            <div id="orders-login">
+                <p>Enter the password to edit orders.</p>
+                <div class="thoughts-controls">
+                    <label for="orders-password">Password</label>
+                    <input id="orders-password" type="password" placeholder="Password">
+                    <button class="filter-btn" type="button" id="orders-login-btn">enter</button>
+                </div>
+                <p id="orders-login-error" hidden>Wrong password. Try again.</p>
+            </div>
+
+            <div id="orders-panel" hidden>
                 <div class="filter-buttons">
                     <button class="filter-btn active" data-filter="incomplete" type="button">incomplete</button>
                     <button class="filter-btn" data-filter="complete" type="button">completed</button>
@@ -66,6 +76,8 @@
                                 <th><button class="filter-btn" type="button" data-sort="pickupDate">pickup date</button></th>
                                 <th><button class="filter-btn" type="button" data-sort="pickupTime">pickup time</button></th>
                                 <th><button class="filter-btn" type="button" data-sort="createdAt">placed</button></th>
+                                <th>complete</th>
+                                <th>delete</th>
                             </tr>
                         </thead>
                         <tbody id="orders-body"></tbody>
@@ -89,6 +101,6 @@
 
     <script src="../assets/js/firebase-config.local.js"></script>
     <script src="../assets/js/firebase-config.public.js"></script>
-    <script type="module" src="../assets/js/orders-view.js"></script>
+    <script type="module" src="../assets/js/orders-log.js"></script>
 </body>
 </html>
