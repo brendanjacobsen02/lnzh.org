@@ -387,6 +387,64 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     border-color: #000;
 }
 
+.confirmed-card {
+    cursor: grab;
+    max-width: 30%;
+    margin: 0 0 2rem 0;
+    border: 1px solid #000;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    transform-origin: center;
+    transition: none;
+    animation: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    will-change: transform;
+    backface-visibility: hidden;
+    touch-action: none;
+}
+
+.confirmed-card .card-title {
+    height: 0;
+    padding: 0;
+}
+
+.confirmed-card .card-tags {
+    font-size: 1.05rem;
+    transform: none;
+}
+
+.confirmed-card:hover {
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
+}
+
+.confirmed-card.is-dragging {
+    cursor: grabbing;
+    box-shadow: none;
+}
+
+.confirmed-card .card-image {
+    transform: none;
+}
+
+.confirmed-card .card-title,
+.confirmed-card .card-image,
+.confirmed-card .card-tags {
+    pointer-events: none;
+}
+
+#order-summary {
+    perspective: 800px;
+}
+
+.confirmed-card * {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+}
+
+
 .card-title {
     padding: 0;
     display: flex;
