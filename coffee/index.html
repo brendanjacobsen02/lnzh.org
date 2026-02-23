@@ -7,7 +7,7 @@
     <meta name="author" content="Leon Zhou">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://firebasestorage.googleapis.com; script-src 'self' https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://firebasestorage.googleapis.com;">
     <meta name="referrer" content="no-referrer-when-downgrade">
     <title>lnzhCoffee</title>
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -179,7 +179,12 @@
                 <label for="coffee-comment-name">Name (optional)</label>
                 <input id="coffee-comment-name" type="text" placeholder="Name" maxlength="40">
                 <label for="coffee-comment-text">Review</label>
-                <textarea id="coffee-comment-text" placeholder="Write a review..." rows="6" cols="60" maxlength="500" required></textarea>
+                <textarea id="coffee-comment-text" placeholder="Write a review..." rows="6" cols="60" maxlength="500"></textarea>
+                <label for="coffee-comment-image">Photo (optional)</label>
+                <label class="upload-btn" for="coffee-comment-image">
+                    <img src="../assets/images/content/upload.png" alt="upload photo">
+                </label>
+                <input id="coffee-comment-image" type="file" accept="image/*" class="upload-input">
                 <button class="filter-btn" type="submit">post</button>
             </form>
             <hr class="coffee-divider">

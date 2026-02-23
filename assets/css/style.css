@@ -886,6 +886,17 @@ footer a img {
     box-sizing: border-box;
 }
 
+.thoughts-controls input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
 .thoughts-controls input[type="text"]:focus,
 .thoughts-controls input[type="password"]:focus,
 .thoughts-controls input[type="email"]:focus {
@@ -962,6 +973,30 @@ footer a img {
 .comment-reply {
     border-left: 1px dotted #ccc;
     padding-left: 1rem;
+}
+
+.upload-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #000;
+    padding: 0.35rem 0.5rem;
+    cursor: pointer;
+}
+
+.upload-btn img {
+    display: block;
+    height: 1.2rem;
+    width: auto;
+}
+
+.comment-image {
+    display: block;
+    max-width: 240px;
+    width: 100%;
+    height: auto;
+    border: 1px solid #000;
+    margin: 0.5rem 0 0.75rem;
 }
 
 .comment-divider {

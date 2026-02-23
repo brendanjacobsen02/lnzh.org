@@ -9,10 +9,17 @@ import {
     runTransaction,
     serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import {
+    getStorage,
+    ref,
+    uploadBytes,
+    getDownloadURL
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 const form = document.getElementById('coffee-comment-form');
 const nameInput = document.getElementById('coffee-comment-name');
 const textInput = document.getElementById('coffee-comment-text');
+const imageInput = document.getElementById('coffee-comment-image');
 const starButtons = document.querySelectorAll('#coffee-comment-stars [data-stars]');
 const sortSelect = document.getElementById('coffee-comments-sort');
 const reverseBtn = document.getElementById('coffee-comments-reverse');
@@ -51,6 +58,27 @@ function formatTimestamp(timestamp) {
     const period = hours >= 12 ? 'PM' : 'AM';
     const displayHour = ((hours + 11) % 12) + 1;
     return `${displayHour}:${mins} ${period}`;
+}
+
+async function uploadImage(file) {
+    if (!file) {
+        return null;
+    }
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        return null;
+    }
+    const maxSize = 3 * 1024 * 1024;
+    if (file.size > maxSize) {
+        alert('Image must be under 3MB.');
+        return null;
+    }
+    const storage = getStorage();
+    const extension = file.name.split('.').pop() || 'jpg';
+    const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+    const imageRef = ref(storage, `coffeeReviews/${safeName}`);
+    await uploadBytes(imageRef, file);
+    return getDownloadURL(imageRef);
 }
 
 function buildThread(comments) {
@@ -154,9 +182,19 @@ function renderComment(comment, depth = 0) {
     header.innerHTML = `<strong>${name}</strong> · ${timestamp}`;
     wrapper.appendChild(header);
 
-    const body = document.createElement('p');
-    body.textContent = comment.text || '';
-    wrapper.appendChild(body);
+    if (comment.text) {
+        const body = document.createElement('p');
+        body.textContent = comment.text || '';
+        wrapper.appendChild(body);
+    }
+
+    if (comment.imageUrl) {
+        const image = document.createElement('img');
+        image.className = 'comment-image';
+        image.src = comment.imageUrl;
+        image.alt = 'Review photo';
+        wrapper.appendChild(image);
+    }
 
     const actions = document.createElement('div');
     actions.className = 'comment-actions';
@@ -201,6 +239,17 @@ function renderComment(comment, depth = 0) {
     replyText.placeholder = 'Write a reply...';
     replyText.maxLength = 280;
 
+    const replyImage = document.createElement('input');
+    replyImage.type = 'file';
+    replyImage.accept = 'image/*';
+    replyImage.className = 'upload-input';
+    replyImage.id = `reply-image-${comment.id}`;
+
+    const replyImageLabel = document.createElement('label');
+    replyImageLabel.className = 'upload-btn';
+    replyImageLabel.setAttribute('for', replyImage.id);
+    replyImageLabel.innerHTML = '<img src="../assets/images/content/upload.png" alt="upload photo">';
+
     const replySubmit = document.createElement('button');
     replySubmit.className = 'filter-btn';
     replySubmit.type = 'button';
@@ -210,6 +259,8 @@ function renderComment(comment, depth = 0) {
 
     replyForm.appendChild(replyName);
     replyForm.appendChild(replyText);
+    replyForm.appendChild(replyImageLabel);
+    replyForm.appendChild(replyImage);
     replyForm.appendChild(replySubmit);
     wrapper.appendChild(replyForm);
 
@@ -260,11 +311,18 @@ async function loadComments() {
     }
 }
 
-async function submitComment({ name, text, parentId = null, stars = null }) {
+async function submitComment({ name, text, parentId = null, stars = null, imageFile = null }) {
     const trimmed = text.trim();
-    if (!trimmed) {
+    if (!trimmed && !imageFile) {
         alert('Review cannot be empty.');
         return;
+    }
+    let imageUrl = null;
+    if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+        if (!imageUrl) {
+            return;
+        }
     }
     await addDoc(collection(db, 'coffeeComments'), {
         name: name.trim() || null,
@@ -272,6 +330,7 @@ async function submitComment({ name, text, parentId = null, stars = null }) {
         parentId: parentId || null,
         stars: parentId ? null : stars,
         starCount: 0,
+        imageUrl: imageUrl || null,
         createdAt: serverTimestamp()
     });
     await loadComments();
@@ -312,10 +371,14 @@ form.addEventListener('submit', async (event) => {
     await submitComment({
         name: nameInput.value,
         text: textInput.value,
-        stars: selectedStars
+        stars: selectedStars,
+        imageFile: imageInput?.files?.[0] || null
     });
     nameInput.value = '';
     textInput.value = '';
+    if (imageInput) {
+        imageInput.value = '';
+    }
 });
 
 commentsList.addEventListener('click', async (event) => {
@@ -354,10 +417,18 @@ commentsList.addEventListener('click', async (event) => {
         if (!formEl) {
             return;
         }
-        const inputs = formEl.querySelectorAll('input');
-        const replyName = inputs[0]?.value || '';
-        const replyText = inputs[1]?.value || '';
-        await submitComment({ name: replyName, text: replyText, parentId: id });
+        const replyName = formEl.querySelector('input[type="text"]')?.value || '';
+        const replyText = formEl.querySelectorAll('input[type="text"]')[1]?.value || '';
+        const replyImage = formEl.querySelector('input[type="file"]');
+        await submitComment({
+            name: replyName,
+            text: replyText,
+            parentId: id,
+            imageFile: replyImage?.files?.[0] || null
+        });
+        if (replyImage) {
+            replyImage.value = '';
+        }
     }
 });
 
