@@ -27,6 +27,16 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Menu availability (sold out toggles)
+    match /menu/{docId} {
+      allow read, write: if true;
+    }
+
+    // Total order counter
+    match /stats/{docId} {
+      allow read, write: if true;
+    }
+
     // Email list signups
     match /emails/{emailId} {
       allow create: if true;

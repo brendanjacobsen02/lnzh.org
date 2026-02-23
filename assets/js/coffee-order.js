@@ -444,7 +444,7 @@ async function placeOrder() {
     const pickupDate = selectedDateKey;
     try {
         const { db, firestore } = await getFirebase();
-        const { collection, addDoc, serverTimestamp } = firestore;
+        const { collection, addDoc, doc, runTransaction, serverTimestamp } = firestore;
         await addDoc(collection(db, 'orders'), {
             name: name,
             drink: selectedDrink,
@@ -455,6 +455,18 @@ async function placeOrder() {
             pickupTime: selectedSlot.value,
             status: 'incomplete',
             createdAt: serverTimestamp()
+        });
+        const countRef = doc(db, 'stats', 'orders');
+        await runTransaction(db, async (tx) => {
+            const snap = await tx.get(countRef);
+            let current = 93;
+            if (snap.exists()) {
+                const data = snap.data();
+                if (data && typeof data.totalOrders === 'number') {
+                    current = Math.max(data.totalOrders, 93);
+                }
+            }
+            tx.set(countRef, { totalOrders: current + 1 }, { merge: true });
         });
 
         const orderData = {
