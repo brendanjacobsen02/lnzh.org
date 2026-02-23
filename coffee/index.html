@@ -73,6 +73,12 @@
             <hr class="coffee-divider">
             <div id="step-drink">
                 <h2>Choose your drink!</h2>
+                <div class="filter-buttons coffee-alt-buttons">
+                    <button class="filter-btn" type="button" data-drink="Matcha" data-drink-label="matcha">matcha</button>
+                    <button class="filter-btn" type="button" data-drink="Chai" data-drink-label="chai">chai</button>
+                    <button class="filter-btn" type="button" data-drink="Thai Tea" data-drink-label="thai tea">thai tea</button>
+                    <button class="filter-btn" type="button" data-drink="Chocolate Chip Cookie" data-drink-label="chocolate chip cookie">chocolate chip cookie</button>
+                </div>
                 <div class="blog-grid">
                     <button class="blog-card" type="button" data-drink="Espresso" aria-label="Espresso">
                         <div class="card-title"><img src="../assets/images/content/espresso.png" alt="espresso" class="size-4"></div>
@@ -96,15 +102,23 @@
                 <h2>Hot or cold?</h2>
                 <div class="filter-buttons">
                     <button class="filter-btn" type="button" data-temp="Hot">hot</button>
-                    <button class="filter-btn" type="button" data-temp="Cold (no ice)">cold (no ice)</button>
+                    <button class="filter-btn" type="button" data-temp="Iced">iced</button>
                 </div>
             </div>
 
             <div id="step-milk" hidden>
-                <h2>Milk type (latte only)</h2>
+                <h2>Milk type</h2>
                 <div class="filter-buttons">
                     <button class="filter-btn" type="button" data-milk="Whole">whole</button>
                     <button class="filter-btn" type="button" data-milk="Soy">soy</button>
+                </div>
+            </div>
+
+            <div id="step-gluten" hidden>
+                <h2>Gluten free?</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn" type="button" data-gluten="Regular">regular</button>
+                    <button class="filter-btn" type="button" data-gluten="Gluten Free">gluten free</button>
                 </div>
             </div>
 

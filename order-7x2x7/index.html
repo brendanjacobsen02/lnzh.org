@@ -63,6 +63,19 @@
             </div>
 
             <div id="orders-panel" hidden>
+                <div>
+                    <h2>menu status</h2>
+                    <div class="filter-buttons" id="menu-toggle-buttons">
+                        <button class="filter-btn" type="button" data-menu-key="espresso" data-menu-label="espresso">espresso</button>
+                        <button class="filter-btn" type="button" data-menu-key="latte" data-menu-label="latte">latte</button>
+                        <button class="filter-btn" type="button" data-menu-key="americano" data-menu-label="americano">americano</button>
+                        <button class="filter-btn" type="button" data-menu-key="matcha" data-menu-label="matcha">matcha</button>
+                        <button class="filter-btn" type="button" data-menu-key="chai" data-menu-label="chai">chai</button>
+                        <button class="filter-btn" type="button" data-menu-key="thaitea" data-menu-label="thai tea">thai tea</button>
+                        <button class="filter-btn" type="button" data-menu-key="chocolatechipcookie" data-menu-label="chocolate chip cookie">chocolate chip cookie</button>
+                    </div>
+                    <p id="menu-status-text">Loading menu status...</p>
+                </div>
                 <div class="filter-buttons">
                     <button class="filter-btn active" data-filter="incomplete" type="button">incomplete</button>
                     <button class="filter-btn" data-filter="complete" type="button">completed</button>
@@ -75,6 +88,7 @@
                                 <th><button class="filter-btn" type="button" data-sort="drink">drink</button></th>
                                 <th><button class="filter-btn" type="button" data-sort="temp">temp</button></th>
                                 <th><button class="filter-btn" type="button" data-sort="milk">milk</button></th>
+                                <th><button class="filter-btn" type="button" data-sort="gluten">gluten</button></th>
                                 <th><button class="filter-btn" type="button" data-sort="pickupDate">pickup date</button></th>
                                 <th><button class="filter-btn" type="button" data-sort="pickupTime">pickup time</button></th>
                                 <th><button class="filter-btn" type="button" data-sort="createdAt">placed</button></th>

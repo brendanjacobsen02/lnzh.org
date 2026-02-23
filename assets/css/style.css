@@ -331,7 +331,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     color: #f2f2e4;
 }
 
-#orders-panel .filter-btn:disabled {
+.filter-btn:disabled {
     opacity: 0.45;
     cursor: not-allowed;
 }
@@ -360,6 +360,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     text-decoration: none;
     color: inherit;
     padding: 1rem;
+    font-family: 'Newsreader', Georgia, serif;
 }
 
 #orders-panel table {
@@ -383,8 +384,26 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.blog-card.sold-out,
+.blog-card:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.blog-card.sold-out:hover,
+.blog-card:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
 .blog-card.active {
     border-color: #000;
+}
+
+.coffee-alt-buttons .filter-btn {
+    padding: 0.6rem 0.9rem;
 }
 
 .confirmed-card {

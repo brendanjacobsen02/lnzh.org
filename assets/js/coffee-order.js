@@ -16,11 +16,13 @@ async function getFirebase() {
 const STEP_DRINK = document.getElementById('step-drink');
 const STEP_TEMP = document.getElementById('step-temp');
 const STEP_MILK = document.getElementById('step-milk');
+const STEP_GLUTEN = document.getElementById('step-gluten');
 const STEP_DETAILS = document.getElementById('step-details');
 
 const drinkButtons = STEP_DRINK.querySelectorAll('[data-drink]');
 const tempButtons = STEP_TEMP.querySelectorAll('[data-temp]');
 const milkButtons = STEP_MILK.querySelectorAll('[data-milk]');
+const glutenButtons = STEP_GLUTEN ? STEP_GLUTEN.querySelectorAll('[data-gluten]') : [];
 const nameInput = document.getElementById('customer-name');
 const dateButtonsWrapper = document.getElementById('date-buttons');
 const slotList = document.getElementById('slot-list');
@@ -34,9 +36,20 @@ const ORDER_WINDOW = {
     interval: 5
 };
 
+const DEFAULT_SOLD_OUT = {
+    espresso: true,
+    latte: true,
+    americano: true,
+    matcha: false,
+    chai: false,
+    thaitea: false,
+    chocolatechipcookie: false
+};
+
 let selectedDrink = null;
 let selectedTemp = null;
 let selectedMilk = null;
+let selectedGluten = null;
 let selectedSlot = null;
 let selectedDateKey = null;
 
@@ -76,6 +89,102 @@ function timeValueToMinutes(value) {
         return null;
     }
     return hours * 60 + mins;
+}
+
+function slugifyDrink(name) {
+    return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function normalizeSoldOutMap(raw) {
+    const base = { ...DEFAULT_SOLD_OUT };
+    if (!raw || typeof raw !== 'object') {
+        return base;
+    }
+    Object.keys(raw).forEach((key) => {
+        if (typeof raw[key] === 'boolean') {
+            base[key] = raw[key];
+        }
+    });
+    return base;
+}
+
+function getDrinkLabel(button) {
+    if (!button) {
+        return '';
+    }
+    if (button.dataset.drinkLabel) {
+        return button.dataset.drinkLabel;
+    }
+    const label = button.dataset.drink || button.textContent.trim();
+    button.dataset.drinkLabel = label;
+    return label;
+}
+
+function setSoldOutVisual(button, soldOut) {
+    if (!button) {
+        return;
+    }
+    const tags = button.querySelector ? button.querySelector('.card-tags') : null;
+    if (tags) {
+        tags.textContent = soldOut ? 'sold out' : '';
+    } else {
+        const label = getDrinkLabel(button);
+        button.textContent = soldOut ? `${label} (sold out)` : label;
+    }
+    button.disabled = soldOut;
+    if (soldOut) {
+        button.classList.add('sold-out');
+        button.setAttribute('aria-disabled', 'true');
+    } else {
+        button.classList.remove('sold-out');
+        button.removeAttribute('aria-disabled');
+    }
+}
+
+function applySoldOutState(soldOutMap) {
+    drinkButtons.forEach((button) => {
+        const drinkKey = slugifyDrink(button.dataset.drink);
+        const soldOut = Boolean(soldOutMap[drinkKey]);
+        setSoldOutVisual(button, soldOut);
+    });
+
+    if (selectedDrink) {
+        const selectedKey = slugifyDrink(selectedDrink);
+        if (soldOutMap[selectedKey]) {
+            selectedDrink = null;
+            selectedTemp = null;
+            selectedMilk = null;
+            selectedGluten = null;
+            selectedSlot = null;
+            clearSelections(drinkButtons);
+            clearSelections(tempButtons);
+            clearSelections(milkButtons);
+            clearSelections(glutenButtons);
+            slotList.innerHTML = '';
+            slotNote.hidden = true;
+            setVisibility({ showTemp: false, showMilk: false, showGluten: false, showDetails: false });
+        }
+    }
+}
+
+async function loadSoldOutState() {
+    applySoldOutState(DEFAULT_SOLD_OUT);
+    try {
+        const { db, firestore } = await getFirebase();
+        const { doc, getDoc } = firestore;
+        const menuRef = doc(db, 'menu', 'availability');
+        const snap = await getDoc(menuRef);
+        if (!snap.exists()) {
+            applySoldOutState(DEFAULT_SOLD_OUT);
+            return;
+        }
+        const data = snap.data() || {};
+        const soldOut = data.soldOut && typeof data.soldOut === 'object' ? data.soldOut : data;
+        applySoldOutState(normalizeSoldOutMap(soldOut));
+    } catch (error) {
+        console.error('Failed to load sold out status', error);
+        applySoldOutState(DEFAULT_SOLD_OUT);
+    }
 }
 
 function getPacificNowParts() {
@@ -131,13 +240,17 @@ function animateIn(element) {
     element.style.animation = 'fadeIn 0.5s ease-out';
 }
 
-function setVisibility({ showTemp, showMilk, showDetails }) {
+function setVisibility({ showTemp, showMilk, showGluten, showDetails }) {
     const wasTempHidden = STEP_TEMP.hidden;
     const wasMilkHidden = STEP_MILK.hidden;
+    const wasGlutenHidden = STEP_GLUTEN ? STEP_GLUTEN.hidden : true;
     const wasDetailsHidden = STEP_DETAILS.hidden;
 
     STEP_TEMP.hidden = !showTemp;
     STEP_MILK.hidden = !showMilk;
+    if (STEP_GLUTEN) {
+        STEP_GLUTEN.hidden = !showGluten;
+    }
     STEP_DETAILS.hidden = !showDetails;
 
     if (showTemp && wasTempHidden) {
@@ -145,6 +258,9 @@ function setVisibility({ showTemp, showMilk, showDetails }) {
     }
     if (showMilk && wasMilkHidden) {
         animateIn(STEP_MILK);
+    }
+    if (showGluten && wasGlutenHidden && STEP_GLUTEN) {
+        animateIn(STEP_GLUTEN);
     }
     if (showDetails && wasDetailsHidden) {
         animateIn(STEP_DETAILS);
@@ -200,11 +316,15 @@ function renderSlots(dateKey) {
 }
 
 function requiresTemp(drink) {
-    return drink === 'Latte' || drink === 'Americano';
+    return ['Latte', 'Americano', 'Matcha', 'Chai', 'Thai Tea'].includes(drink);
 }
 
 function requiresMilk(drink) {
-    return drink === 'Latte';
+    return ['Latte', 'Matcha', 'Chai', 'Thai Tea'].includes(drink);
+}
+
+function requiresGluten(drink) {
+    return drink === 'Chocolate Chip Cookie';
 }
 
 function getTempLabel() {
@@ -304,6 +424,10 @@ async function placeOrder() {
         alert('Please choose a milk type.');
         return;
     }
+    if (requiresGluten(selectedDrink) && !selectedGluten) {
+        alert('Please choose a gluten option.');
+        return;
+    }
     if (!name) {
         alert('Please enter your name.');
         return;
@@ -325,6 +449,7 @@ async function placeOrder() {
             drink: selectedDrink,
             temp: requiresTemp(selectedDrink) ? selectedTemp : null,
             milk: requiresMilk(selectedDrink) ? selectedMilk : null,
+            gluten: requiresGluten(selectedDrink) ? selectedGluten : null,
             pickupDate: pickupDate,
             pickupTime: selectedSlot.value,
             status: 'incomplete',
@@ -336,6 +461,7 @@ async function placeOrder() {
             drink: selectedDrink,
             temp: requiresTemp(selectedDrink) ? selectedTemp : null,
             milk: requiresMilk(selectedDrink) ? selectedMilk : null,
+            gluten: requiresGluten(selectedDrink) ? selectedGluten : null,
             pickupDate: pickupDate,
             pickupTime: selectedSlot.value,
             pickupLabel: selectedSlot.label
@@ -359,15 +485,19 @@ function setupDrinkButtons() {
             selectedDrink = button.dataset.drink;
             selectedTemp = null;
             selectedMilk = null;
+            selectedGluten = null;
             selectedSlot = null;
             clearSelections(tempButtons);
             clearSelections(milkButtons);
+            clearSelections(glutenButtons);
             slotList.innerHTML = '';
             slotNote.hidden = true;
             if (requiresTemp(selectedDrink)) {
-                setVisibility({ showTemp: true, showMilk: false, showDetails: false });
+                setVisibility({ showTemp: true, showMilk: false, showGluten: false, showDetails: false });
+            } else if (requiresGluten(selectedDrink)) {
+                setVisibility({ showTemp: false, showMilk: false, showGluten: true, showDetails: false });
             } else {
-                setVisibility({ showTemp: false, showMilk: false, showDetails: true });
+                setVisibility({ showTemp: false, showMilk: false, showGluten: false, showDetails: true });
                 refreshSlots();
             }
         });
@@ -381,11 +511,13 @@ function setupTempButtons() {
             button.classList.add('active');
             selectedTemp = button.dataset.temp;
             selectedMilk = null;
+            selectedGluten = null;
             clearSelections(milkButtons);
+            clearSelections(glutenButtons);
             if (requiresMilk(selectedDrink)) {
-                setVisibility({ showTemp: true, showMilk: true, showDetails: false });
+                setVisibility({ showTemp: true, showMilk: true, showGluten: false, showDetails: false });
             } else {
-                setVisibility({ showTemp: true, showMilk: false, showDetails: true });
+                setVisibility({ showTemp: true, showMilk: false, showGluten: false, showDetails: true });
                 refreshSlots();
             }
         });
@@ -398,7 +530,19 @@ function setupMilkButtons() {
             clearSelections(milkButtons);
             button.classList.add('active');
             selectedMilk = button.dataset.milk;
-            setVisibility({ showTemp: true, showMilk: true, showDetails: true });
+            setVisibility({ showTemp: true, showMilk: true, showGluten: false, showDetails: true });
+            refreshSlots();
+        });
+    });
+}
+
+function setupGlutenButtons() {
+    glutenButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            clearSelections(glutenButtons);
+            button.classList.add('active');
+            selectedGluten = button.dataset.gluten;
+            setVisibility({ showTemp: false, showMilk: false, showGluten: true, showDetails: true });
             refreshSlots();
         });
     });
@@ -464,27 +608,29 @@ function renderDateButtons() {
 }
 
 backButton.addEventListener('click', () => {
-    if (requiresTemp(selectedDrink)) {
-        if (requiresMilk(selectedDrink)) {
-            setVisibility({
-                showTemp: true,
-                showMilk: Boolean(selectedTemp),
-                showDetails: false
-            });
-        } else {
-            setVisibility({ showTemp: true, showMilk: false, showDetails: false });
-        }
-    } else {
-        setVisibility({ showTemp: false, showMilk: false, showDetails: false });
+    if (requiresGluten(selectedDrink) && selectedGluten) {
+        setVisibility({ showTemp: false, showMilk: false, showGluten: true, showDetails: false });
+        return;
     }
+    if (requiresMilk(selectedDrink) && selectedMilk) {
+        setVisibility({ showTemp: true, showMilk: true, showGluten: false, showDetails: false });
+        return;
+    }
+    if (requiresTemp(selectedDrink)) {
+        setVisibility({ showTemp: true, showMilk: false, showGluten: false, showDetails: false });
+        return;
+    }
+    setVisibility({ showTemp: false, showMilk: false, showGluten: false, showDetails: false });
 });
 
 submitButton.addEventListener('click', placeOrder);
 
-setVisibility({ showTemp: false, showMilk: false, showDetails: false });
+setVisibility({ showTemp: false, showMilk: false, showGluten: false, showDetails: false });
 setupDrinkButtons();
 setupTempButtons();
 setupMilkButtons();
+setupGlutenButtons();
 renderDateButtons();
 purgeMorningOrdersIfNeeded();
 refreshSlots();
+loadSoldOutState();

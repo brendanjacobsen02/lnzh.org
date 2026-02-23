@@ -55,13 +55,15 @@ function renderSummary(data) {
     image.className = 'card-image';
     const clipart = document.createElement('img');
     const drinkKey = (data.drink || '').toLowerCase();
-    let clipartFile = 'americanoclip.png';
+    let clipartSrc = '../../assets/clipart/americanoclip.png';
     if (drinkKey === 'espresso') {
-        clipartFile = 'espressoclip.png';
+        clipartSrc = '../../assets/clipart/espressoclip.png';
     } else if (drinkKey === 'latte') {
-        clipartFile = 'latteclip.png';
+        clipartSrc = '../../assets/clipart/latteclip.png';
+    } else if (!drinkKey || !['americano', 'espresso', 'latte'].includes(drinkKey)) {
+        clipartSrc = '../../assets/images/content/coffee.png';
     }
-    clipart.src = `../../assets/clipart/${clipartFile}`;
+    clipart.src = clipartSrc;
     clipart.alt = '';
     image.appendChild(clipart);
 
@@ -78,6 +80,10 @@ function renderSummary(data) {
 
     if (data.milk) {
         parts.push(`<div><strong>Milk:</strong> ${data.milk}</div>`);
+    }
+
+    if (data.gluten) {
+        parts.push(`<div><strong>Gluten:</strong> ${data.gluten}</div>`);
     }
 
     const dateLabel = data.pickupDate ? getDateLabel(data.pickupDate) : '—';
