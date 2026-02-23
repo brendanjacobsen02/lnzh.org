@@ -873,7 +873,9 @@ footer a img {
     transform: rotate(280deg);
 }
 
-.thoughts-controls input[type="text"] {
+.thoughts-controls input[type="text"],
+.thoughts-controls input[type="password"],
+.thoughts-controls input[type="email"] {
     font-family: 'Newsreader', Georgia, serif;
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
@@ -884,11 +886,15 @@ footer a img {
     box-sizing: border-box;
 }
 
-.thoughts-controls input[type="text"]:focus {
+.thoughts-controls input[type="text"]:focus,
+.thoughts-controls input[type="password"]:focus,
+.thoughts-controls input[type="email"]:focus {
     outline: none;
 }
 
-.thoughts-controls input[type="text"]::placeholder {
+.thoughts-controls input[type="text"]::placeholder,
+.thoughts-controls input[type="password"]::placeholder,
+.thoughts-controls input[type="email"]::placeholder {
     color: #666;
 }
 

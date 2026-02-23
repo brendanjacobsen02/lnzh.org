@@ -52,6 +52,7 @@ let selectedMilk = null;
 let selectedGluten = null;
 let selectedSlot = null;
 let selectedDateKey = null;
+let hasAutoScrolled = false;
 
 function getLocalDateString(date = new Date()) {
     const year = date.getFullYear();
@@ -499,6 +500,10 @@ function setupDrinkButtons() {
             } else {
                 setVisibility({ showTemp: false, showMilk: false, showGluten: false, showDetails: true });
                 refreshSlots();
+            }
+            if (!hasAutoScrolled) {
+                window.scrollBy({ top: window.innerHeight * 0.2, behavior: 'smooth' });
+                hasAutoScrolled = true;
             }
         });
     });

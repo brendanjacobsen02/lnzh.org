@@ -27,6 +27,12 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Email list signups
+    match /emails/{emailId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
     // Slot counts for limiting orders
     match /orderSlots/{slotId} {
       allow read, write: if true;
