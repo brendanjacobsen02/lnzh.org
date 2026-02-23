@@ -53,19 +53,21 @@ function renderSummary(data) {
 
     const image = document.createElement('div');
     image.className = 'card-image';
-    const clipart = document.createElement('img');
     const drinkKey = (data.drink || '').toLowerCase();
-    let clipartSrc = '../../assets/clipart/americanoclip.png';
+    let clipartSrc = null;
     if (drinkKey === 'espresso') {
         clipartSrc = '../../assets/clipart/espressoclip.png';
     } else if (drinkKey === 'latte') {
         clipartSrc = '../../assets/clipart/latteclip.png';
-    } else if (!drinkKey || !['americano', 'espresso', 'latte'].includes(drinkKey)) {
-        clipartSrc = '../../assets/images/content/coffee.png';
+    } else if (drinkKey === 'americano') {
+        clipartSrc = '../../assets/clipart/americanoclip.png';
     }
-    clipart.src = clipartSrc;
-    clipart.alt = '';
-    image.appendChild(clipart);
+    if (clipartSrc) {
+        const clipart = document.createElement('img');
+        clipart.src = clipartSrc;
+        clipart.alt = '';
+        image.appendChild(clipart);
+    }
 
     const details = document.createElement('div');
     details.className = 'card-tags';
@@ -92,7 +94,9 @@ function renderSummary(data) {
 
     details.innerHTML = parts.join('');
     card.appendChild(title);
-    card.appendChild(image);
+    if (image.childElementCount > 0) {
+        card.appendChild(image);
+    }
     card.appendChild(details);
     summaryEl.innerHTML = '';
     summaryEl.appendChild(card);
