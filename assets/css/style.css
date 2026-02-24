@@ -980,8 +980,21 @@ footer a img {
     align-items: center;
     justify-content: center;
     border: 1px solid #000;
-    padding: 0.35rem 0.5rem;
+    padding: 0.5rem 4rem;
     cursor: pointer;
+    width: fit-content;
+}
+.nested-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #000;
+    padding: 0.5rem 0.5rem;
+    cursor: pointer;
+    width: fit-content;
+}
+.upload-photo{
+    padding: 0rem 0.4rem;
 }
 
 .upload-btn img {
