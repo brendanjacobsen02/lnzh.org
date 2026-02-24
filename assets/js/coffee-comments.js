@@ -246,7 +246,7 @@ function renderComment(comment, depth = 0) {
     replyImage.id = `reply-image-${comment.id}`;
 
     const replyImageLabel = document.createElement('label');
-    replyImageLabel.className = 'upload-btn';
+    replyImageLabel.className = 'upload-btn nested-upload-btn';
     replyImageLabel.setAttribute('for', replyImage.id);
     replyImageLabel.innerHTML = '<img src="../assets/images/content/upload.png" alt="upload photo">';
 
