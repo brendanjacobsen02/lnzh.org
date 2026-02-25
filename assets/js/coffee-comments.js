@@ -57,7 +57,8 @@ function formatTimestamp(timestamp) {
     const mins = String(date.getMinutes()).padStart(2, '0');
     const period = hours >= 12 ? 'PM' : 'AM';
     const displayHour = ((hours + 11) % 12) + 1;
-    return `${displayHour}:${mins} ${period}`;
+    const dateLabel = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return `${dateLabel} · ${displayHour}:${mins} ${period}`;
 }
 
 async function uploadImage(file) {
