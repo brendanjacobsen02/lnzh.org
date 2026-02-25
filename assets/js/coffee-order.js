@@ -51,6 +51,7 @@ const DEFAULT_SOLD_OUT = {
     matcha: false,
     chai: false,
     thaitea: false,
+    vietnamesecoffee: false,
     chocolatechipcookie: false
 };
 
@@ -347,11 +348,11 @@ function renderSlots(dateKey) {
 }
 
 function requiresTemp(drink) {
-    return ['Latte', 'Americano', 'Matcha', 'Chai', 'Thai Tea'].includes(drink);
+    return ['Latte', 'Americano', 'Matcha', 'Chai', 'Thai Tea', 'Vietnamese Coffee'].includes(drink);
 }
 
 function requiresMilk(drink) {
-    return ['Latte', 'Matcha', 'Chai', 'Thai Tea'].includes(drink);
+    return ['Latte', 'Matcha', 'Chai', 'Thai Tea', 'Vietnamese Coffee'].includes(drink);
 }
 
 function requiresGluten(drink) {
