@@ -112,6 +112,8 @@ function getSortValue(order, key) {
             return (order.milk || '').toLowerCase();
         case 'gluten':
             return (order.gluten || '').toLowerCase();
+        case 'ownCup':
+            return (order.ownCup || '').toLowerCase();
         case 'pickupDate':
             return order.pickupDate || '';
         case 'pickupTime':
@@ -175,29 +177,6 @@ async function persistMenuState() {
     await setDoc(menuRef, { soldOut: menuState }, { merge: true });
 }
 
-async function bootstrapMenuDefaults() {
-    const flag = localStorage.getItem('menuSoldOutBootstrap');
-    if (flag) {
-        return;
-    }
-    const forcedKeys = ['espresso', 'latte', 'americano'];
-    let changed = false;
-    forcedKeys.forEach((key) => {
-        if (!menuState[key]) {
-            menuState[key] = true;
-            changed = true;
-        }
-    });
-    if (changed) {
-        try {
-            await persistMenuState();
-        } catch (error) {
-            console.error('Failed to apply default sold out settings', error);
-        }
-    }
-    localStorage.setItem('menuSoldOutBootstrap', 'true');
-}
-
 async function loadMenuState() {
     if (!menuButtons.length || !menuStatusText) {
         return;
@@ -214,7 +193,6 @@ async function loadMenuState() {
             menuState = { ...DEFAULT_SOLD_OUT };
             await setDoc(menuRef, { soldOut: menuState }, { merge: true });
         }
-        await bootstrapMenuDefaults();
         applyMenuState();
         menuStatusText.textContent = 'Menu status synced.';
     } catch (error) {
@@ -251,6 +229,7 @@ function renderOrders(orders) {
             <td>${order.temp || '—'}</td>
             <td>${formatMilk(order.milk)}</td>
             <td>${formatGluten(order.gluten)}</td>
+            <td>${order.ownCup || '—'}</td>
             <td>${formatDateLabel(order.pickupDate)}</td>
             <td>${order.pickupTime || '—'}</td>
             <td>${formatTimestamp(order.createdAt)}</td>

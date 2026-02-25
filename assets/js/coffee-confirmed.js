@@ -88,6 +88,10 @@ function renderSummary(data) {
         parts.push(`<div><strong>Gluten:</strong> ${data.gluten}</div>`);
     }
 
+    if (data.ownCup) {
+        parts.push(`<div><strong>Own cup:</strong> ${data.ownCup}</div>`);
+    }
+
     const dateLabel = data.pickupDate ? getDateLabel(data.pickupDate) : '—';
     const timeLabel = data.pickupLabel || timeValueToLabel(data.pickupTime);
     parts.push(`<div><strong>Pickup:</strong> ${dateLabel} at ${timeLabel}</div>`);

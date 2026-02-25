@@ -77,6 +77,8 @@ function getSortValue(order, key) {
             return (order.milk || '').toLowerCase();
         case 'gluten':
             return (order.gluten || '').toLowerCase();
+        case 'ownCup':
+            return (order.ownCup || '').toLowerCase();
         case 'pickupDate':
             return order.pickupDate || '';
         case 'pickupTime':
@@ -129,6 +131,7 @@ function renderOrders(orders) {
             <td>${order.temp || '—'}</td>
             <td>${formatMilk(order.milk)}</td>
             <td>${formatGluten(order.gluten)}</td>
+            <td>${order.ownCup || '—'}</td>
             <td>${formatDateLabel(order.pickupDate)}</td>
             <td>${order.pickupTime || '—'}</td>
             <td>${formatTimestamp(order.createdAt)}</td>
