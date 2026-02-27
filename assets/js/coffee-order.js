@@ -44,6 +44,8 @@ const WEDNESDAY_ORDER_WINDOW = {
     interval: 5
 };
 
+const BLACKOUT_DATES = ['2026-02-27'];
+
 const DEFAULT_SOLD_OUT = {
     espresso: true,
     latte: true,
@@ -69,6 +71,10 @@ function getLocalDateString(date = new Date()) {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+}
+
+function isBlackoutDate(dateString) {
+    return BLACKOUT_DATES.includes(dateString);
 }
 
 function formatDateLabel(dateString, includeWeekday = true) {
@@ -313,6 +319,13 @@ function getEarliestMinute(now, orderWindow) {
 function renderSlots(dateKey) {
     slotList.innerHTML = '';
     selectedSlot = null;
+
+    if (isBlackoutDate(dateKey)) {
+        slotNote.hidden = false;
+        slotNote.textContent = 'No orders available for this day.';
+        animateIn(slotNote);
+        return;
+    }
 
     const now = new Date();
     const todayKey = getLocalDateString(now);
@@ -636,7 +649,7 @@ function getOrderDates() {
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
     const todayKey = getLocalDateString(now);
     const todayWindow = getOrderWindow(todayKey);
-    const includeToday = isWeekday(now) && nowMinutes <= todayWindow.endMinutes;
+    const includeToday = isWeekday(now) && nowMinutes <= todayWindow.endMinutes && !isBlackoutDate(todayKey);
     const cursor = new Date(now);
 
     if (includeToday) {
@@ -646,7 +659,10 @@ function getOrderDates() {
     while (dates.length < 3) {
         cursor.setDate(cursor.getDate() + 1);
         if (isWeekday(cursor)) {
-            dates.push(getLocalDateString(cursor));
+            const dateKey = getLocalDateString(cursor);
+            if (!isBlackoutDate(dateKey)) {
+                dates.push(dateKey);
+            }
         }
     }
 
