@@ -34,6 +34,10 @@ const DEFAULT_SOLD_OUT = {
     chai: false,
     thaitea: false,
     vietnamesecoffee: false,
+    sesamelatte: false,
+    blueberrycherrymatcha: false,
+    caramellatte: false,
+    tiramisulatte: false,
     chocolatechipcookie: false
 };
 

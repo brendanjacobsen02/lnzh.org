@@ -44,7 +44,7 @@ const WEDNESDAY_ORDER_WINDOW = {
     interval: 5
 };
 
-const BLACKOUT_DATES = ['2026-02-27'];
+const BLACKOUT_DATES = ['2026-02-27', '2026-03-02'];
 
 const DEFAULT_SOLD_OUT = {
     espresso: true,
@@ -54,6 +54,10 @@ const DEFAULT_SOLD_OUT = {
     chai: false,
     thaitea: false,
     vietnamesecoffee: false,
+    sesamelatte: false,
+    blueberrycherrymatcha: false,
+    caramellatte: false,
+    tiramisulatte: false,
     chocolatechipcookie: false
 };
 
@@ -361,11 +365,11 @@ function renderSlots(dateKey) {
 }
 
 function requiresTemp(drink) {
-    return ['Latte', 'Americano', 'Matcha', 'Chai', 'Thai Tea', 'Vietnamese Coffee'].includes(drink);
+    return ['Latte', 'Americano', 'Matcha', 'Chai', 'Thai Tea', 'Vietnamese Coffee', 'Sesame Latte', 'Blueberry Cherry Matcha', 'Caramel Latte', 'Tiramisu Latte'].includes(drink);
 }
 
 function requiresMilk(drink) {
-    return ['Latte', 'Matcha', 'Chai', 'Thai Tea', 'Vietnamese Coffee'].includes(drink);
+    return ['Latte', 'Matcha', 'Chai', 'Thai Tea', 'Vietnamese Coffee', 'Sesame Latte', 'Blueberry Cherry Matcha', 'Caramel Latte', 'Tiramisu Latte'].includes(drink);
 }
 
 function requiresGluten(drink) {
