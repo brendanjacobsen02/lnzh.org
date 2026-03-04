@@ -44,7 +44,7 @@ const WEDNESDAY_ORDER_WINDOW = {
     interval: 5
 };
 
-const TOMORROW_OVERRIDE_DATE = '2026-03-05';
+const TOMORROW_OVERRIDE_DATE = '2026-03-04';
 const TOMORROW_ORDER_WINDOW = {
     startMinutes: 7 * 60 + 20,
     endMinutes: 8 * 60 + 35,
