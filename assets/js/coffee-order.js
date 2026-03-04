@@ -44,6 +44,13 @@ const WEDNESDAY_ORDER_WINDOW = {
     interval: 5
 };
 
+const TOMORROW_OVERRIDE_DATE = '2026-03-05';
+const TOMORROW_ORDER_WINDOW = {
+    startMinutes: 7 * 60 + 20,
+    endMinutes: 8 * 60 + 35,
+    interval: 5
+};
+
 const BLACKOUT_DATES = ['2026-02-27', '2026-03-02'];
 
 const DEFAULT_SOLD_OUT = {
@@ -243,6 +250,9 @@ function getPacificDateString() {
 function getOrderWindow(dateKey) {
     if (!dateKey) {
         return DEFAULT_ORDER_WINDOW;
+    }
+    if (dateKey === TOMORROW_OVERRIDE_DATE) {
+        return TOMORROW_ORDER_WINDOW;
     }
     const day = new Date(`${dateKey}T00:00:00`).getDay();
     if (day === 3) {
