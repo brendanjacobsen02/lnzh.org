@@ -47,18 +47,11 @@ function formatMilk(milk) {
     return milk;
 }
 
-function formatGluten(gluten) {
-    if (!gluten) {
+function formatCaramel(caramel) {
+    if (!caramel) {
         return '—';
     }
-    const normalized = gluten.toLowerCase();
-    if (normalized.includes('gluten')) {
-        return 'GF';
-    }
-    if (normalized === 'regular') {
-        return 'Reg';
-    }
-    return gluten;
+    return caramel;
 }
 
 function isComplete(order) {
@@ -75,8 +68,8 @@ function getSortValue(order, key) {
             return (order.temp || '').toLowerCase();
         case 'milk':
             return (order.milk || '').toLowerCase();
-        case 'gluten':
-            return (order.gluten || '').toLowerCase();
+        case 'caramel':
+            return (order.caramel || '').toLowerCase();
         case 'ownCup':
             return (order.ownCup || '').toLowerCase();
         case 'pickupDate':
@@ -130,7 +123,7 @@ function renderOrders(orders) {
             <td>${order.drink || '—'}</td>
             <td>${order.temp || '—'}</td>
             <td>${formatMilk(order.milk)}</td>
-            <td>${formatGluten(order.gluten)}</td>
+            <td>${formatCaramel(order.caramel)}</td>
             <td>${order.ownCup || '—'}</td>
             <td>${formatDateLabel(order.pickupDate)}</td>
             <td>${order.pickupTime || '—'}</td>

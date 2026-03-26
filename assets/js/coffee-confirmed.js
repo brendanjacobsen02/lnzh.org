@@ -84,8 +84,8 @@ function renderSummary(data) {
         parts.push(`<div><strong>Milk:</strong> ${data.milk}</div>`);
     }
 
-    if (data.gluten) {
-        parts.push(`<div><strong>Gluten:</strong> ${data.gluten}</div>`);
+    if (data.caramel) {
+        parts.push(`<div><strong>Caramel:</strong> ${data.caramel}</div>`);
     }
 
     if (data.ownCup) {
