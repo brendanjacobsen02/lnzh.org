@@ -610,7 +610,9 @@ function setupMilkButtons() {
             button.classList.add('active');
             selectedMilk = button.dataset.milk;
             selectedCaramel = null;
+            selectedCup = null;
             clearSelections(caramelButtons);
+            clearSelections(cupButtons);
             if (requiresCaramel(selectedDrink)) {
                 setVisibility({ showTemp: true, showMilk: true, showCaramel: true, showCup: false, showDetails: false });
             } else {
@@ -626,7 +628,10 @@ function setupCaramelButtons() {
             clearSelections(caramelButtons);
             button.classList.add('active');
             selectedCaramel = button.dataset.caramel;
+            selectedCup = null;
+            clearSelections(cupButtons);
             setVisibility({ showTemp: true, showMilk: true, showCaramel: true, showCup: true, showDetails: false });
+            window.scrollBy({ top: window.innerHeight * 0.12, behavior: 'smooth' });
         });
     });
 }
