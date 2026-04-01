@@ -33,25 +33,19 @@ const backButton = document.getElementById('back-button');
 const submitButton = document.getElementById('submit-button');
 
 const DEFAULT_ORDER_WINDOW = {
-    startMinutes: 7 * 60 + 30,
+    startMinutes: 7 * 60 + 45,
     endMinutes: 8 * 60 + 15,
     interval: 5
 };
 
 const WEDNESDAY_ORDER_WINDOW = {
-    startMinutes: 7 * 60 + 50,
+    startMinutes: 8 * 60 + 5,
     endMinutes: 8 * 60 + 35,
     interval: 5
 };
 
-const TOMORROW_OVERRIDE_DATE = '2026-03-04';
-const TOMORROW_ORDER_WINDOW = {
-    startMinutes: 7 * 60 + 20,
-    endMinutes: 8 * 60 + 35,
-    interval: 5
-};
-
-const BLACKOUT_DATES = ['2026-02-27', '2026-03-02'];
+const BLACKOUT_DATES = [];
+const MAX_RESERVATIONS_PER_SLOT = 5;
 
 const DEFAULT_SOLD_OUT = {
     espresso: true,
@@ -244,9 +238,6 @@ function getOrderWindow(dateKey) {
     if (!dateKey) {
         return DEFAULT_ORDER_WINDOW;
     }
-    if (dateKey === TOMORROW_OVERRIDE_DATE) {
-        return TOMORROW_ORDER_WINDOW;
-    }
     const day = new Date(`${dateKey}T00:00:00`).getDay();
     if (day === 3) {
         return WEDNESDAY_ORDER_WINDOW;
@@ -314,16 +305,17 @@ function clearSelections(buttons) {
     buttons.forEach((btn) => btn.classList.remove('active'));
 }
 
-function getEarliestMinute(now, orderWindow) {
+function getEarliestMinute(orderWindow) {
     const windowConfig = orderWindow || DEFAULT_ORDER_WINDOW;
-    const nowMinutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+    const pacificNow = getPacificNowParts();
+    const nowMinutes = pacificNow.hour * 60 + pacificNow.minute;
     if (nowMinutes <= windowConfig.startMinutes) {
         return windowConfig.startMinutes;
     }
     return Math.ceil(nowMinutes / windowConfig.interval) * windowConfig.interval;
 }
 
-function renderSlots(dateKey) {
+function renderSlots(dateKey, slotCounts = new Map()) {
     slotList.innerHTML = '';
     selectedSlot = null;
 
@@ -334,10 +326,9 @@ function renderSlots(dateKey) {
         return;
     }
 
-    const now = new Date();
-    const todayKey = getLocalDateString(now);
+    const todayKey = getPacificDateString();
     const windowConfig = getOrderWindow(dateKey);
-    const earliestMinute = dateKey === todayKey ? getEarliestMinute(now, windowConfig) : windowConfig.startMinutes;
+    const earliestMinute = dateKey === todayKey ? getEarliestMinute(windowConfig) : windowConfig.startMinutes;
     const slots = getSlotMinutes(windowConfig);
 
     if (earliestMinute > windowConfig.endMinutes) {
@@ -347,7 +338,20 @@ function renderSlots(dateKey) {
         return;
     }
 
-    const availableSlots = slots.filter((slot) => slot.minutes >= earliestMinute);
+    const availableSlots = slots.filter((slot) => {
+        if (slot.minutes < earliestMinute) {
+            return false;
+        }
+        const reservationCount = slotCounts.get(slot.value) || 0;
+        return reservationCount < MAX_RESERVATIONS_PER_SLOT;
+    });
+
+    if (!availableSlots.length) {
+        slotNote.hidden = false;
+        slotNote.textContent = 'No pickup times are available for this day.';
+        animateIn(slotNote);
+        return;
+    }
 
     slotNote.hidden = true;
     availableSlots.forEach((slot) => {
@@ -392,7 +396,7 @@ function getMilkLabel() {
 }
 
 function getDateLabel(dateString) {
-    const today = getLocalDateString();
+    const today = getPacificDateString();
     const baseLabel = formatDateLabel(dateString);
     if (dateString !== today) {
         return `${baseLabel} (preorder)`;
@@ -404,6 +408,26 @@ function selectedName() {
     return nameInput.value.trim();
 }
 
+async function getSlotCounts(dateKey) {
+    if (!dateKey) {
+        return new Map();
+    }
+    const { db, firestore } = await getFirebase();
+    const { collection, getDocs, query, where } = firestore;
+    const ordersRef = collection(db, 'orders');
+    const snap = await getDocs(query(ordersRef, where('pickupDate', '==', dateKey)));
+    const counts = new Map();
+    snap.forEach((docSnap) => {
+        const data = docSnap.data();
+        const pickupTime = data ? data.pickupTime : null;
+        if (!pickupTime) {
+            return;
+        }
+        counts.set(pickupTime, (counts.get(pickupTime) || 0) + 1);
+    });
+    return counts;
+}
+
 async function refreshSlots() {
     try {
         if (!selectedDateKey) {
@@ -413,7 +437,8 @@ async function refreshSlots() {
             animateIn(slotNote);
             return;
         }
-        renderSlots(selectedDateKey);
+        const slotCounts = await getSlotCounts(selectedDateKey);
+        renderSlots(selectedDateKey, slotCounts);
     } catch (error) {
         console.error('Error loading slots', error);
         slotNote.hidden = false;
@@ -503,6 +528,13 @@ async function placeOrder() {
 
     const pickupDate = selectedDateKey;
     try {
+        const slotCounts = await getSlotCounts(pickupDate);
+        const currentCount = slotCounts.get(selectedSlot.value) || 0;
+        if (currentCount >= MAX_RESERVATIONS_PER_SLOT) {
+            await refreshSlots();
+            alert('That pickup time just filled up. Please choose another time.');
+            return;
+        }
         const { db, firestore } = await getFirebase();
         const { collection, addDoc, doc, runTransaction, serverTimestamp } = firestore;
         await addDoc(collection(db, 'orders'), {
@@ -661,12 +693,13 @@ function isWeekday(date) {
 
 function getOrderDates() {
     const dates = [];
-    const now = new Date();
-    const nowMinutes = now.getHours() * 60 + now.getMinutes();
-    const todayKey = getLocalDateString(now);
+    const pacificNow = getPacificNowParts();
+    const nowMinutes = pacificNow.hour * 60 + pacificNow.minute;
+    const todayKey = getPacificDateString();
     const todayWindow = getOrderWindow(todayKey);
-    const includeToday = isWeekday(now) && nowMinutes <= todayWindow.endMinutes && !isBlackoutDate(todayKey);
-    const cursor = new Date(now);
+    const todayDate = new Date(`${todayKey}T00:00:00`);
+    const includeToday = isWeekday(todayDate) && nowMinutes <= todayWindow.endMinutes && !isBlackoutDate(todayKey);
+    const cursor = new Date(todayDate);
 
     if (includeToday) {
         dates.push(getLocalDateString(cursor));
@@ -688,7 +721,7 @@ function getOrderDates() {
 function renderDateButtons() {
     dateButtonsWrapper.innerHTML = '';
     const dates = getOrderDates();
-    const todayKey = getLocalDateString();
+    const todayKey = getPacificDateString();
     dates.forEach((dateString) => {
         const button = document.createElement('button');
         button.type = 'button';
