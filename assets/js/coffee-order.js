@@ -43,7 +43,6 @@ const WEDNESDAY_ORDER_WINDOW = {
 };
 
 const BLACKOUT_DATES = [];
-const MAX_RESERVATIONS_PER_SLOT = 5;
 
 const DEFAULT_SOLD_OUT = {
     espresso: true,
@@ -304,7 +303,7 @@ function getEarliestMinute(orderWindow) {
     return Math.ceil(nowMinutes / windowConfig.interval) * windowConfig.interval;
 }
 
-function renderSlots(dateKey, slotCounts = new Map()) {
+function renderSlots(dateKey) {
     slotList.innerHTML = '';
     selectedSlot = null;
 
@@ -327,13 +326,7 @@ function renderSlots(dateKey, slotCounts = new Map()) {
         return;
     }
 
-    const availableSlots = slots.filter((slot) => {
-        if (slot.minutes < earliestMinute) {
-            return false;
-        }
-        const reservationCount = slotCounts.get(slot.value) || 0;
-        return reservationCount < MAX_RESERVATIONS_PER_SLOT;
-    });
+    const availableSlots = slots.filter((slot) => slot.minutes >= earliestMinute);
 
     if (!availableSlots.length) {
         slotNote.hidden = false;
@@ -393,26 +386,6 @@ function selectedName() {
     return nameInput.value.trim();
 }
 
-async function getSlotCounts(dateKey) {
-    if (!dateKey) {
-        return new Map();
-    }
-    const { db, firestore } = await getFirebase();
-    const { collection, getDocs, query, where } = firestore;
-    const ordersRef = collection(db, 'orders');
-    const snap = await getDocs(query(ordersRef, where('pickupDate', '==', dateKey)));
-    const counts = new Map();
-    snap.forEach((docSnap) => {
-        const data = docSnap.data();
-        const pickupTime = data ? data.pickupTime : null;
-        if (!pickupTime) {
-            return;
-        }
-        counts.set(pickupTime, (counts.get(pickupTime) || 0) + 1);
-    });
-    return counts;
-}
-
 async function refreshSlots() {
     try {
         if (!selectedDateKey) {
@@ -422,8 +395,7 @@ async function refreshSlots() {
             animateIn(slotNote);
             return;
         }
-        const slotCounts = await getSlotCounts(selectedDateKey);
-        renderSlots(selectedDateKey, slotCounts);
+        renderSlots(selectedDateKey);
     } catch (error) {
         console.error('Error loading slots', error);
         slotNote.hidden = false;
@@ -509,13 +481,6 @@ async function placeOrder() {
 
     const pickupDate = selectedDateKey;
     try {
-        const slotCounts = await getSlotCounts(pickupDate);
-        const currentCount = slotCounts.get(selectedSlot.value) || 0;
-        if (currentCount >= MAX_RESERVATIONS_PER_SLOT) {
-            await refreshSlots();
-            alert('That pickup time just filled up. Please choose another time.');
-            return;
-        }
         const { db, firestore } = await getFirebase();
         const { collection, addDoc, doc, runTransaction, serverTimestamp } = firestore;
         await addDoc(collection(db, 'orders'), {
