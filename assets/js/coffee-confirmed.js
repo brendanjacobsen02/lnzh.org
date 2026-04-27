@@ -84,10 +84,6 @@ function renderSummary(data) {
         parts.push(`<div><strong>Milk:</strong> ${data.milk}</div>`);
     }
 
-    if (data.caramel) {
-        parts.push(`<div><strong>Caramel:</strong> ${data.caramel}</div>`);
-    }
-
     if (data.ownCup) {
         parts.push(`<div><strong>Own cup:</strong> ${data.ownCup}</div>`);
     }

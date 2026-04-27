@@ -47,13 +47,6 @@ function formatMilk(milk) {
     return milk;
 }
 
-function formatCaramel(caramel) {
-    if (!caramel) {
-        return '—';
-    }
-    return caramel;
-}
-
 function isComplete(order) {
     return order.status === 'complete';
 }
@@ -68,8 +61,6 @@ function getSortValue(order, key) {
             return (order.temp || '').toLowerCase();
         case 'milk':
             return (order.milk || '').toLowerCase();
-        case 'caramel':
-            return (order.caramel || '').toLowerCase();
         case 'ownCup':
             return (order.ownCup || '').toLowerCase();
         case 'pickupDate':
@@ -123,7 +114,6 @@ function renderOrders(orders) {
             <td>${order.drink || '—'}</td>
             <td>${order.temp || '—'}</td>
             <td>${formatMilk(order.milk)}</td>
-            <td>${formatCaramel(order.caramel)}</td>
             <td>${order.ownCup || '—'}</td>
             <td>${formatDateLabel(order.pickupDate)}</td>
             <td>${order.pickupTime || '—'}</td>

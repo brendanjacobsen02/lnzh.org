@@ -16,14 +16,12 @@ async function getFirebase() {
 const STEP_DRINK = document.getElementById('step-drink');
 const STEP_TEMP = document.getElementById('step-temp');
 const STEP_MILK = document.getElementById('step-milk');
-const STEP_CARAMEL = document.getElementById('step-caramel');
 const STEP_CUP = document.getElementById('step-cup');
 const STEP_DETAILS = document.getElementById('step-details');
 
 const drinkButtons = STEP_DRINK.querySelectorAll('[data-drink]');
 const tempButtons = STEP_TEMP.querySelectorAll('[data-temp]');
 const milkButtons = STEP_MILK.querySelectorAll('[data-milk]');
-const caramelButtons = STEP_CARAMEL ? STEP_CARAMEL.querySelectorAll('[data-caramel]') : [];
 const cupButtons = STEP_CUP ? STEP_CUP.querySelectorAll('[data-cup]') : [];
 const nameInput = document.getElementById('customer-name');
 const dateButtonsWrapper = document.getElementById('date-buttons');
@@ -50,13 +48,13 @@ const MAX_RESERVATIONS_PER_SLOT = 5;
 const DEFAULT_SOLD_OUT = {
     espresso: true,
     latte: true,
-    americano: true
+    americano: true,
+    vietnamesecoffee: false
 };
 
 let selectedDrink = null;
 let selectedTemp = null;
 let selectedMilk = null;
-let selectedCaramel = null;
 let selectedCup = null;
 let selectedSlot = null;
 let selectedDateKey = null;
@@ -167,17 +165,15 @@ function applySoldOutState(soldOutMap) {
             selectedDrink = null;
             selectedTemp = null;
             selectedMilk = null;
-            selectedCaramel = null;
             selectedCup = null;
             selectedSlot = null;
             clearSelections(drinkButtons);
             clearSelections(tempButtons);
             clearSelections(milkButtons);
-            clearSelections(caramelButtons);
             clearSelections(cupButtons);
             slotList.innerHTML = '';
             slotNote.hidden = true;
-            setVisibility({ showTemp: false, showMilk: false, showCaramel: false, showCup: false, showDetails: false });
+            setVisibility({ showTemp: false, showMilk: false, showCup: false, showDetails: false });
         }
     }
 }
@@ -267,18 +263,14 @@ function animateIn(element) {
     element.style.animation = 'fadeIn 0.5s ease-out';
 }
 
-function setVisibility({ showTemp, showMilk, showCaramel, showCup, showDetails }) {
+function setVisibility({ showTemp, showMilk, showCup, showDetails }) {
     const wasTempHidden = STEP_TEMP.hidden;
     const wasMilkHidden = STEP_MILK.hidden;
-    const wasCaramelHidden = STEP_CARAMEL ? STEP_CARAMEL.hidden : true;
     const wasCupHidden = STEP_CUP ? STEP_CUP.hidden : true;
     const wasDetailsHidden = STEP_DETAILS.hidden;
 
     STEP_TEMP.hidden = !showTemp;
     STEP_MILK.hidden = !showMilk;
-    if (STEP_CARAMEL) {
-        STEP_CARAMEL.hidden = !showCaramel;
-    }
     if (STEP_CUP) {
         STEP_CUP.hidden = !showCup;
     }
@@ -289,9 +281,6 @@ function setVisibility({ showTemp, showMilk, showCaramel, showCup, showDetails }
     }
     if (showMilk && wasMilkHidden) {
         animateIn(STEP_MILK);
-    }
-    if (showCaramel && wasCaramelHidden && STEP_CARAMEL) {
-        animateIn(STEP_CARAMEL);
     }
     if (showCup && wasCupHidden && STEP_CUP) {
         animateIn(STEP_CUP);
@@ -372,15 +361,11 @@ function renderSlots(dateKey, slotCounts = new Map()) {
 }
 
 function requiresTemp(drink) {
-    return drink === 'Latte' || drink === 'Americano';
+    return drink === 'Latte' || drink === 'Americano' || drink === 'Vietnamese Coffee';
 }
 
 function requiresMilk(drink) {
-    return drink === 'Latte';
-}
-
-function requiresCaramel(drink) {
-    return drink === 'Latte';
+    return drink === 'Latte' || drink === 'Vietnamese Coffee';
 }
 
 function requiresCup() {
@@ -506,10 +491,6 @@ async function placeOrder() {
         alert('Please choose a milk type.');
         return;
     }
-    if (requiresCaramel(selectedDrink) && !selectedCaramel) {
-        alert('Please choose whether to add caramel.');
-        return;
-    }
     if (requiresCup() && !selectedCup) {
         alert('Please choose yes or no for your own cup.');
         return;
@@ -542,7 +523,6 @@ async function placeOrder() {
             drink: selectedDrink,
             temp: requiresTemp(selectedDrink) ? selectedTemp : null,
             milk: requiresMilk(selectedDrink) ? selectedMilk : null,
-            caramel: requiresCaramel(selectedDrink) ? selectedCaramel : null,
             ownCup: selectedCup || null,
             pickupDate: pickupDate,
             pickupTime: selectedSlot.value,
@@ -567,7 +547,6 @@ async function placeOrder() {
             drink: selectedDrink,
             temp: requiresTemp(selectedDrink) ? selectedTemp : null,
             milk: requiresMilk(selectedDrink) ? selectedMilk : null,
-            caramel: requiresCaramel(selectedDrink) ? selectedCaramel : null,
             ownCup: selectedCup || null,
             pickupDate: pickupDate,
             pickupTime: selectedSlot.value,
@@ -592,19 +571,17 @@ function setupDrinkButtons() {
             selectedDrink = button.dataset.drink;
             selectedTemp = null;
             selectedMilk = null;
-            selectedCaramel = null;
             selectedCup = null;
             selectedSlot = null;
             clearSelections(tempButtons);
             clearSelections(milkButtons);
-            clearSelections(caramelButtons);
             clearSelections(cupButtons);
             slotList.innerHTML = '';
             slotNote.hidden = true;
             if (requiresTemp(selectedDrink)) {
-                setVisibility({ showTemp: true, showMilk: false, showCaramel: false, showCup: false, showDetails: false });
+                setVisibility({ showTemp: true, showMilk: false, showCup: false, showDetails: false });
             } else {
-                setVisibility({ showTemp: false, showMilk: false, showCaramel: false, showCup: true, showDetails: false });
+                setVisibility({ showTemp: false, showMilk: false, showCup: true, showDetails: false });
             }
             if (!hasAutoScrolled) {
                 window.scrollBy({ top: window.innerHeight * 0.2, behavior: 'smooth' });
@@ -621,15 +598,13 @@ function setupTempButtons() {
             button.classList.add('active');
             selectedTemp = button.dataset.temp;
             selectedMilk = null;
-            selectedCaramel = null;
             selectedCup = null;
             clearSelections(milkButtons);
-            clearSelections(caramelButtons);
             clearSelections(cupButtons);
             if (requiresMilk(selectedDrink)) {
-                setVisibility({ showTemp: true, showMilk: true, showCaramel: false, showCup: false, showDetails: false });
+                setVisibility({ showTemp: true, showMilk: true, showCup: false, showDetails: false });
             } else {
-                setVisibility({ showTemp: true, showMilk: false, showCaramel: false, showCup: true, showDetails: false });
+                setVisibility({ showTemp: true, showMilk: false, showCup: true, showDetails: false });
             }
         });
     });
@@ -641,29 +616,9 @@ function setupMilkButtons() {
             clearSelections(milkButtons);
             button.classList.add('active');
             selectedMilk = button.dataset.milk;
-            selectedCaramel = null;
-            selectedCup = null;
-            clearSelections(caramelButtons);
-            clearSelections(cupButtons);
-            if (requiresCaramel(selectedDrink)) {
-                setVisibility({ showTemp: true, showMilk: true, showCaramel: true, showCup: false, showDetails: false });
-            } else {
-                setVisibility({ showTemp: true, showMilk: true, showCaramel: false, showCup: true, showDetails: false });
-            }
-        });
-    });
-}
-
-function setupCaramelButtons() {
-    caramelButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            clearSelections(caramelButtons);
-            button.classList.add('active');
-            selectedCaramel = button.dataset.caramel;
             selectedCup = null;
             clearSelections(cupButtons);
-            setVisibility({ showTemp: true, showMilk: true, showCaramel: true, showCup: true, showDetails: false });
-            window.scrollBy({ top: window.innerHeight * 0.12, behavior: 'smooth' });
+            setVisibility({ showTemp: true, showMilk: true, showCup: true, showDetails: false });
         });
     });
 }
@@ -677,7 +632,6 @@ function setupCupButtons() {
             setVisibility({
                 showTemp: requiresTemp(selectedDrink),
                 showMilk: requiresMilk(selectedDrink),
-                showCaramel: requiresCaramel(selectedDrink),
                 showCup: true,
                 showDetails: true
             });
@@ -756,34 +710,28 @@ backButton.addEventListener('click', () => {
         setVisibility({
             showTemp: requiresTemp(selectedDrink),
             showMilk: requiresMilk(selectedDrink),
-            showCaramel: requiresCaramel(selectedDrink),
             showCup: true,
             showDetails: false
         });
         return;
     }
-    if (requiresCaramel(selectedDrink) && selectedCaramel) {
-        setVisibility({ showTemp: true, showMilk: true, showCaramel: true, showCup: false, showDetails: false });
-        return;
-    }
     if (requiresMilk(selectedDrink) && selectedMilk) {
-        setVisibility({ showTemp: true, showMilk: true, showCaramel: false, showCup: false, showDetails: false });
+        setVisibility({ showTemp: true, showMilk: true, showCup: false, showDetails: false });
         return;
     }
     if (requiresTemp(selectedDrink)) {
-        setVisibility({ showTemp: true, showMilk: false, showCaramel: false, showCup: false, showDetails: false });
+        setVisibility({ showTemp: true, showMilk: false, showCup: false, showDetails: false });
         return;
     }
-    setVisibility({ showTemp: false, showMilk: false, showCaramel: false, showCup: false, showDetails: false });
+    setVisibility({ showTemp: false, showMilk: false, showCup: false, showDetails: false });
 });
 
 submitButton.addEventListener('click', placeOrder);
 
-setVisibility({ showTemp: false, showMilk: false, showCaramel: false, showCup: false, showDetails: false });
+setVisibility({ showTemp: false, showMilk: false, showCup: false, showDetails: false });
 setupDrinkButtons();
 setupTempButtons();
 setupMilkButtons();
-setupCaramelButtons();
 setupCupButtons();
 renderDateButtons();
 purgeMorningOrdersIfNeeded();
