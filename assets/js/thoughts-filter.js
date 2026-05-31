@@ -5,57 +5,67 @@ document.addEventListener('DOMContentLoaded', function() {
     const container = document.querySelector('.thoughts-container');
     if (!container) return;
 
-    // Collect all thoughts with their data
     const thoughts = [];
-    const thoughtElements = container.querySelectorAll('.thought');
 
-    thoughtElements.forEach((el, index) => {
-        const dateSpan = el.querySelector('.date');
-        const textEl = el.querySelector('p');
-        const dateStr = dateSpan ? dateSpan.textContent : '';
-        const text = textEl ? textEl.textContent : '';
+    function parseLocalDate(dateStr) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day);
+    }
 
-        // Parse date (format: "Jan 23, 2026")
-        const date = new Date(dateStr);
+    function formatDate(date) {
+        return new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: '2-digit',
+            year: 'numeric'
+        }).format(date);
+    }
 
-        thoughts.push({
+    async function loadThoughtData() {
+        const response = await fetch(new URL('../data/thoughts.json', import.meta.url));
+        if (!response.ok) {
+            throw new Error(`Unable to load thoughts: ${response.status}`);
+        }
+        return response.json();
+    }
+
+    function createThoughtElement(thought, index) {
+        const el = document.createElement('div');
+        el.className = 'thought';
+        el.dataset.id = thought.id;
+        el.dataset.tags = (thought.tags || []).join(' ');
+
+        const date = parseLocalDate(thought.date);
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'date';
+        dateSpan.textContent = formatDate(date);
+
+        const textEl = document.createElement('p');
+        textEl.textContent = thought.text;
+
+        el.appendChild(dateSpan);
+        el.appendChild(textEl);
+
+        return {
             element: el,
-            index: index,
-            date: date,
-            dateStr: dateStr,
-            text: text,
-            length: text.length,
+            index,
+            id: thought.id,
+            date,
+            dateStr: dateSpan.textContent,
+            text: thought.text,
+            tags: thought.tags || [],
+            length: thought.text.length,
             likes: 0
+        };
+    }
+
+    function renderThoughts(thoughtData) {
+        container.replaceChildren();
+        thoughts.splice(0, thoughts.length);
+        thoughtData.forEach((thought, index) => {
+            const rendered = createThoughtElement(thought, index);
+            thoughts.push(rendered);
+            container.appendChild(rendered.element);
         });
-    });
-
-    // Get favourites from localStorage
-    function getFavourites() {
-        try {
-            return JSON.parse(localStorage.getItem('thoughtFavourites') || '[]');
-        } catch {
-            return [];
-        }
-    }
-
-    function saveFavourites(favs) {
-        localStorage.setItem('thoughtFavourites', JSON.stringify(favs));
-    }
-
-    function toggleFavourite(index) {
-        const favs = getFavourites();
-        const idx = favs.indexOf(index);
-        if (idx > -1) {
-            favs.splice(idx, 1);
-        } else {
-            favs.push(index);
-        }
-        saveFavourites(favs);
-        updateFavouriteButtons();
-    }
-
-    function isFavourite(index) {
-        return getFavourites().includes(index);
     }
 
     // Like system using Firebase
@@ -175,17 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Remove month headers
-    function removeMonthHeaders() {
-        container.querySelectorAll('h2').forEach(h => h.remove());
-        container.querySelectorAll('.month-content').forEach(mc => {
-            while (mc.firstChild) {
-                container.appendChild(mc.firstChild);
-            }
-            mc.remove();
-        });
-    }
-
     // Current mode: 'all', 'random', 'favs'
     let currentMode = 'all';
     let isReversed = false;
@@ -197,7 +196,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Filter by search term
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
-            filtered = filtered.filter(t => t.text.toLowerCase().includes(term));
+            filtered = filtered.filter(t => {
+                return t.text.toLowerCase().includes(term) ||
+                    t.tags.some(tag => tag.toLowerCase().includes(term));
+            });
         }
 
         // Apply mode
@@ -270,7 +272,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize
     async function initialize() {
-        removeMonthHeaders();
+        try {
+            const thoughtData = await loadThoughtData();
+            renderThoughts(thoughtData);
+        } catch (error) {
+            console.error(error);
+            container.textContent = 'Could not load thoughts.';
+            return;
+        }
         await initializeLikes();
         addLikeButtons();
         updateFilter();
