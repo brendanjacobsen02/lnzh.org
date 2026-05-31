@@ -48,16 +48,27 @@
             <div class="writing-page">
                 <form class="writing-editor" id="writing-editor">
                     <div class="sentence-stream" id="sentence-stream" aria-label="Sentence editor">
-                        <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" data-placeholder="Write one sentence at a time. Finish with punctuation."></span>
+                        <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" data-placeholder="Write. End a sentence with punctuation."></span>
+                    </div>
+                    <div class="sentence-confirmation" id="sentence-confirmation" hidden>
+                        <span class="sentence-confirmation-label">keep this sentence?</span>
+                        <span class="sentence-confirmation-text" id="sentence-confirmation-text"></span>
+                        <span class="sentence-confirmation-actions">
+                            <button class="filter-btn" type="button" id="confirm-sentence">keep</button>
+                            <button class="filter-btn" type="button" id="edit-sentence">edit</button>
+                        </span>
                     </div>
                     <div class="writing-actions">
-                        <button class="filter-btn" type="submit">complete</button>
+                        <button class="filter-btn" type="submit">complete draft</button>
                         <button class="filter-btn" type="button" id="toggle-blackout" disabled>blackout</button>
                         <button class="filter-btn" type="button" id="copy-writing" disabled>copy</button>
-                        <button class="filter-btn" type="button" id="clear-writing" disabled>clear</button>
                     </div>
-                    <p class="writing-note">Sentences continue inline. Blackout hides what is already complete.</p>
+                    <p class="writing-note">Sentences lock after confirmation. Complete draft stores the current text below.</p>
                 </form>
+                <section class="completed-drafts" id="completed-drafts" aria-live="polite" hidden>
+                    <h2>completed drafts</h2>
+                    <div id="draft-list"></div>
+                </section>
             </div>
             <div class="writing-toast" id="writing-toast" role="status" aria-live="polite"></div>
         </section>

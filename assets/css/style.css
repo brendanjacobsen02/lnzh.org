@@ -54,7 +54,6 @@ nav a:hover {
 .nav-temp-link {
     color: #333;
     font-size: 1.35rem;
-    font-style: italic;
     line-height: 1;
     margin-top: 0.5rem;
     margin-bottom: 1.375rem;
@@ -435,7 +434,6 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     padding: 1.25rem 1.35rem;
     border: 1px solid rgba(51, 51, 51, 0.22);
     background: #fffdf4;
-    font-size: 1.18rem;
     line-height: 1.75;
     white-space: normal;
     cursor: text;
@@ -458,7 +456,6 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 .sentence-input-inline:empty::before {
     content: attr(data-placeholder);
     color: rgba(51, 51, 51, 0.38);
-    font-style: italic;
     pointer-events: none;
 }
 
@@ -475,6 +472,34 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     background: #111;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
+}
+
+.sentence-confirmation {
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid rgba(51, 51, 51, 0.22);
+    border-bottom: 1px solid rgba(51, 51, 51, 0.22);
+}
+
+.sentence-confirmation[hidden] {
+    display: none;
+}
+
+.sentence-confirmation-label,
+.completed-draft-label {
+    color: rgba(51, 51, 51, 0.58);
+    font-size: 0.9rem;
+}
+
+.sentence-confirmation-text {
+    line-height: 1.6;
+}
+
+.sentence-confirmation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .writing-editor {
@@ -495,8 +520,41 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .writing-note {
     color: rgba(51, 51, 51, 0.62);
-    font-size: 0.95rem;
-    font-style: italic;
+}
+
+.completed-drafts {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(51, 51, 51, 0.22);
+}
+
+.completed-drafts[hidden] {
+    display: none;
+}
+
+.completed-drafts h2 {
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0;
+}
+
+#draft-list {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.completed-draft {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(51, 51, 51, 0.14);
+}
+
+.completed-draft p {
+    margin: 0;
+}
+
+.completed-draft-text {
+    line-height: 1.6;
 }
 
 .writing-toast {
