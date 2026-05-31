@@ -51,7 +51,7 @@
                         <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" data-placeholder="Write. End a sentence with punctuation."></span>
                     </div>
                     <div class="writing-settings">
-                        <button class="settings-toggle" type="button" id="settings-toggle" aria-expanded="false" aria-controls="settings-panel">settings</button>
+                        <button class="settings-toggle" type="button" id="settings-toggle" aria-label="Settings" aria-expanded="false" aria-controls="settings-panel">⚙</button>
                         <div class="settings-panel" id="settings-panel" hidden>
                             <label class="writing-switch">
                                 <input type="checkbox" id="blackout-toggle">
@@ -59,7 +59,7 @@
                             </label>
                             <label class="writing-switch">
                                 <input type="checkbox" id="confirmation-toggle" checked>
-                                <span>confirmation</span>
+                                <span>confirm sentence</span>
                             </label>
                         </div>
                     </div>
@@ -72,7 +72,6 @@
                         <button class="filter-btn" type="submit">complete draft</button>
                         <button class="filter-btn" type="button" id="copy-writing" disabled>copy</button>
                     </div>
-                    <p class="writing-note">Confirmation on: accept sentences manually. Confirmation off: sentences are kept automatically.</p>
                 </form>
                 <section class="completed-drafts" id="completed-drafts" aria-live="polite" hidden>
                     <h2>completed drafts</h2>
