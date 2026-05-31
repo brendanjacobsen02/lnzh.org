@@ -71,28 +71,35 @@ function renderSummary(data) {
 
     const details = document.createElement('div');
     details.className = 'card-tags';
-    const parts = [
-        `<div><strong>Name:</strong> ${data.name || '—'}</div>`,
-        `<div><strong>Drink:</strong> ${data.drink || '—'}</div>`
-    ];
+
+    function appendDetail(label, value) {
+        const row = document.createElement('div');
+        const strong = document.createElement('strong');
+        strong.textContent = `${label}:`;
+        row.appendChild(strong);
+        row.append(` ${value || '—'}`);
+        details.appendChild(row);
+    }
+
+    appendDetail('Name', data.name);
+    appendDetail('Drink', data.drink);
 
     if (data.temp) {
-        parts.push(`<div><strong>Style:</strong> ${data.temp}</div>`);
+        appendDetail('Style', data.temp);
     }
 
     if (data.milk) {
-        parts.push(`<div><strong>Milk:</strong> ${data.milk}</div>`);
+        appendDetail('Milk', data.milk);
     }
 
     if (data.ownCup) {
-        parts.push(`<div><strong>Own cup:</strong> ${data.ownCup}</div>`);
+        appendDetail('Own cup', data.ownCup);
     }
 
     const dateLabel = data.pickupDate ? getDateLabel(data.pickupDate) : '—';
     const timeLabel = data.pickupLabel || timeValueToLabel(data.pickupTime);
-    parts.push(`<div><strong>Pickup:</strong> ${dateLabel} at ${timeLabel}</div>`);
+    appendDetail('Pickup', `${dateLabel} at ${timeLabel}`);
 
-    details.innerHTML = parts.join('');
     card.appendChild(title);
     if (image.childElementCount > 0) {
         card.appendChild(image);

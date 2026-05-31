@@ -90,6 +90,12 @@ function sortOrders(orders) {
     });
 }
 
+function appendCell(row, value) {
+    const cell = document.createElement('td');
+    cell.textContent = value || '—';
+    row.appendChild(cell);
+}
+
 function renderOrders(orders) {
     ordersBody.innerHTML = '';
 
@@ -109,16 +115,14 @@ function renderOrders(orders) {
 
     sorted.forEach((order) => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${order.name || '—'}</td>
-            <td>${order.drink || '—'}</td>
-            <td>${order.temp || '—'}</td>
-            <td>${formatMilk(order.milk)}</td>
-            <td>${order.ownCup || '—'}</td>
-            <td>${formatDateLabel(order.pickupDate)}</td>
-            <td>${order.pickupTime || '—'}</td>
-            <td>${formatTimestamp(order.createdAt)}</td>
-        `;
+        appendCell(row, order.name);
+        appendCell(row, order.drink);
+        appendCell(row, order.temp);
+        appendCell(row, formatMilk(order.milk));
+        appendCell(row, order.ownCup);
+        appendCell(row, formatDateLabel(order.pickupDate));
+        appendCell(row, order.pickupTime);
+        appendCell(row, formatTimestamp(order.createdAt));
         ordersBody.appendChild(row);
     });
 
