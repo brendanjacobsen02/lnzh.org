@@ -1,0 +1,14 @@
+name = "lnzh-instagram-feed"
+main = "workers/instagram-feed.js"
+compatibility_date = "2026-05-31"
+
+[vars]
+GRAPH_API_VERSION = "v25.0"
+CORS_ORIGIN = "https://lnzh.org"
+CACHE_TTL_SECONDS = "900"
+INSTAGRAM_MEDIA_LIMIT = "12"
+INSTAGRAM_STORIES_LIMIT = "8"
+
+# Set these as secrets, not committed vars:
+# wrangler secret put INSTAGRAM_ACCESS_TOKEN
+# wrangler secret put INSTAGRAM_USER_ID

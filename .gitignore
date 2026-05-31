@@ -13,3 +13,6 @@ assets/js/firebase-config.local.js
 emails.csv
 emails.md
 thoughts/stories.html
+
+# Cloudflare Worker local secrets
+.dev.vars
