@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('writing-editor');
     const input = document.getElementById('sentence-input');
     const stream = document.getElementById('sentence-stream');
-    const review = document.getElementById('sentence-review');
-    const reviewList = document.getElementById('sentence-review-list');
+    const keepPopover = document.getElementById('sentence-keep-popover');
+    const keepToggle = document.getElementById('sentence-keep-toggle');
     const blackoutButton = document.getElementById('toggle-blackout');
     const copyButton = document.getElementById('copy-writing');
     const draftsSection = document.getElementById('completed-drafts');
@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
         !form ||
         !input ||
         !stream ||
-        !review ||
-        !reviewList ||
+        !keepPopover ||
+        !keepToggle ||
         !blackoutButton ||
         !copyButton ||
         !draftsSection ||
@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const reviewedSentences = [];
     const drafts = [];
+    let activeSentenceIndex = -1;
     let isBlackout = false;
     let toastTimer;
 
@@ -91,54 +92,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function sentenceRect(sentenceElement) {
+        const rects = Array.from(sentenceElement.getClientRects());
+        return rects.length > 0 ? rects[rects.length - 1] : sentenceElement.getBoundingClientRect();
+    }
+
+    function positionKeepPopover() {
+        const activeSentence = stream.querySelector(`[data-sentence-index="${activeSentenceIndex}"]`);
+
+        if (!activeSentence) {
+            keepPopover.hidden = true;
+            return;
+        }
+
+        const rect = sentenceRect(activeSentence);
+        keepToggle.checked = reviewedSentences[activeSentenceIndex].keep;
+        keepPopover.hidden = false;
+        keepPopover.style.left = `${rect.right}px`;
+        keepPopover.style.top = `${rect.top}px`;
+    }
+
+    function queuePopoverPosition() {
+        window.requestAnimationFrame(positionKeepPopover);
+    }
+
     function renderSentences() {
         stream.replaceChildren();
-        keptSentences().forEach((sentence, index, sentences) => {
+
+        reviewedSentences.forEach((sentence, index) => {
             const sentenceElement = document.createElement('span');
-            sentenceElement.className = 'sentence-fragment';
-            sentenceElement.textContent = sentence;
+            sentenceElement.className = sentence.keep
+                ? 'sentence-fragment is-kept'
+                : 'sentence-fragment is-pending';
+            sentenceElement.dataset.sentenceIndex = String(index);
+            sentenceElement.textContent = sentence.text;
+            sentenceElement.addEventListener('click', (event) => {
+                event.stopPropagation();
+                activeSentenceIndex = index;
+                positionKeepPopover();
+            });
             stream.append(sentenceElement);
-
-            if (index < sentences.length - 1) {
-                stream.append(' ');
-            }
-        });
-
-        if (keptSentences().length > 0) {
             stream.append(' ');
-        }
+        });
 
         stream.append(input);
         stream.classList.toggle('is-blackout', isBlackout);
-        stream.classList.toggle('has-sentences', keptSentences().length > 0);
+        stream.classList.toggle('has-sentences', reviewedSentences.length > 0);
         updateControls();
-    }
-
-    function renderReview() {
-        reviewList.replaceChildren();
-        review.hidden = reviewedSentences.length === 0;
-
-        reviewedSentences.forEach((sentence, index) => {
-            const item = document.createElement('label');
-            item.className = 'sentence-review-item';
-
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = sentence.keep;
-            checkbox.addEventListener('change', () => {
-                reviewedSentences[index].keep = checkbox.checked;
-                renderSentences();
-            });
-
-            const text = document.createElement('span');
-            text.className = 'sentence-review-text';
-            text.textContent = sentence.text;
-
-            item.append(checkbox, text);
-            reviewList.append(item);
-        });
-
-        updateControls();
+        queuePopoverPosition();
     }
 
     function collectCompletedSentences() {
@@ -153,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (sentence) {
                 reviewedSentences.push({ text: sentence, keep: false });
+                activeSentenceIndex = reviewedSentences.length - 1;
                 changed = true;
             }
 
@@ -161,10 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (changed) {
             input.textContent = text;
-            renderReview();
             renderSentences();
         } else {
             updateControls();
+            queuePopoverPosition();
         }
 
         return changed;
@@ -184,9 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         drafts.push(text);
         reviewedSentences.length = 0;
+        activeSentenceIndex = -1;
         input.textContent = '';
         isBlackout = false;
-        renderReview();
         renderSentences();
         renderDrafts();
         showToast('Draft stored below.');
@@ -215,6 +217,18 @@ document.addEventListener('DOMContentLoaded', () => {
         input.focus();
     });
 
+    keepToggle.addEventListener('change', () => {
+        if (activeSentenceIndex === -1) {
+            return;
+        }
+
+        reviewedSentences[activeSentenceIndex].keep = keepToggle.checked;
+        renderSentences();
+    });
+
+    window.addEventListener('resize', queuePopoverPosition);
+    window.addEventListener('scroll', queuePopoverPosition, true);
+
     blackoutButton.addEventListener('click', () => {
         isBlackout = !isBlackout;
         renderSentences();
@@ -231,6 +245,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     renderSentences();
-    renderReview();
     renderDrafts();
 });
