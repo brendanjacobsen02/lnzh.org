@@ -474,32 +474,45 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     -webkit-box-decoration-break: clone;
 }
 
-.sentence-confirmation {
+.sentence-review {
     display: grid;
-    gap: 0.45rem;
-    padding: 0.75rem 0;
-    border-top: 1px solid rgba(51, 51, 51, 0.22);
-    border-bottom: 1px solid rgba(51, 51, 51, 0.22);
+    gap: 0.4rem;
+    padding: 0.25rem 0;
 }
 
-.sentence-confirmation[hidden] {
+.sentence-review[hidden] {
     display: none;
 }
 
-.sentence-confirmation-label,
+.sentence-review-label,
 .completed-draft-label {
     color: rgba(51, 51, 51, 0.58);
     font-size: 0.9rem;
 }
 
-.sentence-confirmation-text {
-    line-height: 1.6;
+#sentence-review-list {
+    display: grid;
+    gap: 0.35rem;
 }
 
-.sentence-confirmation-actions {
-    display: flex;
-    flex-wrap: wrap;
+.sentence-review-item {
+    align-items: baseline;
+    color: rgba(51, 51, 51, 0.72);
+    cursor: pointer;
+    display: grid;
     gap: 0.5rem;
+    grid-template-columns: auto 1fr;
+    line-height: 1.45;
+}
+
+.sentence-review-item input {
+    accent-color: #111;
+    margin: 0;
+    transform: translateY(0.1rem);
+}
+
+.sentence-review-text {
+    display: inline;
 }
 
 .writing-editor {

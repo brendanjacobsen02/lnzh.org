@@ -2,10 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('writing-editor');
     const input = document.getElementById('sentence-input');
     const stream = document.getElementById('sentence-stream');
-    const confirmation = document.getElementById('sentence-confirmation');
-    const confirmationText = document.getElementById('sentence-confirmation-text');
-    const confirmSentenceButton = document.getElementById('confirm-sentence');
-    const editSentenceButton = document.getElementById('edit-sentence');
+    const review = document.getElementById('sentence-review');
+    const reviewList = document.getElementById('sentence-review-list');
     const blackoutButton = document.getElementById('toggle-blackout');
     const copyButton = document.getElementById('copy-writing');
     const draftsSection = document.getElementById('completed-drafts');
@@ -16,10 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
         !form ||
         !input ||
         !stream ||
-        !confirmation ||
-        !confirmationText ||
-        !confirmSentenceButton ||
-        !editSentenceButton ||
+        !review ||
+        !reviewList ||
         !blackoutButton ||
         !copyButton ||
         !draftsSection ||
@@ -29,9 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const sentences = [];
+    const reviewedSentences = [];
     const drafts = [];
-    let pendingSentence = '';
     let isBlackout = false;
     let toastTimer;
 
@@ -41,31 +36,36 @@ document.addEventListener('DOMContentLoaded', () => {
         window.clearTimeout(toastTimer);
         toastTimer = window.setTimeout(() => {
             toast.classList.remove('active');
-        }, 1600);
+        }, 1400);
     }
 
     function normalizeText(value) {
         return value.trim().replace(/\s+/g, ' ');
     }
 
+    function keptSentences() {
+        return reviewedSentences
+            .filter((sentence) => sentence.keep)
+            .map((sentence) => sentence.text);
+    }
+
     function completedText() {
-        return sentences.join(' ');
+        return keptSentences().join(' ');
     }
 
     function draftText() {
         const currentText = normalizeText(input.textContent);
-        return [completedText(), pendingSentence, currentText].filter(Boolean).join(' ');
+        return [completedText(), currentText].filter(Boolean).join(' ');
     }
 
-    function sentenceEndIndex(value) {
-        const match = value.match(/[.!?;:]+(?:["'”’)\]]+)?(?:\s|$)/);
-        return match ? match.index + match[0].trimEnd().length : -1;
+    function sentenceEndMatch(value) {
+        return value.match(/[.!?;:]+(?:["'”’)\]]+)?(?:\s|$)/);
     }
 
     function updateControls() {
         const hasText = draftText().length > 0;
-        const hasSentences = sentences.length > 0;
-        blackoutButton.disabled = !hasSentences;
+        const hasKeptSentences = keptSentences().length > 0;
+        blackoutButton.disabled = !hasKeptSentences;
         copyButton.disabled = !hasText;
         blackoutButton.textContent = isBlackout ? 'reveal' : 'blackout';
     }
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSentences() {
         stream.replaceChildren();
-        sentences.forEach((sentence, index) => {
+        keptSentences().forEach((sentence, index, sentences) => {
             const sentenceElement = document.createElement('span');
             sentenceElement.className = 'sentence-fragment';
             sentenceElement.textContent = sentence;
@@ -104,109 +104,89 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        if (sentences.length > 0) {
+        if (keptSentences().length > 0) {
             stream.append(' ');
         }
 
         stream.append(input);
         stream.classList.toggle('is-blackout', isBlackout);
-        stream.classList.toggle('has-sentences', sentences.length > 0);
+        stream.classList.toggle('has-sentences', keptSentences().length > 0);
         updateControls();
     }
 
-    function showConfirmation(sentence) {
-        pendingSentence = sentence;
-        confirmationText.textContent = sentence;
-        confirmation.hidden = false;
-        input.setAttribute('contenteditable', 'false');
+    function renderReview() {
+        reviewList.replaceChildren();
+        review.hidden = reviewedSentences.length === 0;
+
+        reviewedSentences.forEach((sentence, index) => {
+            const item = document.createElement('label');
+            item.className = 'sentence-review-item';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = sentence.keep;
+            checkbox.addEventListener('change', () => {
+                reviewedSentences[index].keep = checkbox.checked;
+                renderSentences();
+            });
+
+            const text = document.createElement('span');
+            text.className = 'sentence-review-text';
+            text.textContent = sentence.text;
+
+            item.append(checkbox, text);
+            reviewList.append(item);
+        });
+
         updateControls();
     }
 
-    function hideConfirmation() {
-        pendingSentence = '';
-        confirmation.hidden = true;
-        confirmationText.textContent = '';
-        input.setAttribute('contenteditable', 'true');
-        updateControls();
-    }
+    function collectCompletedSentences() {
+        let text = input.textContent;
+        let match = sentenceEndMatch(text);
+        let changed = false;
 
-    function maybePrepareSentence() {
-        if (pendingSentence) {
-            return false;
+        while (match) {
+            const endIndex = match.index + match[0].trimEnd().length;
+            const sentence = normalizeText(text.slice(0, endIndex));
+            text = text.slice(endIndex).trimStart();
+
+            if (sentence) {
+                reviewedSentences.push({ text: sentence, keep: false });
+                changed = true;
+            }
+
+            match = sentenceEndMatch(text);
         }
 
-        const text = input.textContent;
-        const endIndex = sentenceEndIndex(text);
-
-        if (endIndex === -1) {
+        if (changed) {
+            input.textContent = text;
+            renderReview();
+            renderSentences();
+        } else {
             updateControls();
-            return false;
         }
 
-        const sentence = normalizeText(text.slice(0, endIndex));
-        const remainder = text.slice(endIndex).trimStart();
-
-        if (!sentence) {
-            updateControls();
-            return false;
-        }
-
-        input.textContent = remainder;
-        showConfirmation(sentence);
-        return true;
+        return changed;
     }
-
-    confirmSentenceButton.addEventListener('click', () => {
-        if (!pendingSentence) {
-            return;
-        }
-
-        sentences.push(pendingSentence);
-        hideConfirmation();
-        renderSentences();
-        showToast('Sentence kept.');
-        input.focus();
-
-        window.setTimeout(() => {
-            maybePrepareSentence();
-        }, 0);
-    });
-
-    editSentenceButton.addEventListener('click', () => {
-        if (!pendingSentence) {
-            return;
-        }
-
-        input.textContent = [pendingSentence, input.textContent].filter(Boolean).join(' ');
-        hideConfirmation();
-        renderSentences();
-        input.focus();
-    });
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
-
-        if (maybePrepareSentence()) {
-            return;
-        }
-
-        if (pendingSentence) {
-            showToast('Keep or edit the sentence first.');
-            return;
-        }
+        collectCompletedSentences();
 
         const text = draftText();
 
         if (!text) {
-            showToast('Write something first.');
+            showToast('Toggle on a sentence or keep writing.');
             input.focus();
             return;
         }
 
         drafts.push(text);
-        sentences.length = 0;
+        reviewedSentences.length = 0;
         input.textContent = '';
         isBlackout = false;
+        renderReview();
         renderSentences();
         renderDrafts();
         showToast('Draft stored below.');
@@ -214,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     input.addEventListener('input', () => {
-        maybePrepareSentence();
+        collectCompletedSentences();
     });
 
     input.addEventListener('keydown', (event) => {
@@ -228,13 +208,11 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const pastedText = event.clipboardData.getData('text/plain');
         document.execCommand('insertText', false, pastedText);
-        maybePrepareSentence();
+        collectCompletedSentences();
     });
 
     stream.addEventListener('click', () => {
-        if (!pendingSentence) {
-            input.focus();
-        }
+        input.focus();
     });
 
     blackoutButton.addEventListener('click', () => {
@@ -253,5 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     renderSentences();
+    renderReview();
     renderDrafts();
 });
