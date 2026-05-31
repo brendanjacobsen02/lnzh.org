@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rejectSentenceButton = document.getElementById('sentence-reject');
     const blackoutButton = document.getElementById('toggle-blackout');
     const copyButton = document.getElementById('copy-writing');
+    const confirmationToggle = document.getElementById('confirmation-toggle');
     const draftsSection = document.getElementById('completed-drafts');
     const draftList = document.getElementById('draft-list');
     const toast = document.getElementById('writing-toast');
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         !rejectSentenceButton ||
         !blackoutButton ||
         !copyButton ||
+        !confirmationToggle ||
         !draftsSection ||
         !draftList ||
         !toast
@@ -102,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function positionKeepPopover() {
         const activeSentence = stream.querySelector(`[data-sentence-index="${activeSentenceIndex}"]`);
 
-        if (!activeSentence) {
+        if (!confirmationToggle.checked || !activeSentence) {
             keepPopover.hidden = true;
             return;
         }
@@ -154,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             text = text.slice(endIndex).trimStart();
 
             if (sentence) {
-                reviewedSentences.push({ text: sentence, keep: false });
+                reviewedSentences.push({ text: sentence, keep: !confirmationToggle.checked });
                 activeSentenceIndex = reviewedSentences.length - 1;
                 changed = true;
             }
@@ -216,6 +218,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     stream.addEventListener('click', () => {
         input.focus();
+    });
+
+    confirmationToggle.addEventListener('change', () => {
+        if (!confirmationToggle.checked) {
+            reviewedSentences.forEach((sentence) => {
+                sentence.keep = true;
+            });
+            keepPopover.hidden = true;
+        }
+
+        renderSentences();
     });
 
     acceptSentenceButton.addEventListener('click', () => {

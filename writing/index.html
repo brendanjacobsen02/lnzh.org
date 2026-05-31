@@ -59,8 +59,12 @@
                         <button class="filter-btn" type="submit">complete draft</button>
                         <button class="filter-btn" type="button" id="toggle-blackout" disabled>blackout</button>
                         <button class="filter-btn" type="button" id="copy-writing" disabled>copy</button>
+                        <label class="writing-switch">
+                            <input type="checkbox" id="confirmation-toggle" checked>
+                            <span>confirmation</span>
+                        </label>
                     </div>
-                    <p class="writing-note">Sentences are only kept when toggled on. Complete draft stores the current kept text below.</p>
+                    <p class="writing-note">Confirmation on: accept sentences manually. Confirmation off: sentences are kept automatically.</p>
                 </form>
                 <section class="completed-drafts" id="completed-drafts" aria-live="polite" hidden>
                     <h2>completed drafts</h2>

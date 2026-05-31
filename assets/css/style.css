@@ -529,11 +529,26 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    align-items: center;
 }
 
 .writing-actions .filter-btn:disabled {
     cursor: default;
     opacity: 0.38;
+}
+
+.writing-switch {
+    align-items: center;
+    color: rgba(51, 51, 51, 0.72);
+    cursor: pointer;
+    display: inline-flex;
+    gap: 0.35rem;
+    line-height: 1;
+}
+
+.writing-switch input {
+    accent-color: #111;
+    margin: 0;
 }
 
 .writing-note {
