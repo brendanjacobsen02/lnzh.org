@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const blackoutButton = document.getElementById('toggle-blackout');
     const copyButton = document.getElementById('copy-writing');
     const confirmationToggle = document.getElementById('confirmation-toggle');
+    const settingsToggle = document.getElementById('settings-toggle');
+    const settingsPanel = document.getElementById('settings-panel');
     const draftsSection = document.getElementById('completed-drafts');
     const draftList = document.getElementById('draft-list');
     const toast = document.getElementById('writing-toast');
@@ -22,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
         !blackoutButton ||
         !copyButton ||
         !confirmationToggle ||
+        !settingsToggle ||
+        !settingsPanel ||
         !draftsSection ||
         !draftList ||
         !toast
@@ -104,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function positionKeepPopover() {
         const activeSentence = stream.querySelector(`[data-sentence-index="${activeSentenceIndex}"]`);
 
-        if (!confirmationToggle.checked || !activeSentence) {
+        if (activeSentenceIndex === -1 || !confirmationToggle.checked || !activeSentence) {
             keepPopover.hidden = true;
             return;
         }
@@ -237,6 +241,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         reviewedSentences[activeSentenceIndex].keep = true;
+        activeSentenceIndex = -1;
+        keepPopover.hidden = true;
         renderSentences();
     });
 
@@ -246,10 +252,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         reviewedSentences.splice(activeSentenceIndex, 1);
-        activeSentenceIndex = reviewedSentences.length === 0
-            ? -1
-            : Math.min(activeSentenceIndex, reviewedSentences.length - 1);
+        activeSentenceIndex = -1;
+        keepPopover.hidden = true;
         renderSentences();
+    });
+
+    settingsToggle.addEventListener('click', () => {
+        const willOpen = settingsPanel.hidden;
+        settingsPanel.hidden = !willOpen;
+        settingsToggle.setAttribute('aria-expanded', String(willOpen));
     });
 
     window.addEventListener('resize', queuePopoverPosition);

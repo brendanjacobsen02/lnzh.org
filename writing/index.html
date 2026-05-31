@@ -50,6 +50,16 @@
                     <div class="sentence-stream" id="sentence-stream" aria-label="Sentence editor">
                         <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" data-placeholder="Write. End a sentence with punctuation."></span>
                     </div>
+                    <div class="writing-settings">
+                        <button class="settings-toggle" type="button" id="settings-toggle" aria-expanded="false" aria-controls="settings-panel">settings</button>
+                        <div class="settings-panel" id="settings-panel" hidden>
+                            <button class="filter-btn" type="button" id="toggle-blackout" disabled>blackout</button>
+                            <label class="writing-switch">
+                                <input type="checkbox" id="confirmation-toggle" checked>
+                                <span>confirmation</span>
+                            </label>
+                        </div>
+                    </div>
                     <div class="sentence-keep-popover" id="sentence-keep-popover" hidden>
                         <span>accept?</span>
                         <button type="button" id="sentence-accept" aria-label="Accept sentence">✓</button>
@@ -57,12 +67,7 @@
                     </div>
                     <div class="writing-actions">
                         <button class="filter-btn" type="submit">complete draft</button>
-                        <button class="filter-btn" type="button" id="toggle-blackout" disabled>blackout</button>
                         <button class="filter-btn" type="button" id="copy-writing" disabled>copy</button>
-                        <label class="writing-switch">
-                            <input type="checkbox" id="confirmation-toggle" checked>
-                            <span>confirmation</span>
-                        </label>
                     </div>
                     <p class="writing-note">Confirmation on: accept sentences manually. Confirmation off: sentences are kept automatically.</p>
                 </form>

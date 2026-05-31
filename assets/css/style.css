@@ -508,6 +508,8 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     font: inherit;
     justify-content: center;
     line-height: 1;
+    min-height: 1.1rem;
+    min-width: 1.1rem;
     padding: 0;
 }
 
@@ -522,7 +524,44 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .writing-editor {
     display: grid;
-    gap: 0.8rem;
+    gap: 0.65rem;
+}
+
+.writing-settings {
+    justify-self: end;
+    margin-top: -0.45rem;
+    position: relative;
+}
+
+.settings-toggle {
+    background: transparent;
+    border: 0;
+    color: rgba(51, 51, 51, 0.62);
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+}
+
+.settings-toggle:hover {
+    opacity: 0.68;
+}
+
+.settings-panel {
+    align-items: center;
+    background: rgba(255, 253, 244, 0.98);
+    border: 1px solid rgba(51, 51, 51, 0.18);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 0.65rem;
+    padding: 0.55rem 0.65rem;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.35rem);
+    z-index: 15;
+}
+
+.settings-panel[hidden] {
+    display: none;
 }
 
 .writing-actions {
