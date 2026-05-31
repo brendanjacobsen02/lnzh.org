@@ -498,9 +498,21 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     z-index: 20;
 }
 
-.sentence-keep-popover input {
-    accent-color: #111;
-    margin: 0;
+.sentence-keep-popover button {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: #333;
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+}
+
+.sentence-keep-popover button:hover {
+    opacity: 0.62;
 }
 
 .completed-draft-label {

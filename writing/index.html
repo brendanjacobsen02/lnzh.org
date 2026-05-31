@@ -50,10 +50,11 @@
                     <div class="sentence-stream" id="sentence-stream" aria-label="Sentence editor">
                         <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" data-placeholder="Write. End a sentence with punctuation."></span>
                     </div>
-                    <label class="sentence-keep-popover" id="sentence-keep-popover" hidden>
-                        <input type="checkbox" id="sentence-keep-toggle">
-                        <span>keep</span>
-                    </label>
+                    <div class="sentence-keep-popover" id="sentence-keep-popover" hidden>
+                        <span>accept?</span>
+                        <button type="button" id="sentence-accept" aria-label="Accept sentence">✓</button>
+                        <button type="button" id="sentence-reject" aria-label="Reject sentence">×</button>
+                    </div>
                     <div class="writing-actions">
                         <button class="filter-btn" type="submit">complete draft</button>
                         <button class="filter-btn" type="button" id="toggle-blackout" disabled>blackout</button>

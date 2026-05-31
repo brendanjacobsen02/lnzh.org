@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('sentence-input');
     const stream = document.getElementById('sentence-stream');
     const keepPopover = document.getElementById('sentence-keep-popover');
-    const keepToggle = document.getElementById('sentence-keep-toggle');
+    const acceptSentenceButton = document.getElementById('sentence-accept');
+    const rejectSentenceButton = document.getElementById('sentence-reject');
     const blackoutButton = document.getElementById('toggle-blackout');
     const copyButton = document.getElementById('copy-writing');
     const draftsSection = document.getElementById('completed-drafts');
@@ -15,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
         !input ||
         !stream ||
         !keepPopover ||
-        !keepToggle ||
+        !acceptSentenceButton ||
+        !rejectSentenceButton ||
         !blackoutButton ||
         !copyButton ||
         !draftsSection ||
@@ -106,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const rect = sentenceRect(activeSentence);
-        keepToggle.checked = reviewedSentences[activeSentenceIndex].keep;
         keepPopover.hidden = false;
         keepPopover.style.left = `${rect.right}px`;
         keepPopover.style.top = `${rect.top}px`;
@@ -217,12 +218,24 @@ document.addEventListener('DOMContentLoaded', () => {
         input.focus();
     });
 
-    keepToggle.addEventListener('change', () => {
+    acceptSentenceButton.addEventListener('click', () => {
         if (activeSentenceIndex === -1) {
             return;
         }
 
-        reviewedSentences[activeSentenceIndex].keep = keepToggle.checked;
+        reviewedSentences[activeSentenceIndex].keep = true;
+        renderSentences();
+    });
+
+    rejectSentenceButton.addEventListener('click', () => {
+        if (activeSentenceIndex === -1) {
+            return;
+        }
+
+        reviewedSentences.splice(activeSentenceIndex, 1);
+        activeSentenceIndex = reviewedSentences.length === 0
+            ? -1
+            : Math.min(activeSentenceIndex, reviewedSentences.length - 1);
         renderSentences();
     });
 
