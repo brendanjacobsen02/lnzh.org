@@ -38,6 +38,8 @@ There is no automated test suite. Before finishing changes:
 
 Recent commits use short, imperative summaries, for example `Fix latte caramel workflow`. Keep commits focused and describe the behavioral change.
 
+Do not commit directly to `main`. Use one branch per task, preferably named like `codex/short-task-name`, and keep each branch limited to the requested change. Avoid unrelated edits.
+
 Pull requests should include a brief summary, affected pages, verification commands, and screenshots for visual changes. Note any Firebase rule or console changes that must be applied outside the repository.
 
 ## Security & Configuration Tips
