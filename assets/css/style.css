@@ -471,11 +471,16 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     color: rgba(51, 51, 51, 0.54);
 }
 
-.sentence-stream.is-blackout .sentence-fragment.is-kept {
+.sentence-stream.is-blackout .sentence-fragment,
+.sentence-stream.is-blackout .sentence-input-inline {
     color: transparent;
     background: #111;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
+}
+
+.sentence-stream.is-blackout .sentence-input-inline:empty {
+    background: transparent;
 }
 
 .sentence-keep-popover[hidden] {
@@ -547,12 +552,12 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .settings-panel {
-    align-items: center;
     background: rgba(255, 253, 244, 0.98);
     border: 1px solid rgba(51, 51, 51, 0.18);
     box-shadow: 0 6px 22px rgba(0, 0, 0, 0.1);
-    display: flex;
-    gap: 0.65rem;
+    display: grid;
+    gap: 0.55rem;
+    min-width: 10rem;
     padding: 0.55rem 0.65rem;
     position: absolute;
     right: 0;
@@ -580,8 +585,9 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     align-items: center;
     color: rgba(51, 51, 51, 0.72);
     cursor: pointer;
-    display: inline-flex;
+    display: flex;
     gap: 0.35rem;
+    justify-content: space-between;
     line-height: 1;
 }
 

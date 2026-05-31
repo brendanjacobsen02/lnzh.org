@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const keepPopover = document.getElementById('sentence-keep-popover');
     const acceptSentenceButton = document.getElementById('sentence-accept');
     const rejectSentenceButton = document.getElementById('sentence-reject');
-    const blackoutButton = document.getElementById('toggle-blackout');
+    const blackoutToggle = document.getElementById('blackout-toggle');
     const copyButton = document.getElementById('copy-writing');
     const confirmationToggle = document.getElementById('confirmation-toggle');
     const settingsToggle = document.getElementById('settings-toggle');
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         !keepPopover ||
         !acceptSentenceButton ||
         !rejectSentenceButton ||
-        !blackoutButton ||
+        !blackoutToggle ||
         !copyButton ||
         !confirmationToggle ||
         !settingsToggle ||
@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const reviewedSentences = [];
     const drafts = [];
     let activeSentenceIndex = -1;
-    let isBlackout = false;
     let toastTimer;
 
     function showToast(message) {
@@ -73,10 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateControls() {
         const hasText = draftText().length > 0;
-        const hasKeptSentences = keptSentences().length > 0;
-        blackoutButton.disabled = !hasKeptSentences;
         copyButton.disabled = !hasText;
-        blackoutButton.textContent = isBlackout ? 'reveal' : 'blackout';
     }
 
     function renderDrafts() {
@@ -143,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         stream.append(input);
-        stream.classList.toggle('is-blackout', isBlackout);
+        stream.classList.toggle('is-blackout', blackoutToggle.checked);
         stream.classList.toggle('has-sentences', reviewedSentences.length > 0);
         updateControls();
         queuePopoverPosition();
@@ -195,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
         reviewedSentences.length = 0;
         activeSentenceIndex = -1;
         input.textContent = '';
-        isBlackout = false;
         renderSentences();
         renderDrafts();
         showToast('Draft stored below.');
@@ -266,10 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', queuePopoverPosition);
     window.addEventListener('scroll', queuePopoverPosition, true);
 
-    blackoutButton.addEventListener('click', () => {
-        isBlackout = !isBlackout;
+    blackoutToggle.addEventListener('change', () => {
         renderSentences();
-        showToast(isBlackout ? 'Text blacked out.' : 'Text revealed.');
     });
 
     copyButton.addEventListener('click', async () => {
