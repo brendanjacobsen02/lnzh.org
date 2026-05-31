@@ -2,12 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('writing-editor');
     const input = document.getElementById('sentence-input');
     const stream = document.getElementById('sentence-stream');
-    const confirmation = document.getElementById('sentence-confirmation');
-    const confirmationText = document.getElementById('sentence-confirmation-text');
-    const confirmSentenceButton = document.getElementById('confirm-sentence');
-    const editSentenceButton = document.getElementById('edit-sentence');
-    const blackoutButton = document.getElementById('toggle-blackout');
+    const keepPopover = document.getElementById('sentence-keep-popover');
+    const acceptSentenceButton = document.getElementById('sentence-accept');
+    const rejectSentenceButton = document.getElementById('sentence-reject');
+    const blackoutToggle = document.getElementById('blackout-toggle');
     const copyButton = document.getElementById('copy-writing');
+    const confirmationToggle = document.getElementById('confirmation-toggle');
+    const settingsToggle = document.getElementById('settings-toggle');
+    const settingsPanel = document.getElementById('settings-panel');
     const draftsSection = document.getElementById('completed-drafts');
     const draftList = document.getElementById('draft-list');
     const toast = document.getElementById('writing-toast');
@@ -16,12 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
         !form ||
         !input ||
         !stream ||
-        !confirmation ||
-        !confirmationText ||
-        !confirmSentenceButton ||
-        !editSentenceButton ||
-        !blackoutButton ||
+        !keepPopover ||
+        !acceptSentenceButton ||
+        !rejectSentenceButton ||
+        !blackoutToggle ||
         !copyButton ||
+        !confirmationToggle ||
+        !settingsToggle ||
+        !settingsPanel ||
         !draftsSection ||
         !draftList ||
         !toast
@@ -29,10 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const sentences = [];
+    const reviewedSentences = [];
     const drafts = [];
-    let pendingSentence = '';
-    let isBlackout = false;
+    let activeSentenceIndex = -1;
     let toastTimer;
 
     function showToast(message) {
@@ -41,33 +44,35 @@ document.addEventListener('DOMContentLoaded', () => {
         window.clearTimeout(toastTimer);
         toastTimer = window.setTimeout(() => {
             toast.classList.remove('active');
-        }, 1600);
+        }, 1400);
     }
 
     function normalizeText(value) {
         return value.trim().replace(/\s+/g, ' ');
     }
 
+    function keptSentences() {
+        return reviewedSentences
+            .filter((sentence) => sentence.keep)
+            .map((sentence) => sentence.text);
+    }
+
     function completedText() {
-        return sentences.join(' ');
+        return keptSentences().join(' ');
     }
 
     function draftText() {
         const currentText = normalizeText(input.textContent);
-        return [completedText(), pendingSentence, currentText].filter(Boolean).join(' ');
+        return [completedText(), currentText].filter(Boolean).join(' ');
     }
 
-    function sentenceEndIndex(value) {
-        const match = value.match(/[.!?;:]+(?:["'”’)\]]+)?(?:\s|$)/);
-        return match ? match.index + match[0].trimEnd().length : -1;
+    function sentenceEndMatch(value) {
+        return value.match(/[.!?;:]+(?:["'”’)\]]+)?(?:\s|$)/);
     }
 
     function updateControls() {
         const hasText = draftText().length > 0;
-        const hasSentences = sentences.length > 0;
-        blackoutButton.disabled = !hasSentences;
         copyButton.disabled = !hasText;
-        blackoutButton.textContent = isBlackout ? 'reveal' : 'blackout';
     }
 
     function renderDrafts() {
@@ -91,122 +96,101 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function sentenceRect(sentenceElement) {
+        const rects = Array.from(sentenceElement.getClientRects());
+        return rects.length > 0 ? rects[rects.length - 1] : sentenceElement.getBoundingClientRect();
+    }
+
+    function positionKeepPopover() {
+        const activeSentence = stream.querySelector(`[data-sentence-index="${activeSentenceIndex}"]`);
+
+        if (activeSentenceIndex === -1 || !confirmationToggle.checked || !activeSentence) {
+            keepPopover.hidden = true;
+            return;
+        }
+
+        const rect = sentenceRect(activeSentence);
+        keepPopover.hidden = false;
+        keepPopover.style.left = `${rect.right}px`;
+        keepPopover.style.top = `${rect.top}px`;
+    }
+
+    function queuePopoverPosition() {
+        window.requestAnimationFrame(positionKeepPopover);
+    }
+
     function renderSentences() {
         stream.replaceChildren();
-        sentences.forEach((sentence, index) => {
-            const sentenceElement = document.createElement('span');
-            sentenceElement.className = 'sentence-fragment';
-            sentenceElement.textContent = sentence;
-            stream.append(sentenceElement);
 
-            if (index < sentences.length - 1) {
-                stream.append(' ');
-            }
+        reviewedSentences.forEach((sentence, index) => {
+            const sentenceElement = document.createElement('span');
+            sentenceElement.className = sentence.keep
+                ? 'sentence-fragment is-kept'
+                : 'sentence-fragment is-pending';
+            sentenceElement.dataset.sentenceIndex = String(index);
+            sentenceElement.textContent = sentence.text;
+            sentenceElement.addEventListener('click', (event) => {
+                event.stopPropagation();
+                activeSentenceIndex = index;
+                positionKeepPopover();
+            });
+            stream.append(sentenceElement);
+            stream.append(' ');
         });
 
-        if (sentences.length > 0) {
-            stream.append(' ');
-        }
-
         stream.append(input);
-        stream.classList.toggle('is-blackout', isBlackout);
-        stream.classList.toggle('has-sentences', sentences.length > 0);
+        stream.classList.toggle('is-blackout', blackoutToggle.checked);
+        stream.classList.toggle('has-sentences', reviewedSentences.length > 0);
         updateControls();
+        queuePopoverPosition();
     }
 
-    function showConfirmation(sentence) {
-        pendingSentence = sentence;
-        confirmationText.textContent = sentence;
-        confirmation.hidden = false;
-        input.setAttribute('contenteditable', 'false');
-        updateControls();
-    }
+    function collectCompletedSentences() {
+        let text = input.textContent;
+        let match = sentenceEndMatch(text);
+        let changed = false;
 
-    function hideConfirmation() {
-        pendingSentence = '';
-        confirmation.hidden = true;
-        confirmationText.textContent = '';
-        input.setAttribute('contenteditable', 'true');
-        updateControls();
-    }
+        while (match) {
+            const endIndex = match.index + match[0].trimEnd().length;
+            const sentence = normalizeText(text.slice(0, endIndex));
+            text = text.slice(endIndex).trimStart();
 
-    function maybePrepareSentence() {
-        if (pendingSentence) {
-            return false;
+            if (sentence) {
+                reviewedSentences.push({ text: sentence, keep: !confirmationToggle.checked });
+                activeSentenceIndex = reviewedSentences.length - 1;
+                changed = true;
+            }
+
+            match = sentenceEndMatch(text);
         }
 
-        const text = input.textContent;
-        const endIndex = sentenceEndIndex(text);
-
-        if (endIndex === -1) {
+        if (changed) {
+            input.textContent = text;
+            renderSentences();
+        } else {
             updateControls();
-            return false;
+            queuePopoverPosition();
         }
 
-        const sentence = normalizeText(text.slice(0, endIndex));
-        const remainder = text.slice(endIndex).trimStart();
-
-        if (!sentence) {
-            updateControls();
-            return false;
-        }
-
-        input.textContent = remainder;
-        showConfirmation(sentence);
-        return true;
+        return changed;
     }
-
-    confirmSentenceButton.addEventListener('click', () => {
-        if (!pendingSentence) {
-            return;
-        }
-
-        sentences.push(pendingSentence);
-        hideConfirmation();
-        renderSentences();
-        showToast('Sentence kept.');
-        input.focus();
-
-        window.setTimeout(() => {
-            maybePrepareSentence();
-        }, 0);
-    });
-
-    editSentenceButton.addEventListener('click', () => {
-        if (!pendingSentence) {
-            return;
-        }
-
-        input.textContent = [pendingSentence, input.textContent].filter(Boolean).join(' ');
-        hideConfirmation();
-        renderSentences();
-        input.focus();
-    });
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
-
-        if (maybePrepareSentence()) {
-            return;
-        }
-
-        if (pendingSentence) {
-            showToast('Keep or edit the sentence first.');
-            return;
-        }
+        collectCompletedSentences();
 
         const text = draftText();
 
         if (!text) {
-            showToast('Write something first.');
+            showToast('Toggle on a sentence or keep writing.');
             input.focus();
             return;
         }
 
         drafts.push(text);
-        sentences.length = 0;
+        reviewedSentences.length = 0;
+        activeSentenceIndex = -1;
         input.textContent = '';
-        isBlackout = false;
         renderSentences();
         renderDrafts();
         showToast('Draft stored below.');
@@ -214,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     input.addEventListener('input', () => {
-        maybePrepareSentence();
+        collectCompletedSentences();
     });
 
     input.addEventListener('keydown', (event) => {
@@ -228,19 +212,57 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const pastedText = event.clipboardData.getData('text/plain');
         document.execCommand('insertText', false, pastedText);
-        maybePrepareSentence();
+        collectCompletedSentences();
     });
 
     stream.addEventListener('click', () => {
-        if (!pendingSentence) {
-            input.focus();
-        }
+        input.focus();
     });
 
-    blackoutButton.addEventListener('click', () => {
-        isBlackout = !isBlackout;
+    confirmationToggle.addEventListener('change', () => {
+        if (!confirmationToggle.checked) {
+            reviewedSentences.forEach((sentence) => {
+                sentence.keep = true;
+            });
+            keepPopover.hidden = true;
+        }
+
         renderSentences();
-        showToast(isBlackout ? 'Text blacked out.' : 'Text revealed.');
+    });
+
+    acceptSentenceButton.addEventListener('click', () => {
+        if (activeSentenceIndex === -1) {
+            return;
+        }
+
+        reviewedSentences[activeSentenceIndex].keep = true;
+        activeSentenceIndex = -1;
+        keepPopover.hidden = true;
+        renderSentences();
+    });
+
+    rejectSentenceButton.addEventListener('click', () => {
+        if (activeSentenceIndex === -1) {
+            return;
+        }
+
+        reviewedSentences.splice(activeSentenceIndex, 1);
+        activeSentenceIndex = -1;
+        keepPopover.hidden = true;
+        renderSentences();
+    });
+
+    settingsToggle.addEventListener('click', () => {
+        const willOpen = settingsPanel.hidden;
+        settingsPanel.hidden = !willOpen;
+        settingsToggle.setAttribute('aria-expanded', String(willOpen));
+    });
+
+    window.addEventListener('resize', queuePopoverPosition);
+    window.addEventListener('scroll', queuePopoverPosition, true);
+
+    blackoutToggle.addEventListener('change', () => {
+        renderSentences();
     });
 
     copyButton.addEventListener('click', async () => {
