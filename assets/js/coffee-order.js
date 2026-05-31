@@ -90,17 +90,6 @@ function minutesToValue(minutes) {
     return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
 }
 
-function timeValueToMinutes(value) {
-    if (!value) {
-        return null;
-    }
-    const [hours, mins] = value.split(':').map((part) => Number(part));
-    if (Number.isNaN(hours) || Number.isNaN(mins)) {
-        return null;
-    }
-    return hours * 60 + mins;
-}
-
 function slugifyDrink(name) {
     return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
@@ -404,51 +393,6 @@ async function refreshSlots() {
     }
 }
 
-async function purgeMorningOrdersIfNeeded() {
-    const pacificParts = getPacificNowParts();
-    if (!pacificParts || Number.isNaN(pacificParts.hour)) {
-        return;
-    }
-    if (pacificParts.hour < 12) {
-        return;
-    }
-    const dateString = getPacificDateString();
-    const lastCleanup = localStorage.getItem('coffeeMorningCleanup');
-    if (lastCleanup === dateString) {
-        return;
-    }
-    try {
-        const { db, firestore } = await getFirebase();
-        const { collection, getDocs, query, where, writeBatch } = firestore;
-        const ordersRef = collection(db, 'orders');
-        const snap = await getDocs(query(ordersRef, where('pickupDate', '==', dateString)));
-        if (snap.empty) {
-            localStorage.setItem('coffeeMorningCleanup', dateString);
-            return;
-        }
-        const batch = writeBatch(db);
-        let deleteCount = 0;
-        snap.forEach((docSnap) => {
-            const data = docSnap.data();
-            const minutes = timeValueToMinutes(data ? data.pickupTime : null);
-            if (minutes === null) {
-                return;
-            }
-            const windowConfig = getOrderWindow(dateString);
-            if (minutes >= windowConfig.startMinutes && minutes <= windowConfig.endMinutes) {
-                batch.delete(docSnap.ref);
-                deleteCount += 1;
-            }
-        });
-        if (deleteCount > 0) {
-            await batch.commit();
-        }
-        localStorage.setItem('coffeeMorningCleanup', dateString);
-    } catch (error) {
-        console.error('Failed to purge morning orders', error);
-    }
-}
-
 async function placeOrder() {
     const name = selectedName();
     if (!selectedDrink) {
@@ -699,6 +643,5 @@ setupTempButtons();
 setupMilkButtons();
 setupCupButtons();
 renderDateButtons();
-purgeMorningOrdersIfNeeded();
 refreshSlots();
 loadSoldOutState();
