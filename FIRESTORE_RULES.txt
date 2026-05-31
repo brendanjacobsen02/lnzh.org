@@ -13,12 +13,11 @@ service cloud.firestore {
       allow create: if true;
     }
 
-    // Coffee orders: allow creation + read for the private log
+    // Coffee orders: allow customers to create orders and the public list to read them.
     match /orders/{orderId} {
       allow create: if true;
       allow read: if true;
-      allow update: if true;
-      allow delete: if true;
+      allow update, delete: if false;
     }
 
 
@@ -27,9 +26,10 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
-    // Menu availability (sold out toggles)
+    // Menu availability is public read-only from the site. Update it from Firebase Console.
     match /menu/{docId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
     }
 
     // Total order counter
