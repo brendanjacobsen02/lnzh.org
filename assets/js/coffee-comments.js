@@ -180,7 +180,10 @@ function renderComment(comment, depth = 0) {
     }
 
     const header = document.createElement('p');
-    header.innerHTML = `<strong>${name}</strong> · ${timestamp}`;
+    const strong = document.createElement('strong');
+    strong.textContent = name;
+    header.appendChild(strong);
+    header.append(` · ${timestamp}`);
     wrapper.appendChild(header);
 
     if (comment.text) {

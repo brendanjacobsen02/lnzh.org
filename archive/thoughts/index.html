@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Philosophy by Leon Zhou">
+    <meta name="description" content="Thoughts and aphorisms by Leon Zhou">
     <meta name="author" content="Leon Zhou">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' 'unsafe-inline' https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com;">
     <meta name="referrer" content="no-referrer-when-downgrade">
-    <title>lnzhPhilosophy</title>
+    <title>lnzhThoughts</title>
     <link rel="stylesheet" href="../../assets/css/style.css">
     <link rel="icon" type="image/png" href="../../assets/images/content/favicon.png">
     <script src="../../assets/js/nav-dropdown.js"></script>
+    <script src="../../assets/js/firebase-config.public.js"></script>
+    <script type="module" src="../../assets/js/thoughts-filter.js"></script>
 </head>
 <body>
     <nav>
@@ -38,17 +40,35 @@
 
     <main>
         <header class="intro">
-            <h1>Philosophy</h1>
+            <h1>My most absurd thoughts</h1>
         </header>
 
-        <a href="../../blog/"><img src="../../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
+        <a href="../../"><img src="../../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
+        <p>moments of inspiration, varied in coherence, pulled from my notes and social media. press ★ to save!</p>
+        <div class="thoughts-controls">
+            <div class="thoughts-filters">
+                <button id="all-btn" class="filter-btn active">All</button>
+                <button id="random-btn" class="filter-btn">Random</button>
+                <button id="favs-btn" class="filter-btn">★</button>
+            </div>
+            <span id="thought-count" class="thought-count"></span>
+            <div class="thoughts-sort">
+                <button id="reverse-order-btn" class="reverse-btn" title="Reverse order">
+                    <img src="../../assets/images/ui/arrow0.png" alt="reverse order" id="reverse-arrow">
+                </button>
+                <select id="sort-select">
+                    <option value="date">Date</option>
+                    <option value="length">Length</option>
+                    <option value="likes">Likes</option>
+                </select>
+                <input type="text" id="search-input" placeholder="Search..." />
+            </div>
+        </div>
 
-        <section class="content">
-            <!-- Essay content goes here -->
-        </section>
+        <section class="content thoughts-container" aria-live="polite"></section>
     </main>
 
-    <footer>
+    <footer class="footer">
         <div class="footer-icons">
             <a href="https://www.chess.com/member/leonzhou7" target="_blank" rel="noopener noreferrer"><img src="../../assets/images/icons/chess.png" alt="Chess.com"></a>
             <a href="mailto:crowded@gmail.com"><img src="../../assets/images/icons/gmail.png" alt="Email"></a>

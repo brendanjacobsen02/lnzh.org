@@ -5,7 +5,7 @@ import { getFirestore, doc, getDoc, setDoc, increment, updateDoc } from 'https:/
 const firebaseConfig = window.__FIREBASE_CONFIG__;
 
 if (!firebaseConfig) {
-    throw new Error('Missing Firebase config. Ensure assets/js/firebase-config.local.js or assets/js/firebase-config.public.js is loaded (see firebase-config.example.js).');
+    throw new Error('Missing Firebase config. Ensure assets/js/firebase-config.public.js is loaded before Firebase modules.');
 }
 
 // Initialize Firebase
