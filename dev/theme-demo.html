@@ -262,7 +262,9 @@
     overlay.className = 'dissolve-overlay';
     overlay.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
     overlay.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
-    overlay.style.backgroundColor = outgoing;
+    // Overlay container stays transparent — cells carry the outgoing color and
+    // fully tile the viewport. A container background would occlude the page so
+    // cleared cells reveal nothing (see theme-toggle.js note). Do not re-add.
 
     var cells = [];
     for (var i = 0; i < total; i++) {

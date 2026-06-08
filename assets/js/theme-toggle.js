@@ -217,7 +217,12 @@
         overlay.setAttribute('aria-hidden', 'true');
         overlay.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
         overlay.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
-        overlay.style.backgroundColor = outgoingPaper;
+        // NB: the overlay container MUST stay transparent. The cells carry the
+        // outgoing color and fully tile the viewport (1fr tracks, no gap), so
+        // they alone hide the page. Giving the container its own background
+        // would sit BEHIND the cells, so cleared cells would expose that
+        // background (same outgoing color) instead of the re-themed page — the
+        // dissolve would be invisible and end in a hard cut. Do not re-add.
 
         var cells = new Array(total);
         for (var i = 0; i < total; i++) {
