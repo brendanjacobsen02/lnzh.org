@@ -189,7 +189,7 @@
             '.theme-dissolve-cell{',
             '  width:100%;height:100%;opacity:1;transform:scale(1);',
             '  transform-origin:center;',
-            '  transition:opacity .18s steps(3),transform .18s steps(3);',
+            '  transition:opacity .34s steps(4),transform .34s steps(4);',
             '}',
             '.theme-dissolve-cell.is-clear{opacity:0;transform:scale(0);}',
             /* reduced motion: never animate (overlay is skipped anyway) AND
@@ -207,7 +207,7 @@
 
     /* ---- the pixel-dissolve transition ---- */
     function pixelDissolve(outgoingPaper, onMidpoint) {
-        var CELL = 24;                       // ~24px cells per spec
+        var CELL = 56;                       // chunky blocks (24px read as too-fine static)
         var cols = Math.ceil(window.innerWidth / CELL);
         var rows = Math.ceil(window.innerHeight / CELL);
         var total = cols * rows;
@@ -246,7 +246,7 @@
             var tmp = order[s]; order[s] = order[r]; order[r] = tmp;
         }
 
-        var STAGGER_TOTAL = 480; // ms of staggered starts (+ cell transition ~ 500ms feel)
+        var STAGGER_TOTAL = 1100; // ms of staggered starts (slow, deliberate ~1.5s feel)
         // Force layout so the initial opaque state is committed before we clear.
         // eslint-disable-next-line no-unused-expressions
         overlay.offsetHeight;
@@ -262,7 +262,7 @@
             }
         });
 
-        var cleanupAfter = STAGGER_TOTAL + 220; // last start + transition tail
+        var cleanupAfter = STAGGER_TOTAL + 460; // last start + transition tail
         window.setTimeout(function () {
             if (overlay.parentNode) {
                 overlay.parentNode.removeChild(overlay);
@@ -294,7 +294,7 @@
             swapImages(next);
             updateButton(next);
         });
-        window.setTimeout(function () { animating = false; }, 760);
+        window.setTimeout(function () { animating = false; }, 1650);
     }
 
     /* ---- the toggle button ---- */
