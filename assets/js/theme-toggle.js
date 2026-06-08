@@ -188,7 +188,7 @@
             '}',
             '.theme-dissolve-cell{',
             '  width:100%;height:100%;opacity:1;',
-            '  transition:opacity .7s cubic-bezier(0.16,1,0.3,1);',
+            '  transition:opacity 1s cubic-bezier(0.1,1,0.3,1);',
             '}',
             '.theme-dissolve-cell.is-clear{opacity:0;}',
             /* reduced motion: never animate (overlay is skipped anyway) AND
@@ -261,7 +261,7 @@
             }
         });
 
-        var cleanupAfter = STAGGER_TOTAL + 800; // last start + .7s fade tail + buffer
+        var cleanupAfter = STAGGER_TOTAL + 1100; // last start + 1s fade tail + buffer
         window.setTimeout(function () {
             if (overlay.parentNode) {
                 overlay.parentNode.removeChild(overlay);
@@ -293,7 +293,7 @@
             swapImages(next);
             updateButton(next);
         });
-        window.setTimeout(function () { animating = false; }, 1800);
+        window.setTimeout(function () { animating = false; }, 2100);
     }
 
     /* ---- the toggle button ---- */
