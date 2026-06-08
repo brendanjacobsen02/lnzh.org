@@ -188,7 +188,7 @@
             '}',
             '.theme-dissolve-cell{',
             '  width:100%;height:100%;opacity:1;',
-            '  transition:opacity .6s ease-in-out;',
+            '  transition:opacity .7s cubic-bezier(0.16,1,0.3,1);',
             '}',
             '.theme-dissolve-cell.is-clear{opacity:0;}',
             /* reduced motion: never animate (overlay is skipped anyway) AND
@@ -245,7 +245,7 @@
             var tmp = order[s]; order[s] = order[r]; order[r] = tmp;
         }
 
-        var STAGGER_TOTAL = 1100; // ms of staggered starts (slow, deliberate ~1.5s feel)
+        var STAGGER_TOTAL = 900; // ms of staggered starts; per-cell ease-out lingers
         // Force layout so the initial opaque state is committed before we clear.
         // eslint-disable-next-line no-unused-expressions
         overlay.offsetHeight;
@@ -261,7 +261,7 @@
             }
         });
 
-        var cleanupAfter = STAGGER_TOTAL + 700; // last start + .6s fade tail + buffer
+        var cleanupAfter = STAGGER_TOTAL + 800; // last start + .7s fade tail + buffer
         window.setTimeout(function () {
             if (overlay.parentNode) {
                 overlay.parentNode.removeChild(overlay);
@@ -293,7 +293,7 @@
             swapImages(next);
             updateButton(next);
         });
-        window.setTimeout(function () { animating = false; }, 1900);
+        window.setTimeout(function () { animating = false; }, 1800);
     }
 
     /* ---- the toggle button ---- */
