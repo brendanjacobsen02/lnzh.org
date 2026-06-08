@@ -1,4 +1,11 @@
 // Navigation dropdown functionality
+const navScriptUrl = document.currentScript ? document.currentScript.src : window.location.href;
+const cursorSpriteFrames = [
+    '../images/ui/cursor-sprite-0.svg',
+    '../images/ui/cursor-sprite-1.svg',
+    '../images/ui/cursor-sprite-2.svg'
+].map(path => new URL(path, navScriptUrl).href);
+
 document.addEventListener('DOMContentLoaded', function() {
     // Make all external links open in new tab
     document.querySelectorAll('a[href^="http"]:not([href*="lnzh.org"])').forEach(link => {
@@ -145,4 +152,71 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+
+    initCursorSprite();
 });
+
+function initCursorSprite() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+
+    if (prefersReducedMotion || !hasFinePointer) {
+        return;
+    }
+
+    const sprite = document.createElement('img');
+    sprite.className = 'cursor-sprite';
+    sprite.src = cursorSpriteFrames[0];
+    sprite.alt = '';
+    sprite.setAttribute('aria-hidden', 'true');
+    sprite.decoding = 'async';
+    document.body.append(sprite);
+
+    let pointerX = window.innerWidth / 2;
+    let pointerY = window.innerHeight / 2;
+    let spriteX = pointerX;
+    let spriteY = pointerY;
+    let frameIndex = 0;
+    let lastFrameTime = 0;
+    let isVisible = false;
+
+    function showSprite() {
+        if (!isVisible) {
+            isVisible = true;
+            spriteX = pointerX;
+            spriteY = pointerY;
+            sprite.classList.add('is-visible');
+        }
+    }
+
+    document.addEventListener('pointermove', (event) => {
+        if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') {
+            return;
+        }
+
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        showSprite();
+    }, { passive: true });
+
+    document.addEventListener('pointerleave', () => {
+        isVisible = false;
+        sprite.classList.remove('is-visible');
+    });
+
+    function animate(now) {
+        spriteX += (pointerX - spriteX) * 0.18;
+        spriteY += (pointerY - spriteY) * 0.18;
+
+        if (now - lastFrameTime > 140) {
+            frameIndex = (frameIndex + 1) % cursorSpriteFrames.length;
+            sprite.src = cursorSpriteFrames[frameIndex];
+            lastFrameTime = now;
+        }
+
+        sprite.style.transform = `translate3d(${spriteX + 14}px, ${spriteY + 18}px, 0)`;
+        requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+}
