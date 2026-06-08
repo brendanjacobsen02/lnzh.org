@@ -23,6 +23,11 @@
                 : 'light';
         }
         document.documentElement.setAttribute('data-theme', t);
+        // Accent (orthogonal to theme): green is the :root default = no attribute.
+        var ac = localStorage.getItem('accent');
+        if (ac && /^[a-z]+$/.test(ac) && ac !== 'green') {
+            document.documentElement.setAttribute('data-accent', ac);
+        }
     } catch (e) {
         /* Storage / matchMedia unavailable — fall back to default light theme. */
     }

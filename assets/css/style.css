@@ -378,12 +378,26 @@ p {
 }
 
 
+/* ---- Accent overrides (data-accent). Default green = :root, no override.
+        Generated + AA-verified by tools/accent_palette.py (link text >= 4.5:1). ---- */
+html[data-accent="teal"]   { --link: #3a6270; --link-hover: #264049; }
+html[data-theme="dark"][data-accent="teal"]   { --link: #5a92a3; --link-hover: #94b8c3; }
+html[data-accent="amber"]  { --link: #94622a; --link-hover: #60401b; }
+html[data-theme="dark"][data-accent="amber"]  { --link: #d29a52; --link-hover: #e2bd8f; }
+html[data-accent="coral"]  { --link: #8a3f3b; --link-hover: #5a2926; }
+html[data-theme="dark"][data-accent="coral"]  { --link: #c26c68; --link-hover: #d79f9d; }
+html[data-accent="violet"] { --link: #5f4770; --link-hover: #3e2e49; }
+html[data-theme="dark"][data-accent="violet"] { --link: #9a7eac; --link-hover: #bdabc9; }
+html[data-accent="olive"]  { --link: #766d28; --link-hover: #4d471a; }
+html[data-theme="dark"][data-accent="olive"]  { --link: #bbae4a; --link-hover: #d3ca89; }
+
 /* Links */
 a {
     color: var(--link);
     text-decoration: underline;
     text-decoration-style: dotted;
     text-underline-offset: 2px;
+    transition: color 0.2s ease;
 }
 
 a:hover {

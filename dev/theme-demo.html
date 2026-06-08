@@ -142,6 +142,22 @@
   @media (prefers-reduced-motion: reduce) {
     .dissolve-cell, .crt-overlay .crt-line { transition: none; animation: none; }
   }
+
+  /* Links follow the accent (mirrors the site). */
+  a { color: var(--link); transition: color .2s ease; }
+  a:hover { color: var(--link-hover); }
+
+  /* Accent overrides — same AA-verified values as style.css (green = default). */
+  html[data-accent="teal"]   { --link: #3a6270; --link-hover: #264049; }
+  html[data-theme="dark"][data-accent="teal"]   { --link: #5a92a3; --link-hover: #94b8c3; }
+  html[data-accent="amber"]  { --link: #94622a; --link-hover: #60401b; }
+  html[data-theme="dark"][data-accent="amber"]  { --link: #d29a52; --link-hover: #e2bd8f; }
+  html[data-accent="coral"]  { --link: #8a3f3b; --link-hover: #5a2926; }
+  html[data-theme="dark"][data-accent="coral"]  { --link: #c26c68; --link-hover: #d79f9d; }
+  html[data-accent="violet"] { --link: #5f4770; --link-hover: #3e2e49; }
+  html[data-theme="dark"][data-accent="violet"] { --link: #9a7eac; --link-hover: #bdabc9; }
+  html[data-accent="olive"]  { --link: #766d28; --link-hover: #4d471a; }
+  html[data-theme="dark"][data-accent="olive"]  { --link: #bbae4a; --link-hover: #d3ca89; }
 </style>
 </head>
 <body>
@@ -164,6 +180,10 @@
 
   <div class="icons" id="icons"></div>
   <p class="note">Icons are CSS-grid pixel glyphs colored with <code>var(--ink)</code>; in dark mode they re-tint to beige, mirroring the PNG <code>-dark</code> swap on the real site.</p>
+
+  <p class="note" style="margin-top:22px">Accent — recolors links and the <code>--link</code> swatch (green = default). Pick one, then flip the theme to check both modes:</p>
+  <div class="controls" id="accent-row"></div>
+  <p style="margin:12px 0 0"><a href="#">Sample hyperlink</a> follows the chosen accent.</p>
 
 <script>
 (function () {
@@ -337,6 +357,25 @@
       });
     });
   }
+
+  /* ---- accent picker (mirrors the site's settings panel) ---- */
+  var ACCENTS = ['green', 'teal', 'amber', 'coral', 'violet', 'olive'];
+  var ACCENT_DOT = { green:'#3fd06a', teal:'#5a92a3', amber:'#d29a52', coral:'#c26c68', violet:'#9a7eac', olive:'#bbae4a' };
+  var accentRow = document.getElementById('accent-row');
+  ACCENTS.forEach(function (name) {
+    var b = document.createElement('button');
+    b.className = 'pixel'; b.type = 'button';
+    b.style.display = 'inline-flex'; b.style.alignItems = 'center'; b.style.gap = '8px';
+    var dot = document.createElement('span');
+    dot.style.cssText = 'display:inline-block;width:16px;height:16px;border:2px solid var(--line-strong);background:' + ACCENT_DOT[name];
+    var lab = document.createElement('span'); lab.textContent = name;
+    b.appendChild(dot); b.appendChild(lab);
+    b.addEventListener('click', function () {
+      if (name === 'green') { document.documentElement.removeAttribute('data-accent'); }
+      else { document.documentElement.setAttribute('data-accent', name); }
+    });
+    accentRow.appendChild(b);
+  });
 
   document.getElementById('btn-dissolve').addEventListener('click', pixelDissolve);
   document.getElementById('btn-crt').addEventListener('click', crtPowerCycle);

@@ -180,6 +180,41 @@
             '  .theme-toggle-btn{width:44px;height:44px;font-size:18px;top:10px;right:10px;}',
             '}',
 
+            /* Settings panel (opened by the gear) + accent swatches. */
+            '.theme-settings-panel{',
+            '  position:fixed;top:80px;right:16px;z-index:2147483646;',
+            '  width:204px;padding:14px;font-family:monospace;',
+            '  color:var(--ink,#000);background:var(--paper-raised,#fffdf4);',
+            '  border:3px solid var(--line-strong,#000);',
+            '  box-shadow:4px 4px 0 0 var(--line-strong,#000);',
+            '}',
+            '.theme-settings-panel[hidden]{display:none;}',
+            '.theme-settings-panel .tt-section + .tt-section{margin-top:16px;}',
+            '.theme-settings-panel .tt-label{',
+            '  margin:0 0 8px;font-size:11px;letter-spacing:.08em;',
+            '  text-transform:uppercase;color:var(--muted,#666);',
+            '}',
+            '.theme-theme-btn{',
+            '  display:inline-flex;align-items:center;gap:8px;',
+            '  font-family:monospace;font-size:13px;cursor:pointer;padding:6px 10px;',
+            '  color:var(--ink,#000);background:var(--paper,#f2f2e4);',
+            '  border:2px solid var(--line-strong,#000);',
+            '  box-shadow:2px 2px 0 0 var(--line-strong,#000);',
+            '}',
+            '.theme-theme-btn:hover{transform:translate(1px,1px);',
+            '  box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
+            '.theme-theme-btn:focus-visible{outline:3px solid var(--link,#119c36);outline-offset:2px;}',
+            '.theme-accent-row{display:flex;gap:8px;flex-wrap:wrap;}',
+            '.theme-swatch{',
+            '  width:26px;height:26px;padding:0;cursor:pointer;border-radius:0;',
+            '  border:2px solid var(--line-strong,#000);image-rendering:pixelated;',
+            '  box-shadow:2px 2px 0 0 var(--line-strong,#000);',
+            '}',
+            '.theme-swatch:hover{transform:translate(1px,1px);',
+            '  box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
+            '.theme-swatch[aria-pressed="true"]{outline:3px solid var(--ink,#000);outline-offset:2px;}',
+            '.theme-swatch:focus-visible{outline:3px solid var(--link,#119c36);outline-offset:2px;}',
+
             /* Full-viewport pixel-dissolve overlay grid. */
             '.theme-dissolve-overlay{',
             '  position:fixed;inset:0;z-index:2147483647;',
@@ -278,7 +313,7 @@
             document.documentElement.setAttribute('data-theme', next);
             persist(next);
             swapImages(next);
-            updateButton(next);
+            updateThemeControl(next);
             return;
         }
 
@@ -291,53 +326,172 @@
             document.documentElement.setAttribute('data-theme', next);
             persist(next);
             swapImages(next);
-            updateButton(next);
+            updateThemeControl(next);
         });
         window.setTimeout(function () { animating = false; }, 2100);
     }
 
-    /* ---- the toggle button ---- */
-    var button;
-    function iconFor(theme) {
-        // Show the action's target: moon when currently light (go dark),
-        // sun when currently dark (go light).
-        return theme === 'dark' ? '☀' : '☽'; // ☀ / ☽
+    /* ---- accent state ---- */
+    var ACCENTS = ['green', 'teal', 'amber', 'coral', 'violet', 'olive'];
+    // Swatch dot = each accent's brighter (dark-theme) link value, which reads
+    // on both the light and dark panel backgrounds.
+    var ACCENT_DOT = {
+        green: '#3fd06a', teal: '#5a92a3', amber: '#d29a52',
+        coral: '#c26c68', violet: '#9a7eac', olive: '#bbae4a'
+    };
+
+    function currentAccent() {
+        var a = document.documentElement.getAttribute('data-accent');
+        return ACCENTS.indexOf(a) >= 0 ? a : 'green';
     }
-    function updateButton(theme) {
-        if (!button) { return; }
+    function applyAccent(accent) {
+        if (accent === 'green') {
+            document.documentElement.removeAttribute('data-accent'); // green = :root default
+        } else {
+            document.documentElement.setAttribute('data-accent', accent);
+        }
+        try { localStorage.setItem('accent', accent); } catch (e) { /* ignore */ }
+        updateSwatches(accent);
+    }
+
+    /* ---- UI elements ---- */
+    var gear, panel, themeBtn, swatches = [];
+
+    function themeIcon(theme) { return theme === 'dark' ? '☀' : '☽'; }
+    function updateThemeControl(theme) {
+        if (!themeBtn) { return; }
         var isDark = theme === 'dark';
-        button.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-        button.setAttribute(
-            'aria-label',
-            isDark ? 'Switch to light theme' : 'Switch to dark theme'
-        );
-        button.title = isDark ? 'Switch to light theme' : 'Switch to dark theme';
-        var icon = button.querySelector('.tt-icon');
-        if (icon) { icon.textContent = iconFor(theme); }
+        var lbl = isDark ? 'Switch to light theme' : 'Switch to dark theme';
+        themeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        themeBtn.setAttribute('aria-label', lbl);
+        themeBtn.title = lbl;
+        var ic = themeBtn.querySelector('.tt-icon');
+        if (ic) { ic.textContent = themeIcon(theme); }
+        var tx = themeBtn.querySelector('.tt-text');
+        if (tx) { tx.textContent = isDark ? 'Dark' : 'Light'; }
+    }
+    function updateSwatches(accent) {
+        for (var i = 0; i < swatches.length; i++) {
+            swatches[i].setAttribute('aria-pressed',
+                swatches[i].getAttribute('data-accent') === accent ? 'true' : 'false');
+        }
     }
 
-    function buildButton() {
-        button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'theme-toggle-btn';
-        var icon = document.createElement('span');
-        icon.className = 'tt-icon';
-        icon.setAttribute('aria-hidden', 'true');
-        button.appendChild(icon);
+    /* ---- panel open/close + accessibility ---- */
+    var panelOpen = false;
+    function onDocKey(e) { if (e.key === 'Escape') { closePanel(); } }
+    function onDocClick(e) {
+        if (panel && !panel.contains(e.target) && gear && !gear.contains(e.target)) {
+            closePanel();
+        }
+    }
+    function openPanel() {
+        if (panelOpen) { return; }
+        panelOpen = true;
+        panel.hidden = false;
+        gear.setAttribute('aria-expanded', 'true');
+        if (themeBtn) { themeBtn.focus(); }
+        document.addEventListener('keydown', onDocKey);
+        // Defer so the click that opened the panel doesn't immediately close it.
+        window.setTimeout(function () {
+            document.addEventListener('click', onDocClick);
+        }, 0);
+    }
+    function closePanel() {
+        if (!panelOpen) { return; }
+        panelOpen = false;
+        panel.hidden = true;
+        gear.setAttribute('aria-expanded', 'false');
+        document.removeEventListener('keydown', onDocKey);
+        document.removeEventListener('click', onDocClick);
+        if (gear) { gear.focus(); }
+    }
 
-        button.addEventListener('click', function () {
+    /* ---- build the gear button + settings panel ---- */
+    function buildUI() {
+        gear = document.createElement('button');
+        gear.type = 'button';
+        gear.className = 'theme-toggle-btn';
+        gear.setAttribute('aria-label', 'Appearance settings');
+        gear.setAttribute('aria-haspopup', 'true');
+        gear.setAttribute('aria-expanded', 'false');
+        var gi = document.createElement('span');
+        gi.className = 'tt-icon';
+        gi.setAttribute('aria-hidden', 'true');
+        gi.textContent = '⚙';
+        gear.appendChild(gi);
+        gear.addEventListener('click', function () {
+            if (panelOpen) { closePanel(); } else { openPanel(); }
+        });
+
+        panel = document.createElement('div');
+        panel.className = 'theme-settings-panel';
+        panel.setAttribute('role', 'group');
+        panel.setAttribute('aria-label', 'Appearance settings');
+        panel.hidden = true;
+
+        // Theme section
+        var themeSec = document.createElement('div');
+        themeSec.className = 'tt-section';
+        var themeLbl = document.createElement('p');
+        themeLbl.className = 'tt-label';
+        themeLbl.textContent = 'Theme';
+        themeBtn = document.createElement('button');
+        themeBtn.type = 'button';
+        themeBtn.className = 'theme-theme-btn';
+        var tIcon = document.createElement('span');
+        tIcon.className = 'tt-icon';
+        tIcon.setAttribute('aria-hidden', 'true');
+        var tText = document.createElement('span');
+        tText.className = 'tt-text';
+        themeBtn.appendChild(tIcon);
+        themeBtn.appendChild(tText);
+        themeBtn.addEventListener('click', function () {
             var next = currentTheme() === 'dark' ? 'light' : 'dark';
             applyTheme(next, true);
         });
+        themeSec.appendChild(themeLbl);
+        themeSec.appendChild(themeBtn);
 
-        document.body.appendChild(button);
-        updateButton(currentTheme());
+        // Accent section
+        var accentSec = document.createElement('div');
+        accentSec.className = 'tt-section';
+        var accentLbl = document.createElement('p');
+        accentLbl.className = 'tt-label';
+        accentLbl.textContent = 'Accent';
+        var row = document.createElement('div');
+        row.className = 'theme-accent-row';
+        swatches = [];
+        ACCENTS.forEach(function (name) {
+            var label = name.charAt(0).toUpperCase() + name.slice(1);
+            var sw = document.createElement('button');
+            sw.type = 'button';
+            sw.className = 'theme-swatch';
+            sw.setAttribute('data-accent', name);
+            sw.style.backgroundColor = ACCENT_DOT[name];
+            sw.setAttribute('aria-label', label + ' accent');
+            sw.setAttribute('aria-pressed', 'false');
+            sw.title = label;
+            sw.addEventListener('click', function () { applyAccent(name); });
+            row.appendChild(sw);
+            swatches.push(sw);
+        });
+        accentSec.appendChild(accentLbl);
+        accentSec.appendChild(row);
+
+        panel.appendChild(themeSec);
+        panel.appendChild(accentSec);
+        document.body.appendChild(gear);
+        document.body.appendChild(panel);
+
+        updateThemeControl(currentTheme());
+        updateSwatches(currentAccent());
     }
 
     /* ---- init ---- */
     function init() {
         injectStyles();
-        buildButton();
+        buildUI();
         preloadDarkVariants();
         // Ensure images match the theme already set by theme-init.js.
         swapImages(currentTheme());
