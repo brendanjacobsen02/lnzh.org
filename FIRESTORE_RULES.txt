@@ -1,54 +1,101 @@
 // Copy and paste these rules into your Firebase Console
 // Go to: Firestore Database → Rules tab → Paste this → Publish
+//
+// This is a public, no-auth static site. There is no Firebase Auth, so these
+// rules cannot tell an "admin" apart from a visitor. They are written to match
+// exactly what the site's client code does, and to deny everything else.
+//
+// Order status changes, order deletion, and menu sold-out toggles are done from
+// the Firebase console (which bypasses these rules) -- there is no admin page in
+// the app. If you ever add an admin UI back, prefer Firebase Auth + uid-based
+// rules over re-opening writes.
+//
+// Note: orders stay publicly READABLE because the /orders page lists them and
+// there is no account to gate on. The rules below stop anyone from forging,
+// editing, oversizing, or deleting data -- they cannot hide order data without
+// adding real authentication.
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow anyone to read likes
-    match /thoughts/likes {
-      allow read: if true;
 
-      // Allow anyone to increment likes, but prevent decrements
-      allow update: if true;
-      allow create: if true;
+    function isValidOrder() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['name', 'drink', 'temp', 'milk', 'ownCup', 'pickupDate', 'pickupTime', 'status', 'createdAt'])
+        && d.keys().hasAll(['name', 'drink', 'pickupDate', 'pickupTime', 'status', 'createdAt'])
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 100
+        && d.drink is string && d.drink.size() > 0 && d.drink.size() <= 80
+        && d.pickupDate is string && d.pickupDate.size() <= 20
+        && d.pickupTime is string && d.pickupTime.size() <= 20
+        && d.status == 'incomplete'
+        && d.createdAt is timestamp;
     }
 
-    // Coffee orders: allow customers to create orders and the public list to read them.
+    function isValidComment() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['name', 'text', 'parentId', 'stars', 'starCount', 'imageUrl', 'createdAt'])
+        && d.text is string && d.text.size() > 0 && d.text.size() <= 8000
+        && d.starCount == 0
+        && d.createdAt is timestamp
+        && (d.stars == null || (d.stars is number && d.stars >= 0 && d.stars <= 5))
+        && (d.name == null || (d.name is string && d.name.size() <= 100))
+        && (d.parentId == null || (d.parentId is string && d.parentId.size() <= 200))
+        && (d.imageUrl == null || (d.imageUrl is string && d.imageUrl.size() <= 2000));
+    }
+
+    // Thought likes: a single doc whose fields are thought_<index> counters.
+    // Non-sensitive; counts can go up (like) or down (un-like).
+    match /thoughts/likes {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if false;
+    }
+
+    // Coffee orders: anyone may place a well-formed order; the order log is
+    // public. No client modifies or deletes orders -- do that from the console.
     match /orders/{orderId} {
-      allow create: if true;
+      allow create: if isValidOrder();
       allow read: if true;
       allow update, delete: if false;
     }
 
-
-    // Coffee devblog comments
+    // Coffee devblog reviews/comments (threaded via parentId). Create + read,
+    // plus star-count likes; never edited (beyond likes) or deleted by clients.
     match /coffeeComments/{commentId} {
-      allow read, write: if true;
+      allow create: if isValidComment();
+      allow read: if true;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['starCount'])
+                    && request.resource.data.starCount is number
+                    && request.resource.data.starCount >= 0;
+      allow delete: if false;
     }
 
-    // Menu availability is public read-only from the site. Update it from Firebase Console.
+    // Menu sold-out flags: read-only to the app; toggle from the console.
     match /menu/{docId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Total order counter
+    // Running order counter. Must stay a non-negative number that never decreases.
     match /stats/{docId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if request.resource.data.keys().hasOnly(['totalOrders'])
+                   && request.resource.data.totalOrders is number
+                   && request.resource.data.totalOrders >= 0
+                   && (resource == null || request.resource.data.totalOrders >= resource.data.totalOrders);
     }
 
-    // Email list signups
+    // Email list signups: create-only, never publicly readable.
     match /emails/{emailId} {
-      allow create: if true;
+      allow create: if request.resource.data.keys().hasOnly(['email', 'createdAt'])
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() >= 3
+                    && request.resource.data.email.size() <= 254
+                    && request.resource.data.createdAt is timestamp;
       allow read, update, delete: if false;
     }
 
-    // Slot counts for limiting orders
-    match /orderSlots/{slotId} {
-      allow read, write: if true;
-    }
-
-    // Deny all other access by default
+    // Deny all other access by default.
     match /{document=**} {
       allow read, write: if false;
     }

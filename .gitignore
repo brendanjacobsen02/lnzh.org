@@ -8,3 +8,8 @@ build.py
 # Instagram raw data exports
 assets/instagram-*/
 assets/js/firebase-config.local.js
+
+# Private data / PII — never commit (mailing-list exports, raw social-media dumps)
+emails.csv
+emails.md
+thoughts/stories.html
