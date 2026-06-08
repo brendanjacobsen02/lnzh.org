@@ -1,6 +1,102 @@
 /* Google Fonts Import */
 @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
 
+/* ==========================================================================
+   Theme tokens
+   Light mode values are the exact pre-existing literals (pixel-identical).
+   Dark mode overrides live in html[data-theme="dark"] below.
+   ========================================================================== */
+:root {
+    /* Surfaces */
+    --paper: #f2f2e4;
+    --paper-raised: #fffdf4;
+    --paper-raised-rgb: 255, 253, 244;   /* base channels for translucent raised surfaces */
+
+    /* Text */
+    --ink: #000;          /* strongest text / on-paper black */
+    --ink-soft: #0e0e0e;  /* near-black body text */
+    --text: #333;         /* default body text */
+    --text-rgb: 51, 51, 51;  /* base channels for translucent text/lines */
+    --muted: #666;        /* secondary text */
+    --faint: #999;        /* faint / disabled text */
+    --backdrop: #111;     /* opaque near-black fill (redaction blackout) */
+    --accent: #111;       /* form control accent (checkbox tick) */
+
+    /* Lines */
+    --line: #ccc;            /* default hairline */
+    --line-soft: #e0e0e0;    /* lighter hairline (cards) */
+    --line-strong: #000;     /* strong/solid borders */
+
+    /* Shadow / highlight bases */
+    --shadow-rgb: 0, 0, 0;
+    --inset-highlight: rgba(255, 255, 255, 0.75);
+
+    /* Links */
+    --link: #119c36;
+    --link-hover: #0a4a1a;
+
+    /* Category / accent palette (header tones) */
+    --cat-amber: #c7873a;   /* warm amber */
+    --cat-coral: #b5524d;   /* muted coral */
+    --cat-olive: #a69a38;   /* olive gold */
+    --cat-violet: #7a5c8c;  /* muted violet */
+    --cat-teal: #4a7c8c;    /* dusty teal */
+    --cat-green: #3d8c57;   /* forest green */
+
+    /* Category / accent palette (deeper link tones) */
+    --cat-amber-deep: #a16a2e;   /* darker amber */
+    --cat-coral-deep: #8a3f3b;   /* darker coral */
+    --cat-olive-deep: #857b2d;   /* darker olive */
+    --cat-violet-deep: #5f4770;  /* darker violet */
+    --cat-teal-deep: #3a6270;    /* darker teal */
+    --cat-green-deep: #2d6940;   /* darker green */
+}
+
+html[data-theme="dark"] {
+    /* Surfaces */
+    --paper: #16150F;
+    --paper-raised: #211F16;
+    --paper-raised-rgb: 33, 31, 22;
+
+    /* Text */
+    --ink: #F2F2E4;
+    --ink-soft: #F2F2E4;
+    --text: #D8D6C8;
+    --text-rgb: 216, 214, 200;
+    --muted: #A8A596;
+    --faint: #6F6D5F;
+    --backdrop: #211F16;
+    --accent: #C9C6B0;
+
+    /* Lines */
+    --line: #3A382E;
+    --line-soft: #3A382E;
+    --line-strong: #C9C6B0;
+
+    /* Shadow / highlight bases — deepen shadows, drop the white inset glow */
+    --shadow-rgb: 0, 0, 0;
+    --inset-highlight: rgba(255, 255, 255, 0.04);
+
+    /* Links — brightened for contrast on dark paper */
+    --link: #3FD06A;
+    --link-hover: #8FE6A8;
+
+    /* Category / accent palette — lightened to meet WCAG AA on #16150F */
+    --cat-amber: #D29A52;
+    --cat-coral: #C26C68;
+    --cat-olive: #BBAE4A;
+    --cat-violet: #9A7EAC;
+    --cat-teal: #5A92A3;
+    --cat-green: #4FA06B;
+
+    --cat-amber-deep: #C68A45;
+    --cat-coral-deep: #C47470;
+    --cat-olive-deep: #A89A3C;
+    --cat-violet-deep: #9A7CAE;
+    --cat-teal-deep: #5C92A6;
+    --cat-green-deep: #4C9D66;
+}
+
 /* Reset and Base Styles */
 * {
     margin: 0;
@@ -11,10 +107,11 @@
 body {
     font-family: 'Newsreader', Georgia, serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f2f2e4;
+    color: var(--text);
+    background-color: var(--paper);
     display: block;
     min-height: 100vh;
+    transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 /* Left Sidebar Navigation */
@@ -52,7 +149,7 @@ nav a:hover {
 }
 
 .nav-temp-link {
-    color: #333;
+    color: var(--text);
     font-size: 1.35rem;
     line-height: 1;
     margin-top: 0.5rem;
@@ -145,7 +242,7 @@ nav img:not([class*="size-"]) {
 /* Blinking box for first-time visitors */
 @keyframes blinkBorder {
     0%, 100% {
-        outline: 2px solid #000;
+        outline: 2px solid var(--line-strong);
         outline-offset: 4px;
     }
     50% {
@@ -283,14 +380,14 @@ p {
 
 /* Links */
 a {
-    color: #119c36;
+    color: var(--link);
     text-decoration: underline;
     text-decoration-style: dotted;
     text-underline-offset: 2px;
 }
 
 a:hover {
-    color: #0a4a1a;
+    color: var(--link-hover);
 }
 
 /* External link indicator */
@@ -328,9 +425,9 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     font-family: 'Newsreader', Georgia, serif;
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
-    border: 1px solid #000;
+    border: 1px solid var(--line-strong);
     background: transparent;
-    color: #000;
+    color: var(--ink);
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     height: auto;
@@ -344,8 +441,8 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .filter-btn.active {
-    background-color: #000;
-    color: #f2f2e4;
+    background-color: var(--ink);
+    color: var(--paper);
 }
 
 .filter-btn:disabled {
@@ -370,8 +467,8 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 .blog-card {
     display: flex;
     flex-direction: column;
-    background: #f2f2e4;
-    border: 1px solid #e0e0e0;
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-decoration: none;
@@ -398,7 +495,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .blog-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.1);
 }
 
 .blog-card.sold-out,
@@ -416,7 +513,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .blog-card.active {
-    border-color: #000;
+    border-color: var(--line-strong);
 }
 
 .writing-tool {
@@ -432,17 +529,17 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 .sentence-stream {
     min-height: 13rem;
     padding: 1.25rem 1.35rem;
-    border: 1px solid rgba(51, 51, 51, 0.22);
-    background: #fffdf4;
+    border: 1px solid rgba(var(--text-rgb), 0.22);
+    background: var(--paper-raised);
     line-height: 1.75;
     white-space: normal;
     cursor: text;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    box-shadow: inset 0 1px 0 var(--inset-highlight);
 }
 
 .sentence-stream:focus-within {
-    border-color: rgba(51, 51, 51, 0.62);
-    box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.08);
+    border-color: rgba(var(--text-rgb), 0.62);
+    box-shadow: 0 0 0 3px rgba(var(--text-rgb), 0.08);
 }
 
 .sentence-input-inline {
@@ -455,7 +552,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .sentence-input-inline:empty::before {
     content: attr(data-placeholder);
-    color: rgba(51, 51, 51, 0.38);
+    color: rgba(var(--text-rgb), 0.38);
     pointer-events: none;
 }
 
@@ -468,13 +565,13 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .sentence-fragment.is-pending {
-    color: rgba(51, 51, 51, 0.54);
+    color: rgba(var(--text-rgb), 0.54);
 }
 
 .sentence-stream.is-blackout .sentence-fragment,
 .sentence-stream.is-blackout .sentence-input-inline {
     color: transparent;
-    background: #111;
+    background: var(--backdrop);
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 }
@@ -489,10 +586,10 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .sentence-keep-popover {
     align-items: center;
-    background: rgba(255, 253, 244, 0.96);
-    border: 1px solid rgba(51, 51, 51, 0.18);
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
-    color: rgba(51, 51, 51, 0.72);
+    background: rgba(var(--paper-raised-rgb), 0.96);
+    border: 1px solid rgba(var(--text-rgb), 0.18);
+    box-shadow: 0 4px 18px rgba(var(--shadow-rgb), 0.1);
+    color: rgba(var(--text-rgb), 0.72);
     cursor: pointer;
     display: inline-flex;
     gap: 0.3rem;
@@ -507,7 +604,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     align-items: center;
     background: transparent;
     border: 0;
-    color: #333;
+    color: var(--text);
     cursor: pointer;
     display: inline-flex;
     font: inherit;
@@ -523,7 +620,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .completed-draft-label {
-    color: rgba(51, 51, 51, 0.58);
+    color: rgba(var(--text-rgb), 0.58);
     font-size: 0.9rem;
 }
 
@@ -548,9 +645,9 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .settings-panel {
-    background: rgba(255, 253, 244, 0.98);
-    border: 1px solid rgba(51, 51, 51, 0.18);
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.1);
+    background: rgba(var(--paper-raised-rgb), 0.98);
+    border: 1px solid rgba(var(--text-rgb), 0.18);
+    box-shadow: 0 6px 22px rgba(var(--shadow-rgb), 0.1);
     display: grid;
     gap: 0.7rem;
     min-width: 11.5rem;
@@ -579,7 +676,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .writing-switch {
     align-items: center;
-    color: rgba(51, 51, 51, 0.72);
+    color: rgba(var(--text-rgb), 0.72);
     cursor: pointer;
     display: flex;
     gap: 0.75rem;
@@ -588,7 +685,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .writing-switch input {
-    accent-color: #111;
+    accent-color: var(--accent);
     margin: 0;
 }
 
@@ -596,7 +693,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     display: grid;
     gap: 0.75rem;
     padding-top: 1rem;
-    border-top: 1px solid rgba(51, 51, 51, 0.22);
+    border-top: 1px solid rgba(var(--text-rgb), 0.22);
 }
 
 .completed-drafts[hidden] {
@@ -616,7 +713,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .completed-draft {
     padding: 0.8rem 0;
-    border-bottom: 1px solid rgba(51, 51, 51, 0.14);
+    border-bottom: 1px solid rgba(var(--text-rgb), 0.14);
 }
 
 .completed-draft p {
@@ -634,10 +731,10 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     z-index: 10;
     max-width: min(20rem, calc(100vw - 2.5rem));
     padding: 0.55rem 0.8rem;
-    border: 1px solid rgba(51, 51, 51, 0.18);
-    background: rgba(255, 253, 244, 0.94);
-    color: #333;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(var(--text-rgb), 0.18);
+    background: rgba(var(--paper-raised-rgb), 0.94);
+    color: var(--text);
+    box-shadow: 0 8px 28px rgba(var(--shadow-rgb), 0.12);
     opacity: 0;
     pointer-events: none;
     transform: translateY(0.4rem);
@@ -658,8 +755,8 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     width: min(90vw, 420px);
     max-width: 420px;
     margin: 0 0 2rem 0;
-    border: 1px solid #000;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--line-strong);
+    box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.08);
     transform-origin: center;
     transition: none;
     animation: none;
@@ -683,7 +780,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .confirmed-card:hover {
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
+    box-shadow: 0 10px 22px rgba(var(--shadow-rgb), 0.16);
 }
 
 .confirmed-card.is-dragging {
@@ -780,7 +877,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 .card-tags {
     padding: 0.5rem 0;
     font-size: 0.85rem;
-    color: #666;
+    color: var(--muted);
     text-align: left;
 }
 
@@ -801,7 +898,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 .footnote-divider {
     width: 90%;
     border: none;
-    border-top: 3px solid #333;
+    border-top: 3px solid var(--text);
     margin: 2rem 0 1rem 0;
 }
 
@@ -830,28 +927,28 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 /* Rainbow colors for dropdown headers */
-.list-dropdown-trigger:nth-of-type(1) { color: #b5524d; }  /* muted coral */
-.list-dropdown-trigger:nth-of-type(2) { color: #c7873a; }  /* warm amber */
-.list-dropdown-trigger:nth-of-type(3) { color: #a69a38; }  /* olive gold */
-.list-dropdown-trigger:nth-of-type(4) { color: #3d8c57; }  /* forest green */
-.list-dropdown-trigger:nth-of-type(5) { color: #4a7c8c; }  /* dusty teal */
-.list-dropdown-trigger:nth-of-type(6) { color: #7a5c8c; }  /* muted violet */
+.list-dropdown-trigger:nth-of-type(1) { color: var(--cat-coral); }  /* muted coral */
+.list-dropdown-trigger:nth-of-type(2) { color: var(--cat-amber); }  /* warm amber */
+.list-dropdown-trigger:nth-of-type(3) { color: var(--cat-olive); }  /* olive gold */
+.list-dropdown-trigger:nth-of-type(4) { color: var(--cat-green); }  /* forest green */
+.list-dropdown-trigger:nth-of-type(5) { color: var(--cat-teal); }  /* dusty teal */
+.list-dropdown-trigger:nth-of-type(6) { color: var(--cat-violet); }  /* muted violet */
 
 /* Darker link colors matching parent headers */
-.list-dropdown-content:nth-of-type(1) a { color: #8a3f3b; }  /* darker coral */
-.list-dropdown-content:nth-of-type(2) a { color: #a16a2e; }  /* darker amber */
-.list-dropdown-content:nth-of-type(3) a { color: #857b2d; }  /* darker olive */
-.list-dropdown-content:nth-of-type(4) a { color: #2d6940; }  /* darker green */
-.list-dropdown-content:nth-of-type(5) a { color: #3a6270; }  /* darker teal */
-.list-dropdown-content:nth-of-type(6) a { color: #5f4770; }  /* darker violet */
+.list-dropdown-content:nth-of-type(1) a { color: var(--cat-coral-deep); }  /* darker coral */
+.list-dropdown-content:nth-of-type(2) a { color: var(--cat-amber-deep); }  /* darker amber */
+.list-dropdown-content:nth-of-type(3) a { color: var(--cat-olive-deep); }  /* darker olive */
+.list-dropdown-content:nth-of-type(4) a { color: var(--cat-green-deep); }  /* darker green */
+.list-dropdown-content:nth-of-type(5) a { color: var(--cat-teal-deep); }  /* darker teal */
+.list-dropdown-content:nth-of-type(6) a { color: var(--cat-violet-deep); }  /* darker violet */
 
 /* Hover states - lighten to parent header color */
-.list-dropdown-content:nth-of-type(1) a:hover { color: #b5524d; }
-.list-dropdown-content:nth-of-type(2) a:hover { color: #c7873a; }
-.list-dropdown-content:nth-of-type(3) a:hover { color: #a69a38; }
-.list-dropdown-content:nth-of-type(4) a:hover { color: #3d8c57; }
-.list-dropdown-content:nth-of-type(5) a:hover { color: #4a7c8c; }
-.list-dropdown-content:nth-of-type(6) a:hover { color: #7a5c8c; }
+.list-dropdown-content:nth-of-type(1) a:hover { color: var(--cat-coral); }
+.list-dropdown-content:nth-of-type(2) a:hover { color: var(--cat-amber); }
+.list-dropdown-content:nth-of-type(3) a:hover { color: var(--cat-olive); }
+.list-dropdown-content:nth-of-type(4) a:hover { color: var(--cat-green); }
+.list-dropdown-content:nth-of-type(5) a:hover { color: var(--cat-teal); }
+.list-dropdown-content:nth-of-type(6) a:hover { color: var(--cat-violet); }
 
 .list-arrow0 {
     height: .5rem;
@@ -908,7 +1005,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     display: block;
     padding: 0;
     margin: 0;
-    color: #000000;
+    color: var(--ink);
 }
 
 .coffee-updates-arrow {
@@ -950,7 +1047,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     opacity: 0;
     transform: translateX(-10px);
     transition: opacity 0.3s ease, transform 0.3s ease;
-    color: #0e0e0e;
+    color: var(--ink-soft);
 }
 
 .coffee-updates-list.active li {
@@ -1031,7 +1128,7 @@ footer a img {
     margin-top: 2rem;
     margin-bottom: 1rem;
     font-size: 1.5rem;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--line);
     padding-bottom: 0.5rem;
 }
 
@@ -1048,7 +1145,7 @@ footer a img {
 .thought {
     padding-bottom: 1rem;
     padding-top: 1rem;
-    border-bottom: 1px dotted #ccc;
+    border-bottom: 1px dotted var(--line);
 }
 
 .thought:last-child {
@@ -1057,7 +1154,7 @@ footer a img {
 
 .thought .date {
     font-size: 0.85rem;
-    color: #666;
+    color: var(--muted);
     display: block;
     margin-bottom: 0.5rem;
 }
@@ -1134,7 +1231,7 @@ footer a img {
     font-family: 'Newsreader', Georgia, serif;
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
-    border: 1px solid #000;
+    border: 1px solid var(--line-strong);
     background: transparent;
     width: 140px;
     height: auto;
@@ -1161,14 +1258,14 @@ footer a img {
 .thoughts-controls input[type="text"]::placeholder,
 .thoughts-controls input[type="password"]::placeholder,
 .thoughts-controls input[type="email"]::placeholder {
-    color: #666;
+    color: var(--muted);
 }
 
 #coffee-comment-form textarea {
     font-family: 'Newsreader', Georgia, serif;
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
-    border: 1px solid #000;
+    border: 1px solid var(--line-strong);
     background: transparent;
     width: 100%;
     min-height: 160px;
@@ -1226,7 +1323,7 @@ footer a img {
 }
 
 .comment-reply {
-    border-left: 1px dotted #ccc;
+    border-left: 1px dotted var(--line);
     padding-left: 1rem;
 }
 
@@ -1234,7 +1331,7 @@ footer a img {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #000;
+    border: 1px solid var(--line-strong);
     padding: clamp(0.4rem, 1.5vw, 0.6rem) clamp(0.6rem, 2.5vw, 1rem);
     cursor: pointer;
     width: fit-content;
@@ -1243,7 +1340,7 @@ footer a img {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #000;
+    border: 1px solid var(--line-strong);
     padding: clamp(0.4rem, 1.5vw, 0.6rem);
     cursor: pointer;
     width: fit-content;
@@ -1268,20 +1365,20 @@ footer a img {
     max-width: 240px;
     width: 100%;
     height: auto;
-    border: 1px solid #000;
+    border: 1px solid var(--line-strong);
     margin: 0.5rem 0 0.75rem;
 }
 
 .comment-divider {
     border: none;
-    border-top: 2px dotted #ccc;
+    border-top: 2px dotted var(--line);
     width: 70%;
     margin: 1rem 0;
 }
 
 .coffee-divider {
     border: none;
-    border-top: 1px solid #000;
+    border-top: 1px solid var(--line-strong);
     width: 70%;
     margin: 1rem 0;
 }
@@ -1290,7 +1387,7 @@ footer a img {
     font-family: 'Newsreader', Georgia, serif;
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
-    border: 1px solid #000;
+    border: 1px solid var(--line-strong);
     background: transparent;
     cursor: pointer;
     height: auto;
@@ -1303,7 +1400,7 @@ footer a img {
 
 .thought-count {
     font-size: 1rem;
-    color: #666;
+    color: var(--muted);
     display: flex;
     align-items: left;
     padding: 0.4rem 0;
@@ -1326,7 +1423,7 @@ footer a img {
 
 .like-count {
     font-size: 0.9rem;
-    color: #666;
+    color: var(--muted);
     font-weight: 500;
     min-width: 1.2rem;
     text-align: right;
@@ -1337,19 +1434,19 @@ footer a img {
     border: none;
     font-size: 1.2rem;
     cursor: pointer;
-    color: #999;
+    color: var(--faint);
     padding: 0;
     line-height: 1;
     transition: all 0.2s ease;
 }
 
 .fav-btn:hover {
-    color: #000;
+    color: var(--ink);
     transform: scale(1.1);
 }
 
 .fav-btn.active {
-    color: #000;
+    color: var(--ink);
 }
 
 /* Reordering animation */
@@ -1746,5 +1843,21 @@ footer a img {
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
     .cursor-sprite {
         display: none;
+    }
+}
+
+/* Reduced-motion: theme swap must be instant. Neutralize the page-level
+   color/background cross-fade (body transition at the top of this file and
+   the .filter-btn transition) and any other transitions so toggling theme
+   repaints in one frame rather than a 200-300ms involuntary full-page fade. */
+@media (prefers-reduced-motion: reduce) {
+    html,
+    body {
+        transition: none !important;
+    }
+
+    * {
+        transition-duration: 0.01ms !important;
+        transition-delay: 0ms !important;
     }
 }
