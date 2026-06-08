@@ -280,7 +280,8 @@
             var tmp = order[s]; order[s] = order[r]; order[r] = tmp;
         }
 
-        var STAGGER_TOTAL = 900; // ms of staggered starts; per-cell ease-out lingers
+        var STAGGER_TOTAL = 1400; // ms window for staggered starts (slower)
+        var EXP_BASE = 6;         // >1: exponential deceleration of the clear order
         // Force layout so the initial opaque state is committed before we clear.
         // eslint-disable-next-line no-unused-expressions
         overlay.offsetHeight;
@@ -288,9 +289,10 @@
         requestAnimationFrame(function () {
             for (var n = 0; n < order.length; n++) {
                 var idx = order[n];
-                var delay = total > 1
-                    ? (n / (total - 1)) * STAGGER_TOTAL
-                    : 0;
+                // Exponential stagger: cells clear fast at first, then with
+                // ever-larger gaps — the dissolve "becomes exponentially slower".
+                var x = total > 1 ? n / (total - 1) : 0;
+                var delay = STAGGER_TOTAL * (Math.pow(EXP_BASE, x) - 1) / (EXP_BASE - 1);
                 cells[idx].style.transitionDelay = delay + 'ms';
                 cells[idx].classList.add('is-clear');
             }
@@ -328,7 +330,7 @@
             swapImages(next);
             updateThemeControl(next);
         });
-        window.setTimeout(function () { animating = false; }, 2100);
+        window.setTimeout(function () { animating = false; }, 2600);
     }
 
     /* ---- accent state ---- */

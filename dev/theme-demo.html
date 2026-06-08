@@ -305,11 +305,13 @@
       var t = order[s]; order[s] = order[r]; order[r] = t;
     }
 
-    var STAGGER = 900;
+    var STAGGER = 1400;
+    var EXP_BASE = 6;
     overlay.offsetHeight; // force reflow
     requestAnimationFrame(function () {
       for (var n = 0; n < order.length; n++) {
-        var delay = total > 1 ? (n / (total - 1)) * STAGGER : 0;
+        var x = total > 1 ? n / (total - 1) : 0;
+        var delay = STAGGER * (Math.pow(EXP_BASE, x) - 1) / (EXP_BASE - 1);
         cells[order[n]].style.transitionDelay = delay + 'ms';
         cells[order[n]].classList.add('is-clear');
       }
