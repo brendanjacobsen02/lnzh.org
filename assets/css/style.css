@@ -1723,3 +1723,28 @@ footer a img {
         text-align: center;
     }
 }
+
+.cursor-sprite {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2147483647;
+    width: 38px;
+    height: 38px;
+    pointer-events: none;
+    opacity: 0;
+    image-rendering: auto;
+    transform: translate3d(-999px, -999px, 0);
+    transition: opacity 0.18s ease;
+    will-change: transform;
+}
+
+.cursor-sprite.is-visible {
+    opacity: 1;
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+    .cursor-sprite {
+        display: none;
+    }
+}
