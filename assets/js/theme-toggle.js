@@ -187,11 +187,10 @@
             '  image-rendering:pixelated;',
             '}',
             '.theme-dissolve-cell{',
-            '  width:100%;height:100%;opacity:1;transform:scale(1);',
-            '  transform-origin:center;',
-            '  transition:opacity .34s steps(4),transform .34s steps(4);',
+            '  width:100%;height:100%;opacity:1;',
+            '  transition:opacity .6s ease-in-out;',
             '}',
-            '.theme-dissolve-cell.is-clear{opacity:0;transform:scale(0);}',
+            '.theme-dissolve-cell.is-clear{opacity:0;}',
             /* reduced motion: never animate (overlay is skipped anyway) AND
                kill the page-level color/background cross-fade so the swap is
                truly instant (root cause lives in style.css body transitions). */
@@ -262,7 +261,7 @@
             }
         });
 
-        var cleanupAfter = STAGGER_TOTAL + 460; // last start + transition tail
+        var cleanupAfter = STAGGER_TOTAL + 700; // last start + .6s fade tail + buffer
         window.setTimeout(function () {
             if (overlay.parentNode) {
                 overlay.parentNode.removeChild(overlay);
@@ -294,7 +293,7 @@
             swapImages(next);
             updateButton(next);
         });
-        window.setTimeout(function () { animating = false; }, 1650);
+        window.setTimeout(function () { animating = false; }, 1900);
     }
 
     /* ---- the toggle button ---- */
