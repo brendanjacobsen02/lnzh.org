@@ -1,0 +1,217 @@
+[
+  {
+    "source": "assets/clipart/americanoclip.png",
+    "variant": "assets/clipart/americanoclip-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/clipart/espressoclip.png",
+    "variant": "assets/clipart/espressoclip-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/clipart/existenceclip.png",
+    "variant": "assets/clipart/existenceclip-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/clipart/gossipclip.png",
+    "variant": "assets/clipart/gossipclip-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/clipart/identityclip.png",
+    "variant": "assets/clipart/identityclip-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/clipart/latteclip.png",
+    "variant": "assets/clipart/latteclip-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/clipart/otherworldlyclip.png",
+    "variant": "assets/clipart/otherworldlyclip-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/clipart/times-i-criedclip.png",
+    "variant": "assets/clipart/times-i-criedclip-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/clipart/tomatoclip.png",
+    "variant": "assets/clipart/tomatoclip-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/images/content/AI.png",
+    "variant": "assets/images/content/AI-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/about.png",
+    "variant": "assets/images/content/about-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/americano.png",
+    "variant": "assets/images/content/americano-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/images/content/blog0.png",
+    "variant": "assets/images/content/blog0-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/coffee.png",
+    "variant": "assets/images/content/coffee-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/images/content/espresso.png",
+    "variant": "assets/images/content/espresso-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/images/content/latte.png",
+    "variant": "assets/images/content/latte-dark.png",
+    "class": "shaded"
+  },
+  {
+    "source": "assets/images/content/list.png",
+    "variant": "assets/images/content/list-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/lnzh.org.png",
+    "variant": "assets/images/content/lnzh.org-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/next.png",
+    "variant": "assets/images/content/next-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/now.png",
+    "variant": "assets/images/content/now-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/on-existence.png",
+    "variant": "assets/images/content/on-existence-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/on-gossip.png",
+    "variant": "assets/images/content/on-gossip-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/on-identity.png",
+    "variant": "assets/images/content/on-identity-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/the-world-inside-my-head.png",
+    "variant": "assets/images/content/the-world-inside-my-head-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/thoughts.png",
+    "variant": "assets/images/content/thoughts-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/times-i-cried-with-you.png",
+    "variant": "assets/images/content/times-i-cried-with-you-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/tomato.png",
+    "variant": "assets/images/content/tomato-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/upload.png",
+    "variant": "assets/images/content/upload-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/venmo.png",
+    "variant": "assets/images/content/venmo-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/why_.png",
+    "variant": "assets/images/content/why_-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/zelle.png",
+    "variant": "assets/images/content/zelle-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/icons/XD.png",
+    "variant": "assets/images/icons/XD-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/icons/chess.png",
+    "variant": "assets/images/icons/chess-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/icons/gmail.png",
+    "variant": "assets/images/icons/gmail-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/icons/instagram.png",
+    "variant": "assets/images/icons/instagram-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/icons/linkedin.png",
+    "variant": "assets/images/icons/linkedin-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/icons/yelp.png",
+    "variant": "assets/images/icons/yelp-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/ui/3starbig.png",
+    "variant": "assets/images/ui/3starbig-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/ui/4star.png",
+    "variant": "assets/images/ui/4star-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/ui/arrow0.png",
+    "variant": "assets/images/ui/arrow0-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/ui/arrow1.png",
+    "variant": "assets/images/ui/arrow1-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/ui/arrow2.png",
+    "variant": "assets/images/ui/arrow2-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/ui/hr.png",
+    "variant": "assets/images/ui/hr-dark.png",
+    "class": "flat"
+  }
+]
