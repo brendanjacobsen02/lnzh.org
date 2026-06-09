@@ -1244,7 +1244,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     background: transparent;
     border: 0;
     cursor: pointer;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     color: var(--ink);
 }
@@ -1459,12 +1459,11 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .writing-summary-sub {
-    margin: 0.2rem 0 0;
+    margin: 0.25rem 0 0;
     text-align: center;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+    font-family: var(--body);
+    font-style: italic;
+    font-size: 0.95rem;
     color: var(--muted);
 }
 
