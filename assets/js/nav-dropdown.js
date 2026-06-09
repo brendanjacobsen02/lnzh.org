@@ -167,13 +167,20 @@ function enhanceStarToggle(trigger) {
     if (!img) return;
 
     const src = img.getAttribute('src');
+    // Resolve to an ABSOLUTE URL before stashing it in --star-src. A relative
+    // url() inside a custom property resolves against the STYLESHEET that
+    // consumes it (assets/css/style.css), NOT this page — so a page-relative
+    // path becomes assets/css/assets/... and 404s on every page whose depth
+    // differs from the stylesheet's (e.g. the homepage). Absolute sidesteps that
+    // and lets theme-toggle.js match/swap it for the dark variant.
+    const absSrc = new URL(src, document.baseURI).href;
     const label = img.getAttribute('alt') || 'more';
 
     const star = document.createElement('span');
     star.className = 'nav-dropdown-toggle fourstar';
     star.setAttribute('role', 'img');
     star.setAttribute('aria-label', label);
-    star.style.setProperty('--star-src', `url("${src}")`);
+    star.style.setProperty('--star-src', `url("${absSrc}")`);
     star.style.setProperty('--star-aspect', '2.2419'); // fallback until natural size is known
 
     for (let i = 0; i < 4; i++) {
@@ -192,7 +199,7 @@ function enhanceStarToggle(trigger) {
             star.style.setProperty('--star-aspect', (probe.naturalWidth / probe.naturalHeight).toFixed(4));
         }
     };
-    probe.src = src;
+    probe.src = absSrc;
 }
 
 function initCursorSprite() {
