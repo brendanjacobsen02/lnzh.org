@@ -100,8 +100,9 @@ copied into every page and each page sits at a different path depth:
 
 ### Merge straight to main — no PR
 
-Finished, verified work goes **directly to `main`** — no PR, no waiting for review. From
-your worktree branch:
+Finished, verified work goes **directly to `main`** — no PR, no waiting for review. This
+push is allowlisted (`Bash(git push origin HEAD:main)` in `.claude/settings.json`), so it
+goes straight through — **don't fall back to opening a PR.** From your worktree branch:
 
 ```bash
 git push origin HEAD:main      # main auto-deploys to lnzh.org; no PR ceremony
