@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const core = window.WritingCore;
     const reviewedSentences = [];
     const drafts = [];
     let activeSentenceIndex = -1;
@@ -47,10 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1400);
     }
 
-    function normalizeText(value) {
-        return value.trim().replace(/\s+/g, ' ');
-    }
-
     function keptSentences() {
         return reviewedSentences
             .filter((sentence) => sentence.keep)
@@ -62,12 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function draftText() {
-        const currentText = normalizeText(input.textContent);
+        const currentText = core.normalizeText(input.textContent);
         return [completedText(), currentText].filter(Boolean).join(' ');
-    }
-
-    function sentenceEndMatch(value) {
-        return value.match(/[.!?;:]+(?:["'”’)\]]+)?(?:\s|$)/);
     }
 
     function updateControls() {
@@ -146,33 +139,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function collectCompletedSentences() {
-        let text = input.textContent;
-        let match = sentenceEndMatch(text);
-        let changed = false;
+        const { sentences, remainder } = core.extractSentences(input.textContent);
 
-        while (match) {
-            const endIndex = match.index + match[0].trimEnd().length;
-            const sentence = normalizeText(text.slice(0, endIndex));
-            text = text.slice(endIndex).trimStart();
-
-            if (sentence) {
-                reviewedSentences.push({ text: sentence, keep: !confirmationToggle.checked });
+        if (sentences.length > 0) {
+            sentences.forEach((text) => {
+                reviewedSentences.push({ text, keep: !confirmationToggle.checked });
                 activeSentenceIndex = reviewedSentences.length - 1;
-                changed = true;
-            }
-
-            match = sentenceEndMatch(text);
-        }
-
-        if (changed) {
-            input.textContent = text;
+            });
+            input.textContent = remainder;
             renderSentences();
-        } else {
-            updateControls();
-            queuePopoverPosition();
+            return true;
         }
 
-        return changed;
+        updateControls();
+        queuePopoverPosition();
+        return false;
     }
 
     form.addEventListener('submit', (event) => {
