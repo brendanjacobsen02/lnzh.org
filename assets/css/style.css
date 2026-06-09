@@ -742,7 +742,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .writing-tag {
-    font-family: var(--mono);
+    font-family: var(--body);
     font-size: 0.7rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
