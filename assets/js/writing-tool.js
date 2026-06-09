@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blackoutToggle = document.getElementById('blackout-toggle');
     const copyButton = document.getElementById('copy-writing');
     const downloadButton = document.getElementById('download-writing');
+    const clearButton = document.getElementById('clear-writing');
     const confirmationToggle = document.getElementById('confirmation-toggle');
     const shortcutsToggle = document.getElementById('shortcuts-toggle');
     const settingsToggle = document.getElementById('settings-toggle');
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const required = [
         form, input, stream, keepPopover, acceptSentenceButton, rejectSentenceButton,
-        blackoutToggle, copyButton, downloadButton, confirmationToggle, shortcutsToggle,
+        blackoutToggle, copyButton, downloadButton, clearButton, confirmationToggle, shortcutsToggle,
         settingsToggle, settingsPanel, completeButton, completeKbd, kbdHint, kbdConfirmHint,
         draftsSection, draftList, toast, hudWords, hudSentences, hudKept, summary,
         summaryClose, sumWords, sumSentences, sumKept, sumRead, sumPreview, sumSave,
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeSentenceIndex = -1;
     let pendingDraft = '';
     let toastTimer;
+    let clearArmTimer;
 
     function prefersReducedMotion() {
         return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -138,13 +140,25 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---------- block caret ----------
        Native caret is hidden (CSS); we draw a block at the measured caret rect
        so the cursor is a consistent block everywhere, including the empty box. */
+    // Measure the caret position by briefly appending a zero-width marker at the
+    // end of the input. A real element always has a rect — even on an empty line,
+    // an empty field, or just after a newline — where a collapsed Range does not.
+    function endMarkerRect() {
+        const marker = document.createElement('span');
+        marker.textContent = '\u200b';
+        input.appendChild(marker);
+        const rect = marker.getBoundingClientRect();
+        marker.remove();
+        return rect;
+    }
+
     function caretRect() {
         const selection = window.getSelection();
-        if (selection && selection.rangeCount > 0) {
+        if (selection && selection.rangeCount > 0 && input.contains(selection.anchorNode)) {
             const range = selection.getRangeAt(0).cloneRange();
             range.collapse(true);
             const bounding = range.getBoundingClientRect();
-            if (bounding && bounding.height > 0) {
+            if (bounding && bounding.height > 0 && (bounding.top > 0 || bounding.left > 0)) {
                 return bounding;
             }
             const rects = range.getClientRects();
@@ -152,10 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return rects[0];
             }
         }
-        // empty field / unmeasurable position: sit at the input's start
-        const box = input.getBoundingClientRect();
-        const lineHeight = parseFloat(window.getComputedStyle(input).lineHeight);
-        return { left: box.left, top: box.top, height: Number.isFinite(lineHeight) ? lineHeight : 28 };
+        // empty input / end of content / just after a newline: measure a marker
+        return endMarkerRect();
     }
 
     function updateCaret() {
@@ -245,9 +257,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateControls() {
         const hasText = draftText().length > 0;
+        const hasContent = reviewedSentences.length > 0 || core.normalizeText(input.textContent).length > 0;
         copyButton.disabled = !hasText;
         downloadButton.disabled = !hasText;
+        clearButton.disabled = !hasContent;
+        if (!hasContent) {
+            disarmClear();
+        }
         renderStats();
+    }
+
+    function disarmClear() {
+        window.clearTimeout(clearArmTimer);
+        clearButton.classList.remove('is-armed');
+        clearButton.textContent = 'clear';
     }
 
     function updateKbdHints() {
@@ -499,6 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 insertNewline();
                 collectCompletedSentences();
+                queueCaret();
             }
         }
     });
@@ -560,6 +584,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         downloadText('writing-draft.txt', text);
         showToast('Downloaded.');
+    });
+
+    clearButton.addEventListener('click', () => {
+        if (clearButton.classList.contains('is-armed')) {
+            disarmClear();
+            resetEditor();
+            showToast('Cleared.');
+            placeCaretAtEnd();
+            return;
+        }
+        clearButton.classList.add('is-armed');
+        clearButton.textContent = 'clear?';
+        clearArmTimer = window.setTimeout(disarmClear, 3000);
     });
 
     sumSave.addEventListener('click', savePending);

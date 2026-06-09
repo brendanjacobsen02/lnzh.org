@@ -2359,3 +2359,17 @@ footer a img {
     color: var(--muted);
     box-shadow: none;
 }
+
+/* Destructive "clear" — coral, fills on hover / when armed (confirm-to-clear). */
+.writing-clear {
+    border-color: var(--cat-coral);
+    color: var(--cat-coral);
+}
+
+.writing-actions .filter-btn.writing-clear:not(:disabled):hover,
+.writing-clear.is-armed {
+    background: var(--cat-coral);
+    border-color: var(--cat-coral);
+    color: #fff;
+    box-shadow: 2px 2px 0 color-mix(in srgb, var(--cat-coral) 55%, transparent);
+}
