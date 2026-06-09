@@ -254,7 +254,7 @@ nav img:not([class*="size-"]) {
     /* Room between the hr and the 4-star toggle. The hr's own margin-bottom is
        capped by the catch-all `nav img:not([class*="size-"])` rule, so the gap lives
        here, above the stars. Reset in the tablet/mobile (horizontal) nav below. */
-    margin-top: 2.25rem;
+    margin-top: 1.125rem;   /* hr→4-star gap ≈ 36px (18px divider + 18px) */
 }
 
 /* 4-star dropdown toggle. nav-dropdown.js swaps the <img> for a flex row of four
