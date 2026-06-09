@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dropdownContent.style.maxHeight = 'none';
                 dropdownContent.classList.add('active');
                 dropdownTrigger.classList.add('active');
+                // NB: no .nav-anim-open here — the restore must not play the bounce.
 
                 // Re-enable transitions after a brief delay
                 setTimeout(() => {
@@ -77,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Collapse - remove active first for reverse animation
                     dropdownContent.classList.remove('active');
                     dropdownTrigger.classList.remove('active');
+                    dropdownContent.classList.remove('nav-anim-open');
+                    dropdownTrigger.classList.remove('nav-anim-open');
 
                     // Wait for item animations to complete, then collapse height
                     setTimeout(() => {
@@ -94,6 +97,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         dropdownContent.classList.add('active');
                         dropdownTrigger.classList.add('active');
+                        // user-initiated open → play the bounce (never set on restore)
+                        dropdownContent.classList.add('nav-anim-open');
+                        dropdownTrigger.classList.add('nav-anim-open');
                     }, 10);
 
                     localStorage.setItem(storageKey, 'true');
