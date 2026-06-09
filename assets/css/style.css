@@ -19,8 +19,6 @@
     --text-rgb: 51, 51, 51;  /* base channels for translucent text/lines */
     --muted: #666;        /* secondary text */
     --faint: #999;        /* faint / disabled text */
-    --backdrop: #111;     /* opaque near-black fill (redaction blackout) */
-    --accent: #111;       /* form control accent (checkbox tick) */
     --redact: #111;       /* blackout redaction bar — legible in both themes */
 
     /* UI chrome face (writing page labels, HUD, buttons). Proportional sans that
@@ -75,8 +73,6 @@ html[data-theme="dark"] {
     --text-rgb: 216, 214, 200;
     --muted: #A8A596;
     --faint: #6F6D5F;
-    --backdrop: #1B1811;
-    --accent: #C9C6B0;
     --redact: #C9C6B0;
 
     /* Lines */
@@ -1945,12 +1941,6 @@ footer a img {
 
 .thoughts-container h2:first-child {
     margin-top: 0;
-}
-
-.month-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
 }
 
 .thought {
