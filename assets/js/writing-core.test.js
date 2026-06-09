@@ -53,6 +53,14 @@ test('pad2 zero-pads non-negative integers', () => {
     assert.equal(core.pad2(-3), '00');
 });
 
+test('readingMinutes rounds to ~200 wpm, minimum 1', () => {
+    assert.equal(core.readingMinutes(0), 1);
+    assert.equal(core.readingMinutes(100), 1);
+    assert.equal(core.readingMinutes(200), 1);
+    assert.equal(core.readingMinutes(300), 2);
+    assert.equal(core.readingMinutes(500), 3);
+});
+
 test('serialize/deserialize drafts round-trips and rejects junk', () => {
     const drafts = [{ id: 'a', text: 'hello', createdAt: 123 }];
     assert.deepEqual(core.deserializeDrafts(core.serializeDrafts(drafts)), drafts);

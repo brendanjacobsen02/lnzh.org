@@ -21,6 +21,7 @@
     --faint: #999;        /* faint / disabled text */
     --backdrop: #111;     /* opaque near-black fill (redaction blackout) */
     --accent: #111;       /* form control accent (checkbox tick) */
+    --redact: #111;       /* blackout redaction bar — legible in both themes */
 
     /* Mono chrome face (writing page UI labels, HUD, buttons) */
     --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -70,6 +71,7 @@ html[data-theme="dark"] {
     --faint: #6F6D5F;
     --backdrop: #211F16;
     --accent: #C9C6B0;
+    --redact: #C9C6B0;
 
     /* Lines */
     --line: #3A382E;
@@ -533,6 +535,11 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     border-color: var(--line-strong);
 }
 
+/* ==========================================================================
+   Writing page — tech-minimalist + light retro-arcade.
+   All color via existing theme variables, so dark mode + the accent picker
+   recolor it for free. No new image assets (decoration is CSS/unicode).
+   ========================================================================== */
 .writing-tool {
     position: relative;
 }
@@ -543,20 +550,39 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     max-width: 760px;
 }
 
+.writing-editor {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.writing-tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0.15rem 0 0;
+}
+
+/* editor surface + faint pixel grid */
 .sentence-stream {
     min-height: 13rem;
     padding: 1.25rem 1.35rem;
     border: 1px solid rgba(var(--text-rgb), 0.22);
-    background: var(--paper-raised);
-    line-height: 1.75;
+    background:
+        linear-gradient(var(--paper-raised), var(--paper-raised)) padding-box,
+        repeating-linear-gradient(0deg, rgba(var(--text-rgb), 0.04) 0 1px, transparent 1px 9px),
+        repeating-linear-gradient(90deg, rgba(var(--text-rgb), 0.04) 0 1px, transparent 1px 9px);
+    line-height: 1.85;
     white-space: normal;
     cursor: text;
     box-shadow: inset 0 1px 0 var(--inset-highlight);
+    caret-color: var(--link);
 }
 
 .sentence-stream:focus-within {
-    border-color: rgba(var(--text-rgb), 0.62);
-    box-shadow: 0 0 0 3px rgba(var(--text-rgb), 0.08);
+    border-color: rgba(var(--text-rgb), 0.5);
+    box-shadow: inset 0 1px 0 var(--inset-highlight), 0 0 0 3px rgba(var(--text-rgb), 0.07);
 }
 
 .sentence-input-inline {
@@ -577,18 +603,51 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     content: "";
 }
 
+/* Arcade block cursor: hide the native caret while focused and draw a blinking
+   block at the caret (kept pinned to the end while you write). Mid-text clicks
+   are an edge case in this forward-writing tool. */
+.sentence-stream.is-focused {
+    caret-color: transparent;
+}
+
+.sentence-stream.is-focused .sentence-input-inline:empty::before {
+    content: "";
+}
+
+.sentence-stream.is-focused .sentence-input-inline::after {
+    content: "";
+    display: inline-block;
+    width: 0.54em;
+    height: 1.05em;
+    margin-left: 1px;
+    vertical-align: -0.18em;
+    background: var(--link);
+    box-shadow: 0 0 0 1px var(--link);
+    animation: writingBlink 1.05s steps(1) infinite;
+}
+
+@keyframes writingBlink {
+    50% { opacity: 0; }
+}
+
 .sentence-fragment {
     display: inline;
 }
 
 .sentence-fragment.is-pending {
-    color: rgba(var(--text-rgb), 0.54);
+    color: rgba(var(--text-rgb), 0.5);
 }
 
+.sentence-fragment.is-kept {
+    color: var(--ink);
+}
+
+/* blackout / redaction — legible bars in BOTH themes via --redact */
 .sentence-stream.is-blackout .sentence-fragment,
 .sentence-stream.is-blackout .sentence-input-inline {
     color: transparent;
-    background: var(--backdrop);
+    background: var(--redact);
+    border-radius: 2px;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 }
@@ -597,88 +656,23 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     background: transparent;
 }
 
-.sentence-keep-popover[hidden] {
-    display: none;
+/* HUD scoreboard */
+.writing-hud {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-.sentence-keep-popover {
-    align-items: center;
-    background: rgba(var(--paper-raised-rgb), 0.96);
-    border: 1px solid rgba(var(--text-rgb), 0.18);
-    box-shadow: 0 4px 18px rgba(var(--shadow-rgb), 0.1);
-    color: rgba(var(--text-rgb), 0.72);
-    cursor: pointer;
-    display: inline-flex;
-    gap: 0.3rem;
-    line-height: 1;
-    padding: 0.25rem 0.4rem;
-    position: fixed;
-    transform: translate(-50%, calc(-100% - 0.35rem));
-    z-index: 20;
+.writing-hud b {
+    color: var(--link);
+    font-weight: 600;
 }
 
-.sentence-keep-popover button {
-    align-items: center;
-    background: transparent;
-    border: 0;
-    color: var(--text);
-    cursor: pointer;
-    display: inline-flex;
-    font: inherit;
-    justify-content: center;
-    line-height: 1;
-    min-height: 1.1rem;
-    min-width: 1.1rem;
-    padding: 0;
-}
-
-.sentence-keep-popover button:hover {
-    opacity: 0.62;
-}
-
-.completed-draft-label {
-    color: rgba(var(--text-rgb), 0.58);
-    font-size: 0.9rem;
-}
-
-.writing-editor {
-    display: grid;
-    gap: 0.8rem;
-}
-
-.writing-settings {
-    display: grid;
-    justify-self: end;
-    margin-top: 0;
-    position: relative;
-}
-
-.settings-toggle {
-    justify-self: end;
-}
-
-.settings-toggle:hover {
-    opacity: 0.7;
-}
-
-.settings-panel {
-    background: rgba(var(--paper-raised-rgb), 0.98);
-    border: 1px solid rgba(var(--text-rgb), 0.18);
-    box-shadow: 0 6px 22px rgba(var(--shadow-rgb), 0.1);
-    display: grid;
-    gap: 0.7rem;
-    min-width: 11.5rem;
-    padding: 0.75rem 0.85rem;
-    position: absolute;
-    right: 0;
-    top: calc(100% + 0.45rem);
-    z-index: 15;
-}
-
-.settings-panel[hidden] {
-    display: none;
-}
-
+/* one control row: actions left, settings pushed to the right */
 .writing-actions {
     display: flex;
     flex-wrap: wrap;
@@ -686,26 +680,309 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     align-items: center;
 }
 
+.writing-actions-spacer {
+    flex: 1 1 auto;
+}
+
+.writing-actions .filter-btn,
+.settings-toggle {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    box-shadow: 2px 2px 0 rgba(var(--shadow-rgb), 0.14);
+}
+
+.writing-actions .filter-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 rgba(var(--shadow-rgb), 0.14);
+}
+
 .writing-actions .filter-btn:disabled {
     cursor: default;
     opacity: 0.38;
+    box-shadow: none;
+}
+
+.writing-primary {
+    border-color: var(--link);
+    color: var(--link);
+}
+
+.writing-actions .filter-btn .kbd {
+    opacity: 0.55;
+    margin-left: 0.45rem;
+    font-size: 0.62rem;
+}
+
+/* keycaps */
+.kc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    padding: 0 0.3rem;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    line-height: 1;
+    color: var(--ink);
+    background: rgba(var(--text-rgb), 0.06);
+    border: 1px solid rgba(var(--text-rgb), 0.25);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+}
+
+/* keyboard hint strip under the editor */
+.writing-kbd-hint {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    color: var(--muted);
+}
+
+.writing-kbd-hint[hidden] {
+    display: none;
+}
+
+.writing-kbd-hint span {
+    display: inline-flex;
+    gap: 0.3rem;
+    align-items: center;
+}
+
+/* settings popover */
+.writing-settings {
+    position: relative;
+}
+
+.settings-toggle:hover {
+    opacity: 0.7;
+}
+
+.settings-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    z-index: 30;
+    width: min(300px, calc(100vw - 2rem));
+    background: var(--paper-raised);
+    border: 1px solid rgba(var(--text-rgb), 0.18);
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(var(--shadow-rgb), 0.18);
+    padding: 0.85rem 0.95rem;
+}
+
+.settings-panel[hidden] {
+    display: none;
+}
+
+.settings-panel h4 {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--muted);
+    margin: 0 0 0.4rem;
 }
 
 .writing-switch {
-    align-items: center;
-    color: rgba(var(--text-rgb), 0.72);
-    cursor: pointer;
     display: flex;
-    gap: 0.75rem;
+    align-items: center;
     justify-content: space-between;
-    line-height: 1;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(var(--text-rgb), 0.08);
+}
+
+.writing-switch:last-of-type {
+    border-bottom: 0;
+}
+
+.ws-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.ws-lab {
+    color: var(--ink);
+    font-size: 0.95rem;
+}
+
+.ws-sub {
+    color: var(--faint);
+    font-size: 0.78rem;
 }
 
 .writing-switch input {
-    accent-color: var(--accent);
-    margin: 0;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
+.ws-track {
+    position: relative;
+    flex: none;
+    width: 34px;
+    height: 19px;
+    border-radius: 999px;
+    background: rgba(var(--text-rgb), 0.12);
+    border: 1px solid rgba(var(--text-rgb), 0.25);
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ws-track::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--paper-raised);
+    box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.3);
+    transition: left 0.15s ease;
+}
+
+.writing-switch input:checked ~ .ws-track {
+    background: color-mix(in srgb, var(--link) 30%, transparent);
+    border-color: var(--link);
+}
+
+.writing-switch input:checked ~ .ws-track::after {
+    left: 16px;
+    background: var(--link);
+}
+
+.writing-switch input:focus-visible ~ .ws-track {
+    box-shadow: 0 0 0 3px rgba(var(--text-rgb), 0.15);
+}
+
+.writing-shortcuts {
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid rgba(var(--text-rgb), 0.1);
+    display: grid;
+    gap: 0.35rem;
+}
+
+.writing-shortcuts .sc {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--text);
+}
+
+.writing-shortcuts .keys {
+    display: flex;
+    gap: 0.25rem;
+}
+
+/* keep / cut popover */
+.sentence-keep-popover {
+    position: fixed;
+    z-index: 40;
+    transform: translate(-50%, calc(-100% - 0.5rem));
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.42rem 0.5rem;
+    background: var(--paper-raised);
+    border: 1px solid rgba(var(--text-rgb), 0.18);
+    border-radius: 9px;
+    box-shadow: 0 10px 28px rgba(var(--shadow-rgb), 0.2);
+}
+
+.sentence-keep-popover[hidden] {
+    display: none;
+}
+
+.skp-q {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.skp-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.12rem 0.3rem;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+}
+
+.skp-opt:hover {
+    opacity: 0.7;
+}
+
+.skp-keep .kc {
+    border-color: var(--link);
+    color: var(--link);
+}
+
+.skp-cut .kc {
+    border-color: var(--cat-coral);
+    color: var(--cat-coral);
+}
+
+/* command flash (kept ✓ / cut ✗) */
+.writing-flash {
+    position: fixed;
+    z-index: 45;
+    transform: translate(-50%, -50%);
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    color: var(--link);
+    white-space: nowrap;
+    pointer-events: none;
+    animation: writingFlash 0.9s ease-out forwards;
+}
+
+.writing-flash.is-cut {
+    color: var(--cat-coral);
+}
+
+@keyframes writingFlash {
+    0% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -120%) scale(1); }
+}
+
+/* sparkle on accept */
+.writing-sparkle {
+    position: fixed;
+    z-index: 44;
+    color: var(--link);
+    pointer-events: none;
+    font-size: 1rem;
+    animation: writingSparkle 0.7s ease-out forwards;
+}
+
+@keyframes writingSparkle {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    35% { opacity: 1; transform: translate(-50%, -90%) scale(1.15); }
+    100% { opacity: 0; transform: translate(-50%, -150%) scale(0.9); }
+}
+
+/* completed drafts */
 .completed-drafts {
     display: grid;
     gap: 0.75rem;
@@ -718,8 +995,12 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .completed-drafts h2 {
-    font-size: 1rem;
-    font-weight: 400;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--muted);
     margin: 0;
 }
 
@@ -737,15 +1018,182 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     margin: 0;
 }
 
-.completed-draft-text {
-    line-height: 1.6;
+.completed-draft-label {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
 }
 
+.completed-draft-text {
+    line-height: 1.6;
+    margin-top: 0.25rem;
+}
+
+.draft-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.45rem;
+}
+
+.draft-actions button {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.45rem;
+    border: 1px solid rgba(var(--text-rgb), 0.3);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.draft-actions button:hover {
+    opacity: 0.65;
+}
+
+/* finish / summary modal */
+.writing-summary {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.writing-summary[hidden] {
+    display: none;
+}
+
+.writing-summary-card {
+    position: relative;
+    width: min(440px, 100%);
+    padding: 1.5rem 1.5rem 1.15rem;
+    background: var(--paper);
+    border: 1px solid rgba(var(--text-rgb), 0.2);
+    border-radius: 14px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    animation: writingPop 0.25s ease-out;
+}
+
+@keyframes writingPop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+}
+
+.ws-spark {
+    position: absolute;
+    color: var(--link);
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+.writing-summary-close {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.75rem;
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.writing-summary-close:hover {
+    color: var(--ink);
+}
+
+.writing-summary-card h3 {
+    margin: 0;
+    text-align: center;
+    font-weight: 500;
+    font-size: 1.4rem;
+    color: var(--ink);
+}
+
+.writing-summary-sub {
+    margin: 0.2rem 0 0;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.writing-summary-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.3rem;
+    flex-wrap: wrap;
+    margin: 1.1rem 0;
+}
+
+.writing-summary-stats .stat {
+    text-align: center;
+}
+
+.writing-summary-stats .n {
+    display: block;
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--link);
+}
+
+.writing-summary-stats .l {
+    display: block;
+    margin-top: 0.35rem;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.writing-summary-preview {
+    margin: 0;
+    padding: 0.65rem 0.8rem;
+    max-height: 7rem;
+    overflow: auto;
+    background: var(--paper-raised);
+    border: 1px solid rgba(var(--text-rgb), 0.12);
+    border-radius: 6px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text);
+    text-align: left;
+    white-space: pre-wrap;
+}
+
+.writing-summary-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.writing-summary-actions .filter-btn {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-transform: lowercase;
+    box-shadow: 2px 2px 0 rgba(var(--shadow-rgb), 0.14);
+}
+
+/* toast */
 .writing-toast {
     position: fixed;
     right: 1.25rem;
     bottom: 1.25rem;
-    z-index: 10;
+    z-index: 70;
     max-width: min(20rem, calc(100vw - 2.5rem));
     padding: 0.55rem 0.8rem;
     border: 1px solid rgba(var(--text-rgb), 0.18);
@@ -1881,130 +2329,4 @@ footer a img {
     }
 }
 
-/* ==========================================================================
-   Writing page — tech-minimalist + light retro-arcade
-   All color via existing theme variables so dark mode + the accent picker
-   recolor it for free. No new image assets (decoration is swappable).
-   ========================================================================== */
-.writing-tag {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 0.1rem 0 0;
-}
-
-.sentence-stream {
-    min-height: 13rem;
-    padding: 1.25rem 1.35rem;
-    border: 1px solid rgba(var(--text-rgb), 0.22);
-    background:
-        linear-gradient(var(--paper-raised), var(--paper-raised)) padding-box,
-        repeating-linear-gradient(0deg, rgba(var(--text-rgb), 0.035) 0 1px, transparent 1px 9px),
-        repeating-linear-gradient(90deg, rgba(var(--text-rgb), 0.035) 0 1px, transparent 1px 9px);
-    line-height: 1.75;
-    white-space: normal;
-    cursor: text;
-    box-shadow: inset 0 1px 0 var(--inset-highlight);
-    caret-color: var(--link);
-}
-
-/* Idle "ready" block cursor — shown only when the editor is empty. The live
-   editing caret is tinted via caret-color above; a true block caret cannot be
-   reshaped mid-text on a contenteditable, so the block is an idle-only prompt. */
-.sentence-stream:not(.has-sentences) .sentence-input-inline:empty::after {
-    content: "";
-    display: inline-block;
-    width: 0.5em;
-    height: 1.02em;
-    margin-left: 1px;
-    vertical-align: -2px;
-    background: var(--link);
-    animation: writingBlink 1.05s steps(1) infinite;
-}
-
-@keyframes writingBlink {
-    50% { opacity: 0; }
-}
-
-/* HUD scoreboard */
-.writing-hud {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.05em;
-    color: var(--muted);
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.writing-hud b {
-    color: var(--link);
-    font-weight: 600;
-}
-
-/* Boxy arcade controls */
-.writing-actions .filter-btn,
-.settings-toggle {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.04em;
-    text-transform: lowercase;
-    box-shadow: 2px 2px 0 rgba(var(--shadow-rgb), 0.14);
-}
-
-.writing-actions .filter-btn:active {
-    transform: translate(1px, 1px);
-    box-shadow: 1px 1px 0 rgba(var(--shadow-rgb), 0.14);
-}
-
-/* Drafts list chrome */
-.completed-drafts h2,
-.completed-draft-label,
-.draft-actions button {
-    font-family: var(--mono);
-}
-
-.completed-draft-label {
-    font-size: 0.66rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--faint);
-}
-
-.draft-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.4rem;
-}
-
-.draft-actions button {
-    font-size: 0.66rem;
-    letter-spacing: 0.04em;
-    padding: 0.2rem 0.45rem;
-    border: 1px solid rgba(var(--text-rgb), 0.3);
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-}
-
-.draft-actions button:hover {
-    opacity: 0.65;
-}
-
-/* Sparkle that pops when a sentence is kept */
-.writing-sparkle {
-    position: fixed;
-    z-index: 25;
-    color: var(--link);
-    pointer-events: none;
-    font-size: 1rem;
-    animation: writingSparkle 0.7s ease-out forwards;
-}
-
-@keyframes writingSparkle {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-    35% { opacity: 1; transform: translate(-50%, -90%) scale(1.15); }
-    100% { opacity: 0; transform: translate(-50%, -150%) scale(0.9); }
-}
+/* (Writing-page styles consolidated above, in the main writing-page block.) */

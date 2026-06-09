@@ -59,6 +59,11 @@
         return String(v).padStart(2, '0');
     }
 
+    function readingMinutes(words) {
+        const w = Math.max(0, Math.floor(Number(words) || 0));
+        return Math.max(1, Math.round(w / 200));
+    }
+
     function serializeDrafts(drafts) {
         return JSON.stringify(Array.isArray(drafts) ? drafts : []);
     }
@@ -91,6 +96,7 @@
         countWords: countWords,
         computeStats: computeStats,
         pad2: pad2,
+        readingMinutes: readingMinutes,
         serializeDrafts: serializeDrafts,
         deserializeDrafts: deserializeDrafts,
     };
