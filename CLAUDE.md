@@ -4,6 +4,22 @@ General conventions (structure, coding style, the JS syntax check, local serving
 live in [AGENTS.md](AGENTS.md). This file is specifically about how concurrent
 Claude sessions stay out of each other's way and ship changes here.
 
+## Reach for the right tool
+
+There's no build step and no framework — but skills and MCP servers are installed.
+Use them instead of hand-rolling:
+
+| Task | Reach for |
+| --- | --- |
+| Plan a feature, redesign, or anything non-trivial | `superpowers:brainstorming` first, then `superpowers:writing-plans` |
+| Build or restyle UI / a page | `frontend-design` skill; round-trip to design with the `figma` MCP |
+| Verify a change in a real browser | `playwright` + `chrome-devtools` MCPs — see [Shipping](#shipping) below |
+| Hand-drawn / photo / video assets | `adobe-for-creativity` skills |
+
+MCP servers (`playwright`, `chrome-devtools`, `figma`) are configured at **user
+scope**, so they're available in every session — but their tools load at session
+**start**. If you just added one, it's live in the *next* session, not the current one.
+
 ## Isolation: one worktree per session
 
 `main` auto-deploys to **lnzh.org**, and several agents may run at once against the
@@ -40,13 +56,30 @@ copied into every page and each page sits at a different path depth:
 - **Theme:** check **light and dark** (assets swap by theme).
 - **Confirm the asset actually loads (HTTP 200)** — not just that the element exists. A
   `background-image` / `--*-src` 404 paints nothing and logs no error, so it looks fine
-  in the DOM while being invisible. Verify the computed `background-image` resolves to a
-  real URL (the `dev/` headless-Chrome probe pattern does exactly this).
+  in the DOM while being invisible. `playwright`'s `browser_network_requests` lists every
+  request with its status — a 404'd `--*-src` shows up there even when the DOM looks fine.
 
 > Why this matrix exists: we shipped it wrong once — an invisible nav star that 404'd on
 > every page except depth-2 ones, in both themes. It was verified only on a deep page, so
 > the homepage break went live. The tell-tale "works at depth 2, breaks elsewhere" is the
 > signature of the gotcha below.
+
+**Run the matrix with the browser MCPs** (preferred over hand-rolled `dev/` probes — no
+script to author each time). With the site served (`./serve`), in a session where the MCP
+tools are loaded:
+
+- **`playwright`** — `browser_navigate` to each depth (`/`, `/blog/<post>/`), then for
+  **each theme**: flip it with `browser_localstorage_set` on the theme key (or
+  `browser_evaluate` to invoke the page's toggle) and reload. Per page: `browser_take_screenshot`
+  (inspect at full resolution — never grade a downscaled thumbnail) and read
+  `browser_network_requests` to confirm every asset is 200. Launch with a Retina
+  `--device`/`--viewport-size` so captures aren't soft.
+- **`chrome-devtools`** — run `lighthouse_audit` on changed pages for an accessibility /
+  best-practices / SEO pass, and `performance_start_trace` (LCP/CLS/FCP) if you touched
+  anything render-affecting. `list_network_requests` is a second 404 check.
+
+The `dev/*.html` + `*.mjs` harnesses still work for quick local loops; the MCPs are the
+rigorous path.
 
 ### Small, self-contained change → ship it without asking
 
