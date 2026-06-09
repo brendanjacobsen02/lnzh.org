@@ -34,15 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const sumCopy = document.getElementById('sum-copy');
     const sumDownload = document.getElementById('sum-download');
     const sumContinue = document.getElementById('sum-continue');
-    const caret = document.getElementById('writing-caret');
 
     const required = [
         form, input, stream, keepPopover, acceptSentenceButton, rejectSentenceButton,
-        blackoutToggle, copyButton, downloadButton, clearButton, confirmationToggle, shortcutsToggle,
-        settingsToggle, settingsPanel, completeButton, completeKbd, kbdHint, kbdConfirmHint,
-        draftsSection, draftList, toast, hudWords, hudSentences, hudKept, summary,
-        summaryClose, sumWords, sumSentences, sumKept, sumRead, sumPreview, sumSave,
-        sumCopy, sumDownload, sumContinue, caret,
+        blackoutToggle, copyButton, downloadButton, clearButton, confirmationToggle,
+        shortcutsToggle, settingsToggle, settingsPanel, completeButton, completeKbd,
+        kbdHint, kbdConfirmHint, draftsSection, draftList, toast, hudWords, hudSentences,
+        hudKept, summary, summaryClose, sumWords, sumSentences, sumKept, sumRead,
+        sumPreview, sumSave, sumCopy, sumDownload, sumContinue,
     ];
     if (required.some((el) => !el)) {
         return;
@@ -101,9 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return [completedText(), currentText].filter(Boolean).join(' ');
     }
 
-    // Restore the caret to the end of the editor after a re-render (which
-    // detaches/re-appends the input and otherwise drops the selection to the
-    // start). Keeps the block cursor sitting where you're actually writing.
+    // Restore the caret to the end of the editor after a re-render (which detaches/
+    // re-appends the input and otherwise drops the selection to the start).
     function placeCaretAtEnd() {
         input.focus();
         const selection = window.getSelection();
@@ -117,9 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
         selection.addRange(range);
     }
 
-    // Insert a real newline character at the caret (reliable across browsers,
-    // unlike execCommand). The editor flows inline + white-space:pre-wrap, so
-    // the break lands at the left margin like normal text.
+    // Insert a real newline at the caret (reliable across browsers, unlike
+    // execCommand). The editor flows inline + white-space:pre-wrap, so the break
+    // lands at the left margin like normal text.
     function insertNewline() {
         const selection = window.getSelection();
         if (!selection || selection.rangeCount === 0 || !input.contains(selection.anchorNode)) {
@@ -135,60 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
-    }
-
-    /* ---------- block caret ----------
-       Native caret is hidden (CSS); we draw a block at the measured caret rect
-       so the cursor is a consistent block everywhere, including the empty box. */
-    // Measure the caret position by briefly appending a zero-width marker at the
-    // end of the input. A real element always has a rect — even on an empty line,
-    // an empty field, or just after a newline — where a collapsed Range does not.
-    function endMarkerRect() {
-        const marker = document.createElement('span');
-        marker.textContent = '\u200b';
-        input.appendChild(marker);
-        const rect = marker.getBoundingClientRect();
-        marker.remove();
-        return rect;
-    }
-
-    function caretRect() {
-        const selection = window.getSelection();
-        if (selection && selection.rangeCount > 0 && input.contains(selection.anchorNode)) {
-            const range = selection.getRangeAt(0).cloneRange();
-            range.collapse(true);
-            const bounding = range.getBoundingClientRect();
-            if (bounding && bounding.height > 0 && (bounding.top > 0 || bounding.left > 0)) {
-                return bounding;
-            }
-            const rects = range.getClientRects();
-            if (rects.length > 0 && rects[0].height > 0) {
-                return rects[0];
-            }
-        }
-        // empty input / end of content / just after a newline: measure a marker
-        return endMarkerRect();
-    }
-
-    function updateCaret() {
-        const selection = window.getSelection();
-        const collapsed = !selection || selection.isCollapsed;
-        if (document.activeElement !== input || !collapsed) {
-            caret.style.display = 'none';
-            return;
-        }
-        const rect = caretRect();
-        const fontSize = parseFloat(window.getComputedStyle(input).fontSize) || 16;
-        const height = Math.min(rect.height, fontSize * 1.15);
-        caret.style.display = 'block';
-        caret.style.left = rect.left + 'px';
-        caret.style.top = (rect.top + (rect.height - height) / 2) + 'px';
-        caret.style.width = (fontSize * 0.5) + 'px';
-        caret.style.height = height + 'px';
-    }
-
-    function queueCaret() {
-        window.requestAnimationFrame(updateCaret);
     }
 
     /* ---------- export ---------- */
@@ -255,6 +199,12 @@ document.addEventListener('DOMContentLoaded', () => {
         hudKept.textContent = core.pad2(stats.kept);
     }
 
+    function disarmClear() {
+        window.clearTimeout(clearArmTimer);
+        clearButton.classList.remove('is-armed');
+        clearButton.textContent = 'clear';
+    }
+
     function updateControls() {
         const hasText = draftText().length > 0;
         const hasContent = reviewedSentences.length > 0 || core.normalizeText(input.textContent).length > 0;
@@ -265,12 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
             disarmClear();
         }
         renderStats();
-    }
-
-    function disarmClear() {
-        window.clearTimeout(clearArmTimer);
-        clearButton.classList.remove('is-armed');
-        clearButton.textContent = 'clear';
     }
 
     function updateKbdHints() {
@@ -484,7 +428,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     input.addEventListener('input', () => {
         collectCompletedSentences();
-        queueCaret();
     });
 
     input.addEventListener('keydown', (event) => {
@@ -522,7 +465,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 insertNewline();
                 collectCompletedSentences();
-                queueCaret();
             }
         }
     });
@@ -535,7 +477,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const pastedText = event.clipboardData.getData('text/plain');
         document.execCommand('insertText', false, pastedText);
         collectCompletedSentences();
-        queueCaret();
     });
 
     stream.addEventListener('click', () => {
@@ -621,12 +562,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('resize', queuePopoverPosition);
     window.addEventListener('scroll', queuePopoverPosition, true);
-
-    document.addEventListener('selectionchange', queueCaret);
-    input.addEventListener('focus', queueCaret);
-    input.addEventListener('blur', () => { caret.style.display = 'none'; });
-    window.addEventListener('resize', queueCaret);
-    window.addEventListener('scroll', queueCaret, true);
 
     updateKbdHints();
     renderSentences();

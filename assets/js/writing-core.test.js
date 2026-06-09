@@ -2,9 +2,12 @@ const test = require('node:test');
 const assert = require('node:assert');
 const core = require('./writing-core.js');
 
-test('normalizeText trims and collapses whitespace', () => {
+test('normalizeText trims and collapses spaces but keeps newlines', () => {
     assert.equal(core.normalizeText('  hi   there \n'), 'hi there');
     assert.equal(core.normalizeText(''), '');
+    assert.equal(core.normalizeText('a\nb'), 'a\nb');
+    assert.equal(core.normalizeText('a  \n  b'), 'a\nb');
+    assert.equal(core.normalizeText('a\n\n\n\nb'), 'a\n\nb');
 });
 
 test('extractSentences splits on terminal punctuation, keeps remainder', () => {
@@ -25,9 +28,10 @@ test('extractSentences returns no sentences when none are complete', () => {
     assert.equal(r.remainder, 'still writing');
 });
 
-test('countWords counts whitespace-separated tokens', () => {
+test('countWords counts whitespace-separated tokens (incl. newlines)', () => {
     assert.equal(core.countWords('one two three'), 3);
     assert.equal(core.countWords('  spaced   out  '), 2);
+    assert.equal(core.countWords('a\nb'), 2);
     assert.equal(core.countWords(''), 0);
 });
 

@@ -12,7 +12,11 @@
     'use strict';
 
     function normalizeText(value) {
-        return String(value == null ? '' : value).trim().replace(/\s+/g, ' ');
+        return String(value == null ? '' : value)
+            .replace(/[ \t\r\f\v]+/g, ' ')   // collapse horizontal whitespace
+            .replace(/ *\n */g, '\n')         // trim spaces around line breaks
+            .replace(/\n{3,}/g, '\n\n')       // cap blank-line runs
+            .trim();                          // but keep internal newlines
     }
 
     function matchSentenceEnd(value) {
@@ -39,7 +43,7 @@
 
     function countWords(text) {
         const trimmed = normalizeText(text);
-        return trimmed ? trimmed.split(' ').length : 0;
+        return trimmed ? trimmed.split(/\s+/).length : 0;
     }
 
     function computeStats(reviewed, currentText) {
