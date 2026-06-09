@@ -13,7 +13,7 @@ There is no generated build output, package manifest, or test directory.
 
 ## Build, Test, and Development Commands
 
-- `python3 -m http.server 8000` serves the site locally at `http://localhost:8000/`. Use this instead of opening files directly when testing ES modules.
+- `./serve` serves the site locally and opens it in the browser (auto-picks a free port starting at 8000). Pass a port (`./serve 3000`) or `--no-open` to skip the browser. Use this instead of opening files directly when testing ES modules. Equivalent to `python3 -m http.server 8000`.
 - `for f in assets/js/*.js; do node --check "$f" || exit 1; done` checks JavaScript syntax without executing browser-only imports.
 - `git status --short` verifies the working tree before and after edits.
 
