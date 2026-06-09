@@ -252,7 +252,7 @@ function renderComment(comment, depth = 0) {
     const replyImageLabel = document.createElement('label');
     replyImageLabel.className = 'upload-btn nested-upload-btn';
     replyImageLabel.setAttribute('for', replyImage.id);
-    replyImageLabel.innerHTML = '<img src="../assets/images/content/upload.png" alt="upload photo">';
+    replyImageLabel.innerHTML = '<img src="../../assets/images/content/upload.png" alt="upload photo">';
 
     const replySubmit = document.createElement('button');
     replySubmit.className = 'filter-btn';
