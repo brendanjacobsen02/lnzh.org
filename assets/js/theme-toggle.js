@@ -334,19 +334,24 @@
         if (typeof onMidpoint === 'function') { onMidpoint(); }   // restyle, hidden
 
         var endT = maxRing * RING_DELAY + grainMs + DUR + 80;
+        var finished = false;
+        function finish() {                 // idempotent cleanup
+            if (finished) { return; }
+            finished = true;
+            if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); }
+            if (typeof onDone === 'function') { onDone(); }
+        }
         var t0 = null;
         function loop(now) {
             if (t0 === null) { t0 = now; }
             var t = now - t0;
             draw(t);
-            if (t < endT) {
-                requestAnimationFrame(loop);
-            } else {
-                if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); }
-                if (typeof onDone === 'function') { onDone(); }
-            }
+            if (t < endT) { requestAnimationFrame(loop); } else { finish(); }
         }
         requestAnimationFrame(loop);
+        // Failsafe: if rAF stalls (e.g. tab backgrounded mid-flip), never leave
+        // the canvas up or `animating` stuck — force cleanup on a wall clock.
+        window.setTimeout(finish, endT + 1500);
     }
 
     /* ---- apply a theme (with or without animation) ---- */
