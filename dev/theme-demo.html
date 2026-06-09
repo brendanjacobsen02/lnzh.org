@@ -397,6 +397,11 @@
   // Vivid glow palette: the 6 accent dots (legible on both themes) + toxic + blood.
   var WILD_COLORS = ['#3fd06a', '#5a92a3', '#d29a52', '#c26c68', '#9a7eac', '#bbae4a',
                      '#9bff2e', '#ff2424'];
+  // Cosmic/nebula palette for the supernova — deep space hues that blend toward
+  // rich purples/magentas (NOT white) when stacked, with a couple of warm star
+  // flecks. This is what makes the nova read as an exploding nebula.
+  var NEBULA_COLORS = ['#7b2ff7', '#b829e3', '#ff2d9b', '#3a86ff', '#2ad6e6',
+                       '#1f9e8f', '#ff8e3c', '#ffd36b'];
   // Brightness-offset a hex color by +/- delta per channel (ADDITIVE, so even
   // pure-black ink picks up grain instead of staying flat). Returns rgb().
   function shadeColor(hex, delta) {
@@ -534,7 +539,7 @@
     // supernova. Stable per block so it reads as texture, not per-frame flicker.
     var cellGlow = new Array(p.cols * p.rows);
     for (var s = 0; s < cellGlow.length; s++) {
-      var base = nova ? WILD_COLORS[(Math.random() * WILD_COLORS.length) | 0] : p.glow;
+      var base = nova ? NEBULA_COLORS[(Math.random() * NEBULA_COLORS.length) | 0] : p.glow;
       cellGlow[s] = shadeColor(base, ((Math.random() - 0.5) * 2 * p.noise * 120) | 0);
     }
 
@@ -556,7 +561,7 @@
           if (bloom > 0) {                               // chunky halo (no blur)
             if (nova) {                                  // additive -> white-hot bloom
               ctx.globalCompositeOperation = 'lighter';
-              ctx.globalAlpha = 0.5 * cover; ctx.fillStyle = gc;
+              ctx.globalAlpha = 0.32 * cover; ctx.fillStyle = gc;
               ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
               ctx.globalCompositeOperation = 'source-over';
             } else {
