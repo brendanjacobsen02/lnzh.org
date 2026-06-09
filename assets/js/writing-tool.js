@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const core = window.WritingCore;
     const reviewedSentences = [];
-    const drafts = [];
+    const DRAFTS_KEY = 'lnzh.writing.drafts';
+    const drafts = loadDrafts();
     let activeSentenceIndex = -1;
     let toastTimer;
 
@@ -52,6 +53,31 @@ document.addEventListener('DOMContentLoaded', () => {
         toastTimer = window.setTimeout(() => {
             toast.classList.remove('active');
         }, 1400);
+    }
+
+    function loadDrafts() {
+        let raw = '';
+        try {
+            raw = window.localStorage.getItem(DRAFTS_KEY) || '';
+        } catch (err) {
+            return [];
+        }
+        return core.deserializeDrafts(raw);
+    }
+
+    function saveDrafts() {
+        try {
+            window.localStorage.setItem(DRAFTS_KEY, core.serializeDrafts(drafts));
+        } catch (err) {
+            /* storage unavailable (private mode/quota): stay in-memory only */
+        }
+    }
+
+    function makeDraftId() {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+            return window.crypto.randomUUID();
+        }
+        return 'd' + Date.now() + '-' + Math.floor(Math.random() * 1e6);
     }
 
     function keptSentences() {
@@ -92,13 +118,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const label = document.createElement('p');
             label.className = 'completed-draft-label';
-            label.textContent = `draft ${index + 1}`;
+            label.textContent = 'draft ' + core.pad2(index + 1);
 
             const text = document.createElement('p');
             text.className = 'completed-draft-text';
-            text.textContent = draft;
+            text.textContent = draft.text;
 
-            draftElement.append(label, text);
+            const actions = document.createElement('div');
+            actions.className = 'draft-actions';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.textContent = 'delete';
+            deleteButton.addEventListener('click', () => {
+                const at = drafts.findIndex((d) => d.id === draft.id);
+                if (at !== -1) {
+                    drafts.splice(at, 1);
+                    saveDrafts();
+                    renderDrafts();
+                    showToast('Draft deleted.');
+                }
+            });
+
+            actions.append(deleteButton);
+            draftElement.append(label, text, actions);
             draftList.prepend(draftElement);
         });
     }
@@ -182,7 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        drafts.push(text);
+        drafts.push({ id: makeDraftId(), text: text, createdAt: Date.now() });
+        saveDrafts();
         reviewedSentences.length = 0;
         activeSentenceIndex = -1;
         input.textContent = '';
