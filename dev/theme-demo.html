@@ -397,11 +397,15 @@
   // Vivid glow palette: the 6 accent dots (legible on both themes) + toxic + blood.
   var WILD_COLORS = ['#3fd06a', '#5a92a3', '#d29a52', '#c26c68', '#9a7eac', '#bbae4a',
                      '#9bff2e', '#ff2424'];
-  // Cosmic/nebula palette for the supernova — deep space hues that blend toward
-  // rich purples/magentas (NOT white) when stacked, with a couple of warm star
-  // flecks. This is what makes the nova read as an exploding nebula.
-  var NEBULA_COLORS = ['#7b2ff7', '#b829e3', '#ff2d9b', '#3a86ff', '#2ad6e6',
-                       '#1f9e8f', '#ff8e3c', '#ffd36b'];
+  // Supernova render = abstract cosmic, NOT birthday cake. The GAS is deep,
+  // low-luminance nebula hues (screen-blended so neighbors band into clouds and
+  // never blow out); bright warm STAR FLECKS are sparse pinpricks on a deep
+  // SPACE backdrop. That contrast — a mostly-dark field with rare bright stars —
+  // reads as a real nebula instead of a confetti rainbow.
+  var NEBULA_COLORS = ['#2a0d4e', '#3b1163', '#5a1a7a', '#7a1d6b',
+                       '#10314f', '#123a63', '#0e4d5c', '#1d6d7a'];
+  var NEBULA_SPACE = '#070512';
+  var NEBULA_FLECKS = ['#fff4d6', '#ffd9a0', '#ffe9b3', '#cfe8ff'];
   // Brightness-offset a hex color by +/- delta per channel (ADDITIVE, so even
   // pure-black ink picks up grain instead of staying flat). Returns rgb().
   function shadeColor(hex, delta) {
@@ -483,7 +487,9 @@
     var maxRing = Math.round(maxEff);
     var delay = new Float64Array(total);
     for (var i = 0; i < total; i++) {
-      var dl = (maxRing - Math.round(eff[i])) * p.ringDelay + Math.random() * p.grainMs;
+      // nova bursts OUTWARD (center ignites first); the iris closes IN (outer first).
+      var ring = Math.round(eff[i]);
+      var dl = (p.nova ? ring : (maxRing - ring)) * p.ringDelay + Math.random() * p.grainMs;
       delay[i] = dl < 0 ? 0 : dl;
     }
     return { delay: delay, maxRing: maxRing };
@@ -542,6 +548,10 @@
       var base = nova ? NEBULA_COLORS[(Math.random() * NEBULA_COLORS.length) | 0] : p.glow;
       cellGlow[s] = shadeColor(base, ((Math.random() - 0.5) * 2 * p.noise * 120) | 0);
     }
+    // nova only: ~3% of cells are bright star flecks; the rest are deep gas on space.
+    var isFleck = new Uint8Array(p.cols * p.rows);
+    if (nova) { for (var fk = 0; fk < isFleck.length; fk++) { isFleck[fk] = Math.random() < 0.03 ? 1 : 0; } }
+    var baseFill = nova ? NEBULA_SPACE : p.outgoing;
 
     function draw(t) {
       ctx.clearRect(0, 0, p.W, p.Hh);
@@ -549,18 +559,18 @@
         var local = t - d.delay[i];
         if (local >= DUR) { continue; }                  // cleared -> page shows
         var x = ((i % cols) * p.cellW) | 0, y = (((i / cols) | 0) * p.cellH) | 0;
-        if (local < 0) {                                 // not started -> covered
-          ctx.globalAlpha = 1; ctx.fillStyle = p.outgoing; ctx.fillRect(x, y, cw, ch);
+        if (local < 0) {                                 // not started -> covered (space, if nova)
+          ctx.globalAlpha = 1; ctx.fillStyle = baseFill; ctx.fillRect(x, y, cw, ch);
           continue;
         }
         var ph = local / DUR;
-        var cover = ph < 0.52 ? 1 : 1 - (ph - 0.52) / 0.48;  // fade old away
+        var cover = ph < 0.52 ? 1 : 1 - (ph - 0.52) / 0.48;  // fade away
         var spike = (ph >= 0.10 && ph < 0.22) || (ph >= 0.34 && ph < 0.46); // 2 flickers
         if (spike) {
-          var gc = cellGlow[i];                          // per-cell noised/vivid color
-          if (bloom > 0) {                               // chunky halo (no blur)
-            if (nova) {                                  // additive -> white-hot bloom
-              ctx.globalCompositeOperation = 'screen';  // can't exceed source -> no white-out
+          var gc = cellGlow[i];                          // per-cell deep gas / glow
+          if (bloom > 0) {
+            if (nova) {                                  // screen -> deep gas, never white
+              ctx.globalCompositeOperation = 'screen';
               ctx.globalAlpha = 0.22 * cover; ctx.fillStyle = gc;
               ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
               ctx.globalCompositeOperation = 'source-over';
@@ -571,7 +581,16 @@
           }
           ctx.globalAlpha = cover; ctx.fillStyle = gc; ctx.fillRect(x, y, cw, ch);
         } else {
-          ctx.globalAlpha = cover; ctx.fillStyle = p.outgoing; ctx.fillRect(x, y, cw, ch);
+          ctx.globalAlpha = cover; ctx.fillStyle = baseFill; ctx.fillRect(x, y, cw, ch);
+        }
+        // nova star flecks: sparse bright pinpricks that twinkle across the peak.
+        if (nova && isFleck[i] && ph > 0.08 && ph < 0.72) {
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = (0.5 + Math.random() * 0.5) * cover;
+          ctx.fillStyle = NEBULA_FLECKS[i & 3];
+          var q = (cw >> 1) || 2;
+          ctx.fillRect(x + (q >> 1), y + (q >> 1), q, q);
+          ctx.globalCompositeOperation = 'source-over';
         }
       }
       ctx.globalAlpha = 1;
