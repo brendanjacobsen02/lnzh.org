@@ -129,7 +129,13 @@ nav {
     width: 20%;
     height: 100vh;
     padding: 40px 20px 40px 60px;
-    overflow-y: auto;
+    overflow: visible;
+}
+
+/* Very short viewports: restore scrolling so a long expanded menu stays reachable
+   (accepts horizontal clip only in this rare case). */
+@media (max-height: 640px) {
+    nav { overflow-y: auto; }
 }
 
 nav ul {
