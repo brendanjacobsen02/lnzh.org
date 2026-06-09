@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-09
 **Branch:** `feat/handdrawn-redesign`
-**Status:** Draft — awaiting author review, then per-system implementation plans
+**Status:** In progress — IA done; UI-kit + critter-engine **scaffolds** landed and consolidated onto `main`. Running on placeholder art; awaiting hand-drawn sprites/frames to swap in.
 
 ---
 
