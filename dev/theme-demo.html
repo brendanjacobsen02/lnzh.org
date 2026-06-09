@@ -3,13 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dark Mode — Transition Demo (pixel-dissolve vs CRT power-cycle)</title>
+<title>Dark Mode — Transition Demo (iris close-in · pixel-dissolve · CRT power-cycle)</title>
 <!--
   Standalone, self-contained demo for the lnzh.org dark-mode work.
   NOT under the site CSP, NOT linked from the site, no site-CSS dependency.
-  Purpose: feel-check the pixel-dissolve transition (the chosen effect) and
-  compare it against the CRT power-cycle runner-up on color swatches + a few
+  Purpose: feel-check the candidate theme transitions on color swatches + a few
   sample 8-bit icons, with independent "replay" buttons for each.
+    - IRIS CLOSE-IN (the new chosen effect): chunky blocks clear outer ring ->
+      inner ring, so the new theme floods in from the edges and the old theme
+      shrinks to a block-circle at the center. A glowing leading-edge ring
+      pulses as it contracts inward. Tunable live via the sliders below.
+    - PIXEL-DISSOLVE: previous effect — same blocks, but random clear order.
+    - CRT POWER-CYCLE: runner-up — collapse-to-line, then bloom open.
 -->
 <style>
   :root {
@@ -115,6 +120,70 @@
   }
   .dissolve-cell.is-clear { opacity: 0; }
 
+  /* ---- iris close-in overlay (the chosen new effect) ----
+     Same chunky block grid as the dissolve, but blocks clear by RING:
+     outermost ring first -> center ring last, so the boundary between the
+     revealed new theme and the lingering old theme is a circle contracting
+     inward. Each block runs a single keyframe (delay = its ring) that flares
+     to the glow color, then fades out; because rings fire in sequence the
+     flare forms a glowing ring that pulses as it tightens to the center. */
+  .iris-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    display: grid; pointer-events: none; image-rendering: pixelated;
+  }
+  .iris-cell {
+    width: 100%; height: 100%; opacity: 1;
+    background: var(--iris-fill, #f2f2e4);
+  }
+  /* both = hold the opaque 0% state through animation-delay (no early flash of
+     the new theme), and hold the transparent 100% state after. steps() keeps
+     the flash + fade chunky/arcade rather than a smooth blur. */
+  .iris-cell.is-go {
+    animation: irisFlare var(--iris-dur, 320ms) steps(8, end) both;
+    animation-delay: var(--iris-delay, 0ms);
+  }
+  /* Two quick glow spikes (a flicker/pulse), THEN the old fill rots away. The
+     glow only shows during the spikes, so the leading edge stays a thin, mean
+     flickering band instead of a fat ring. The noise-warped, tendrilled delays
+     (computed in JS) make that band ragged — like something corroding inward —
+     and the grain jitter makes the trailing old theme crumble rather than wipe. */
+  @keyframes irisFlare {
+    0%   { opacity: 1; background: var(--iris-fill); box-shadow: 0 0 0 0 transparent; }
+    16%  { opacity: 1; background: var(--iris-glow);
+           box-shadow: 0 0 var(--iris-bloom, 10px) calc(var(--iris-bloom, 10px) * .35) var(--iris-glow); }
+    28%  { opacity: 1; background: var(--iris-fill); box-shadow: 0 0 0 0 transparent; }
+    40%  { opacity: 1; background: var(--iris-glow);
+           box-shadow: 0 0 calc(var(--iris-bloom, 10px) * .6) 0 var(--iris-glow); }
+    52%  { opacity: 1; background: var(--iris-fill); box-shadow: 0 0 0 0 transparent; }
+    100% { opacity: 0; background: var(--iris-fill); box-shadow: 0 0 0 0 transparent; }
+  }
+
+  /* iris tuning controls (demo-only) */
+  .iris-tune {
+    display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+    max-width: 760px; margin: 0 0 28px; padding: 12px 14px;
+    border: 2px dashed var(--line-strong); font-size: 12px; color: var(--ink);
+  }
+  .iris-tune label { display: inline-flex; align-items: center; gap: 8px; }
+  .iris-tune output { min-width: 5ch; color: var(--muted); }
+  .iris-tune input[type="range"] { accent-color: var(--link); }
+  .iris-tune select {
+    font-family: 'Courier New', monospace; font-size: 12px;
+    color: var(--ink); background: var(--paper-raised);
+    border: 2px solid var(--line-strong); padding: 3px 6px;
+  }
+
+  /* frame-time meter (demo-only) — the before/after evidence. */
+  .iris-meter {
+    position: fixed; left: 14px; bottom: 14px; z-index: 10000;
+    font-family: 'Courier New', monospace; font-size: 12px;
+    color: var(--ink); background: var(--paper-raised);
+    border: 2px solid var(--line-strong); padding: 6px 10px;
+    box-shadow: 3px 3px 0 0 var(--line-strong);
+  }
+  .iris-meter[hidden] { display: none; }
+  .iris-meter b { color: var(--link); }
+
   /* ---- CRT power-cycle overlay (runner-up) ---- */
   .crt-overlay {
     position: fixed; inset: 0; z-index: 9999; pointer-events: none;
@@ -140,7 +209,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .dissolve-cell, .crt-overlay .crt-line { transition: none; animation: none; }
+    .dissolve-cell, .iris-cell, .crt-overlay .crt-line { transition: none; animation: none; }
   }
 
   /* Links follow the accent (mirrors the site). */
@@ -163,17 +232,59 @@
 <body>
   <h1>Dark Mode transition demo</h1>
   <p class="sub">
-    Compare the two candidate theme transitions on color swatches and sample
-    8-bit icons. <strong>Pixel-dissolve</strong> is the chosen effect (blocky
-    ~24px checker redraw, ~500ms). <strong>CRT power-cycle</strong> is the
-    runner-up (collapse-to-line, then bloom open). Each replay button flips the
-    theme; click again to flip back. Self-contained — no site assets required.
+    Compare the candidate theme transitions on color swatches and sample 8-bit
+    icons. <strong>Iris close-in</strong> is the new chosen effect: small blocks
+    clear from the edges inward along a noise-warped, tendrilled front — so the
+    new theme corrodes its way in and the old theme is eaten down to a ragged dot
+    at the center, a thin flickering edge closing like a parasite (tune it below;
+    every flip warps differently).
+    <strong>Pixel-dissolve</strong> is the previous effect (same blocks, random
+    order). <strong>CRT power-cycle</strong> is the runner-up (collapse-to-line,
+    then bloom open). Each replay button flips the theme; click again to flip
+    back. Self-contained — no site assets required.
   </p>
 
   <div class="controls">
+    <button class="pixel" id="btn-iris" type="button">◉ Replay iris close-in</button>
     <button class="pixel" id="btn-dissolve" type="button">▦ Replay pixel-dissolve</button>
     <button class="pixel" id="btn-crt" type="button">▭ Replay CRT power-cycle</button>
     <button class="pixel" id="btn-instant" type="button">⇄ Instant swap (reduced-motion)</button>
+  </div>
+
+  <div class="iris-tune">
+    <strong>iris ▸</strong>
+    <label>block size
+      <input type="range" id="iris-cell" min="12" max="44" step="2" value="18">
+      <output id="iris-cell-out">18px</output>
+    </label>
+    <label>ring speed
+      <input type="range" id="iris-speed" min="8" max="60" step="2" value="12">
+      <output id="iris-speed-out">12ms/ring</output>
+    </label>
+    <label>wildness
+      <input type="range" id="iris-wild" min="0" max="100" step="5" value="100">
+      <output id="iris-wild-out">100%</output>
+    </label>
+    <label>glow bloom
+      <input type="range" id="iris-bloom" min="0" max="48" step="1" value="36">
+      <output id="iris-bloom-out">36px</output>
+    </label>
+    <label>glow color
+      <select id="iris-glow">
+        <option value="random" selected>random (weighted)</option>
+        <option value="accent">accent (link)</option>
+        <option value="ink">ink flash</option>
+        <option value="paper-raised">paper flash</option>
+        <option value="toxic">toxic green</option>
+        <option value="blood">blood red</option>
+      </select>
+    </label>
+    <label>renderer
+      <select id="iris-renderer">
+        <option value="canvas" selected>canvas (fast)</option>
+        <option value="dom">DOM (old, slow)</option>
+      </select>
+    </label>
   </div>
 
   <div class="grid" id="swatches"></div>
@@ -262,6 +373,209 @@
   }
 
   var busy = false;
+
+  /* ---- iris close-in (the chosen new effect) ----
+     Chunky blocks, but cleared by ring (outer -> inner) so the new theme
+     closes in from the edges; a glowing leading-edge ring pulses inward. */
+  function readVar(name, fallback) {
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue(name).trim() || fallback;
+  }
+  /* Shared: read params + geometry from the sliders (no DOM built here). */
+  function irisParams() {
+    var CELL      = +document.getElementById('iris-cell').value;        // px
+    var ringDelay = +document.getElementById('iris-speed').value;       // ms/ring
+    var wild      = +document.getElementById('iris-wild').value / 100;  // 0..1
+    var bloom     = +document.getElementById('iris-bloom').value;       // px
+    var glowSrc   = document.getElementById('iris-glow').value;
+    var outgoing  = readVar('--paper', '#f2f2e4');  // leading edge = old screen
+    var ink       = readVar('--ink', '#000');
+    // The vivid palette: the 6 accent dots (read on both themes) + toxic + blood.
+    var WILD = ['#3fd06a', '#5a92a3', '#d29a52', '#c26c68', '#9a7eac', '#bbae4a',
+                '#9bff2e', '#ff2424'];
+    var glow;
+    if (glowSrc === 'random') {
+      // ~80% ink flash; ~20% a random color, spread evenly across all colors.
+      glow = Math.random() < 0.8 ? ink : WILD[Math.floor(Math.random() * WILD.length)];
+    } else if (glowSrc === 'ink') { glow = ink; }
+    else if (glowSrc === 'paper-raised') { glow = readVar('--paper-raised', '#fffdf4'); }
+    else if (glowSrc === 'toxic') { glow = '#9bff2e'; }
+    else if (glowSrc === 'blood') { glow = '#ff2424'; }
+    else { glow = readVar('--link', '#119c36'); }   // 'accent'
+    var W = window.innerWidth, Hh = window.innerHeight;
+    var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL);
+    return {
+      CELL: CELL, ringDelay: ringDelay, wild: wild, bloom: bloom,
+      outgoing: outgoing, glow: glow, W: W, Hh: Hh, cols: cols, rows: rows,
+      cellW: W / cols, cellH: Hh / rows, cx: (cols - 1) / 2, cy: (rows - 1) / 2,
+      grainMs: ringDelay * (0.6 + wild * 1.8)
+    };
+  }
+
+  /* Shared: noise-warped per-cell delays (the corroded, tendrilled front).
+     Identical math for both renderers, so canvas and DOM look the same. */
+  function buildDelays(p) {
+    var H = [], nH = 4 + Math.floor(Math.random() * 3), ampSum = 0;
+    for (var k = 0; k < nH; k++) {
+      var a = 0.4 + Math.random();
+      ampSum += a;
+      H.push({ f: 2 + Math.floor(Math.random() * 7), a: a, ph: Math.random() * 6.2832 });
+    }
+    function tendril(theta) {           // angular fingers -> ~[-1,1]
+      var s = 0;
+      for (var t = 0; t < H.length; t++) { s += H[t].a * Math.sin(H[t].f * theta + H[t].ph); }
+      return s / ampSum;
+    }
+    var sA = Math.random() * 6.2832, sB = Math.random() * 6.2832,
+        sC = Math.random() * 6.2832, bf = 0.16 + Math.random() * 0.18;
+    function blob(c, r) {               // low-freq blotches -> ~[-1,1]
+      return (Math.sin(c * bf + sA) * Math.cos(r * bf + sB)
+              + 0.6 * Math.sin((c + r) * bf * 0.7 + sC)) / 1.6;
+    }
+    var tendrilAmp = p.wild * 5, blobAmp = p.wild * 4;
+    var total = p.cols * p.rows, eff = new Float64Array(total), maxEff = 0, idx = 0;
+    for (var r = 0; r < p.rows; r++) {
+      for (var c = 0; c < p.cols; c++) {
+        var dx = c - p.cx, dy = r - p.cy;
+        var d = Math.hypot(dx, dy) + tendril(Math.atan2(dy, dx)) * tendrilAmp + blob(c, r) * blobAmp;
+        if (d < 0) { d = 0; }
+        eff[idx++] = d;
+        if (d > maxEff) { maxEff = d; }
+      }
+    }
+    var maxRing = Math.round(maxEff);
+    var delay = new Float64Array(total);
+    for (var i = 0; i < total; i++) {
+      var dl = (maxRing - Math.round(eff[i])) * p.ringDelay + Math.random() * p.grainMs;
+      delay[i] = dl < 0 ? 0 : dl;
+    }
+    return { delay: delay, maxRing: maxRing };
+  }
+
+  /* Shared: rAF sampler — runs for endT ms, records frame pacing, calls
+     perFrame(t) each frame, then reports fps/worst-frame + cleans up. Long
+     frames here == visible jank, so this IS the before/after instrument. */
+  function meteredRun(renderer, endT, perFrame, cleanup) {
+    var t0 = null, last = null, worst = 0, frames = 0, sum = 0;
+    function loop(now) {
+      if (t0 === null) { t0 = now; last = now; }
+      var dt = now - last; last = now;
+      if (frames > 0) { if (dt > worst) { worst = dt; } sum += dt; }
+      frames++;
+      var t = now - t0;
+      if (perFrame) { perFrame(t); }
+      if (t < endT) { requestAnimationFrame(loop); }
+      else {
+        var avg = sum / Math.max(1, frames - 1);
+        showMeter(renderer, Math.round(1000 / avg), Math.round(worst));
+        if (cleanup) { cleanup(); }
+        busy = false;
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  function showMeter(renderer, fps, worst) {
+    var m = document.getElementById('iris-meter');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'iris-meter'; m.className = 'iris-meter';
+      document.body.appendChild(m);
+    }
+    m.hidden = false;
+    m.innerHTML = 'iris ' + renderer + ': <b>' + fps + ' fps</b> · worst frame <b>'
+      + worst + ' ms</b>';
+  }
+
+  /* THE FIX: render every block on ONE canvas. fillRect never touches per-node
+     layout/paint/layers, so it holds 60fps even at 12px blocks. */
+  function irisRenderCanvas(p, d, DUR, endT, next) {
+    var canvas = document.createElement('canvas');
+    canvas.width = p.W; canvas.height = p.Hh;
+    canvas.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;'
+      + 'width:100vw;height:100vh;image-rendering:pixelated;';
+    var ctx = canvas.getContext('2d');
+    var cols = p.cols, total = p.cols * p.rows;
+    var cw = Math.ceil(p.cellW) + 1, ch = Math.ceil(p.cellH) + 1, bloom = p.bloom;
+
+    function draw(t) {
+      ctx.clearRect(0, 0, p.W, p.Hh);
+      for (var i = 0; i < total; i++) {
+        var local = t - d.delay[i];
+        if (local >= DUR) { continue; }                  // cleared -> page shows
+        var x = ((i % cols) * p.cellW) | 0, y = (((i / cols) | 0) * p.cellH) | 0;
+        if (local < 0) {                                 // not started -> covered
+          ctx.globalAlpha = 1; ctx.fillStyle = p.outgoing; ctx.fillRect(x, y, cw, ch);
+          continue;
+        }
+        var ph = local / DUR;
+        var cover = ph < 0.52 ? 1 : 1 - (ph - 0.52) / 0.48;  // fade old away
+        var spike = (ph >= 0.10 && ph < 0.22) || (ph >= 0.34 && ph < 0.46); // 2 flickers
+        if (spike) {
+          if (bloom > 0) {                               // cheap chunky halo (no blur)
+            ctx.globalAlpha = 0.28 * cover; ctx.fillStyle = p.glow;
+            ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
+          }
+          ctx.globalAlpha = cover; ctx.fillStyle = p.glow; ctx.fillRect(x, y, cw, ch);
+        } else {
+          ctx.globalAlpha = cover; ctx.fillStyle = p.outgoing; ctx.fillRect(x, y, cw, ch);
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    draw(0);                       // cover the page before the flip
+    document.body.appendChild(canvas);
+    flip(next);
+    meteredRun('canvas', endT, draw, function () {
+      if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); }
+    });
+  }
+
+  /* The OLD (slow) renderer, kept for A/B: thousands of DOM cells each running a
+     box-shadow + background keyframe. Watch the meter tank vs canvas. */
+  function irisRenderDOM(p, d, DUR, endT, next) {
+    var overlay = document.createElement('div');
+    overlay.className = 'iris-overlay';
+    overlay.style.gridTemplateColumns = 'repeat(' + p.cols + ', 1fr)';
+    overlay.style.gridTemplateRows = 'repeat(' + p.rows + ', 1fr)';
+    overlay.style.setProperty('--iris-fill', p.outgoing);
+    overlay.style.setProperty('--iris-glow', p.glow);
+    overlay.style.setProperty('--iris-bloom', p.bloom + 'px');
+    var total = p.cols * p.rows, cells = new Array(total);
+    for (var i = 0; i < total; i++) {
+      var cell = document.createElement('div');
+      cell.className = 'iris-cell';
+      cell.style.setProperty('--iris-delay', d.delay[i].toFixed(0) + 'ms');
+      overlay.appendChild(cell);
+      cells[i] = cell;
+    }
+    document.body.appendChild(overlay);
+    flip(next);
+    overlay.offsetHeight; // force reflow so the opaque state is committed
+    requestAnimationFrame(function () {
+      for (var j = 0; j < total; j++) { cells[j].classList.add('is-go'); }
+    });
+    meteredRun('DOM', endT, null, function () {
+      if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
+    });
+  }
+
+  function irisCloseIn() {
+    if (busy) { return; }
+    var next = nextTheme();
+    if (reduced()) { flip(next); return; }
+    busy = true;
+    var p = irisParams();
+    var d = buildDelays(p);
+    var DUR = 320; // matches --iris-dur default
+    var endT = d.maxRing * p.ringDelay + p.grainMs + DUR + 80;
+    if (document.getElementById('iris-renderer').value === 'dom') {
+      irisRenderDOM(p, d, DUR, endT, next);
+    } else {
+      irisRenderCanvas(p, d, DUR, endT, next);
+    }
+  }
 
   /* ---- pixel-dissolve (same algorithm as theme-toggle.js) ---- */
   function pixelDissolve() {
@@ -379,11 +693,22 @@
     accentRow.appendChild(b);
   });
 
+  document.getElementById('btn-iris').addEventListener('click', irisCloseIn);
   document.getElementById('btn-dissolve').addEventListener('click', pixelDissolve);
   document.getElementById('btn-crt').addEventListener('click', crtPowerCycle);
   document.getElementById('btn-instant').addEventListener('click', function () {
     flip(nextTheme());
   });
+
+  /* ---- live readouts for the iris sliders ---- */
+  function bindOut(inId, outId, suffix) {
+    var i = document.getElementById(inId), o = document.getElementById(outId);
+    i.addEventListener('input', function () { o.textContent = i.value + suffix; });
+  }
+  bindOut('iris-cell', 'iris-cell-out', 'px');
+  bindOut('iris-speed', 'iris-speed-out', 'ms/ring');
+  bindOut('iris-wild', 'iris-wild-out', '%');
+  bindOut('iris-bloom', 'iris-bloom-out', 'px');
 })();
 </script>
 </body>
