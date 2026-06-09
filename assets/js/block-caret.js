@@ -1,13 +1,16 @@
 // block-caret.js — a reliable, accent-colored block cursor for the writing editor.
 //
-// Per docs/superpowers/specs/2026-06-09-block-caret-editor-design.md, the caret is
-// measured from a MIRROR, never from the live editable: on each caret move we clone
-// the stream, truncate the cloned input to the caret offset, drop in a marker span,
-// lay the clone over the real stream (hidden), and read the marker's rect. Because
-// we never mutate the live DOM or selection, typing stays rock-solid; because a real
-// element always has a rect, the caret is correct on empty fields, empty lines, and
-// right after newlines — the cases that broke every in-place approach.
+// Positioning strategy (the important part):
+//   1. Measure the REAL collapsed caret rect directly from the live selection.
+//      This is pixel-perfect for every normal position (mid-text, end of a line,
+//      right after a character) — the browser's own caret geometry, so it can't
+//      drift. No clone, no width guessing.
+//   2. Only when the real range has no rect (empty editor, or an empty line right
+//      after a newline) fall back to a hidden clone of the stream, sized to the
+//      stream's CONTENT width so wrapping matches, with a marker at the caret.
 //
+// We never mutate the live DOM or selection, so typing stays stable. Native caret
+// is hidden while active (.has-block-caret) and is the fallback if this never runs.
 // Reusable shape: BlockCaret.create({ stream, input, className }).
 (function () {
     'use strict';
@@ -40,8 +43,34 @@
             return pre.toString().length;
         }
 
-        function measure(offset) {
+        // (1) The live caret's own rectangle — exact when it exists.
+        function realRect() {
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) {
+                return null;
+            }
+            const range = sel.getRangeAt(0).cloneRange();
+            range.collapse(true);
+            let r = range.getBoundingClientRect();
+            if (r && r.height > 0 && (r.top !== 0 || r.left !== 0)) {
+                return { left: r.left, top: r.top, height: r.height };
+            }
+            const rects = range.getClientRects();
+            if (rects.length && rects[0].height > 0) {
+                r = rects[0];
+                return { left: r.left, top: r.top, height: r.height };
+            }
+            return null;
+        }
+
+        // (2) Fallback: a hidden clone sized to the stream's content box, with a
+        // marker at the caret. Used only for empty / post-newline positions.
+        function mirrorRect(offset) {
             const streamRect = stream.getBoundingClientRect();
+            const cs = window.getComputedStyle(stream);
+            const borderLeft = parseFloat(cs.borderLeftWidth) || 0;
+            const borderTop = parseFloat(cs.borderTopWidth) || 0;
+
             const mirror = stream.cloneNode(true);
             mirror.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
 
@@ -56,9 +85,10 @@
             }
 
             mirror.style.position = 'fixed';
-            mirror.style.left = streamRect.left + 'px';
-            mirror.style.top = streamRect.top + 'px';
-            mirror.style.width = streamRect.width + 'px';
+            mirror.style.left = (streamRect.left + borderLeft) + 'px';
+            mirror.style.top = (streamRect.top + borderTop) + 'px';
+            mirror.style.width = stream.clientWidth + 'px';   // content width (no scrollbar)
+            mirror.style.border = '0';
             mirror.style.height = 'auto';
             mirror.style.minHeight = '0';
             mirror.style.maxHeight = 'none';
@@ -71,14 +101,12 @@
             document.body.appendChild(mirror);
 
             const markerRect = marker.getBoundingClientRect();
-            const mirrorRect = mirror.getBoundingClientRect();
             document.body.removeChild(mirror);
 
             return {
-                left: (markerRect.left - mirrorRect.left) + streamRect.left - stream.scrollLeft,
-                top: (markerRect.top - mirrorRect.top) + streamRect.top - stream.scrollTop,
+                left: markerRect.left - stream.scrollLeft,
+                top: markerRect.top - stream.scrollTop,
                 height: markerRect.height,
-                streamRect: streamRect,
             };
         }
 
@@ -99,21 +127,22 @@
                 lastKey = null;
                 return;
             }
-            const streamTop = stream.getBoundingClientRect().top;
+            const streamRect = stream.getBoundingClientRect();
             const key = [offset, input.textContent.length, stream.textContent.length,
-                window.scrollX, window.scrollY, window.innerWidth, stream.scrollTop, Math.round(streamTop)].join('|');
+                window.scrollX, window.scrollY, window.innerWidth,
+                stream.scrollTop, Math.round(streamRect.top)].join('|');
             if (key === lastKey) {
                 return;
             }
             lastKey = key;
 
-            const pos = measure(offset);
-            if (!pos || !isFinite(pos.left) || !isFinite(pos.top)) {
+            const pos = realRect() || mirrorRect(offset);
+            if (!pos || !isFinite(pos.left) || !isFinite(pos.top) || pos.height <= 0) {
                 hide();
                 return;
             }
             // Don't draw a caret that has scrolled out of the editor's viewport.
-            if (pos.top + pos.height < pos.streamRect.top - 1 || pos.top > pos.streamRect.bottom + 1) {
+            if (pos.top + pos.height < streamRect.top - 1 || pos.top > streamRect.bottom + 1) {
                 hide();
                 return;
             }
@@ -122,7 +151,7 @@
             caret.style.display = 'block';
             caret.style.left = pos.left + 'px';
             caret.style.top = (pos.top + (pos.height - height) / 2) + 'px';
-            caret.style.width = (fontSize * 0.55) + 'px';
+            caret.style.width = (fontSize * 0.5) + 'px';
             caret.style.height = height + 'px';
         }
 
