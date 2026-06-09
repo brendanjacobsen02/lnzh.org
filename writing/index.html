@@ -54,6 +54,11 @@
                     <div class="sentence-stream" id="sentence-stream" aria-label="Sentence editor">
                         <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" data-placeholder="Write. End a sentence with punctuation."></span>
                     </div>
+                    <div class="writing-hud" id="writing-hud" aria-live="off">
+                        <span>words <b id="hud-words">00</b></span>
+                        <span>sentences <b id="hud-sentences">00</b></span>
+                        <span>kept <b id="hud-kept">00</b></span>
+                    </div>
                     <div class="writing-settings">
                         <button class="filter-btn settings-toggle" type="button" id="settings-toggle" aria-expanded="false" aria-controls="settings-panel">settings</button>
                         <div class="settings-panel" id="settings-panel" hidden>

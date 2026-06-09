@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const draftsSection = document.getElementById('completed-drafts');
     const draftList = document.getElementById('draft-list');
     const toast = document.getElementById('writing-toast');
+    const hudWords = document.getElementById('hud-words');
+    const hudSentences = document.getElementById('hud-sentences');
+    const hudKept = document.getElementById('hud-kept');
 
     if (
         !form ||
@@ -28,7 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
         !settingsPanel ||
         !draftsSection ||
         !draftList ||
-        !toast
+        !toast ||
+        !hudWords ||
+        !hudSentences ||
+        !hudKept
     ) {
         return;
     }
@@ -66,6 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateControls() {
         const hasText = draftText().length > 0;
         copyButton.disabled = !hasText;
+        renderStats();
+    }
+
+    function renderStats() {
+        const stats = core.computeStats(reviewedSentences, input.textContent);
+        hudWords.textContent = core.pad2(stats.words);
+        hudSentences.textContent = core.pad2(stats.sentences);
+        hudKept.textContent = core.pad2(stats.kept);
     }
 
     function renderDrafts() {
