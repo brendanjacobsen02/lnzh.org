@@ -4,9 +4,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const textarea = document.getElementById('sentence-input');
     const highlights = document.getElementById('editor-highlights');
     const blackoutToggle = document.getElementById('blackout-toggle');
+    const confirmationToggle = document.getElementById('confirmation-toggle');
+    const keepPopover = document.getElementById('sentence-keep-popover');
+    const acceptButton = document.getElementById('sentence-accept');
+    const rejectButton = document.getElementById('sentence-reject');
+    const kbdConfirmHint = document.getElementById('writing-kbd-confirm');
     const copyButton = document.getElementById('copy-writing');
     const downloadButton = document.getElementById('download-writing');
     const clearButton = document.getElementById('clear-writing');
+    const clearDraftsButton = document.getElementById('clear-drafts');
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsPanel = document.getElementById('settings-panel');
     const draftsSection = document.getElementById('completed-drafts');
@@ -27,10 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const sumContinue = document.getElementById('sum-continue');
 
     const required = [
-        form, editor, textarea, highlights, blackoutToggle, copyButton, downloadButton,
-        clearButton, settingsToggle, settingsPanel, draftsSection, draftList, toast,
-        hudWords, hudSentences, hudRead, summary, summaryClose, sumWords, sumSentences,
-        sumRead, sumPreview, sumSave, sumCopy, sumDownload, sumContinue,
+        form, editor, textarea, highlights, blackoutToggle, confirmationToggle, keepPopover,
+        acceptButton, rejectButton, kbdConfirmHint, copyButton, downloadButton, clearButton,
+        clearDraftsButton, settingsToggle, settingsPanel, draftsSection, draftList, toast,
+        hudWords, hudSentences,
+        hudRead, summary, summaryClose, sumWords, sumSentences, sumRead, sumPreview, sumSave,
+        sumCopy, sumDownload, sumContinue,
     ];
     if (required.some((el) => !el)) {
         return;
@@ -42,6 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingDraft = '';
     let toastTimer;
     let clearArmTimer;
+    let clearDraftsArmTimer;
+    let reviewedUpTo = 0;       // chars before this index are decided (kept)
+    let awaiting = null;        // { start, end } of a sentence locked for review
+
+    function prefersReducedMotion() {
+        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
 
     /* ---------- storage ---------- */
     function loadDrafts() {
@@ -69,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'd' + Date.now() + '-' + Math.floor(Math.random() * 1e6);
     }
 
-    /* ---------- export ---------- */
+    /* ---------- export / clipboard ---------- */
     function downloadText(filename, text) {
         const blob = new Blob([text], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
@@ -97,6 +112,32 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.classList.add('active');
         window.clearTimeout(toastTimer);
         toastTimer = window.setTimeout(() => toast.classList.remove('active'), 1400);
+    }
+
+    /* ---------- whimsy ---------- */
+    function spawnSparkle(x, y) {
+        if (prefersReducedMotion()) {
+            return;
+        }
+        const sparkle = document.createElement('span');
+        sparkle.className = 'writing-sparkle';
+        sparkle.textContent = '✦';
+        sparkle.style.left = x + 'px';
+        sparkle.style.top = y + 'px';
+        document.body.append(sparkle);
+        sparkle.addEventListener('animationend', () => sparkle.remove());
+    }
+
+    function flashCommand(message, x, y, kind) {
+        const flash = document.createElement('span');
+        flash.className = kind === 'cut' ? 'writing-flash is-cut' : 'writing-flash';
+        flash.textContent = message;
+        flash.style.left = x + 'px';
+        flash.style.top = y + 'px';
+        document.body.append(flash);
+        const remove = () => flash.remove();
+        flash.addEventListener('animationend', remove);
+        window.setTimeout(remove, 1000);
     }
 
     /* ---------- stats ---------- */
@@ -132,31 +173,143 @@ document.addEventListener('DOMContentLoaded', () => {
         renderStats();
     }
 
+    function updateKbdHints() {
+        kbdConfirmHint.style.display = confirmationToggle.checked ? '' : 'none';
+    }
+
     /* ---------- blackout backdrop ---------- */
-    // Redact completed sentences (text transparent, bar behind); leave the line
-    // you're currently writing visible. The textarea's own text is hidden in
-    // blackout, so only this aligned layer shows.
+    // Redact decided text, keep the rest visible. In confirm mode "decided" = the
+    // kept region (up to reviewedUpTo); otherwise it's every completed sentence.
     function renderBackdrop() {
         highlights.replaceChildren();
         if (!blackoutToggle.checked) {
             return;
         }
-        const parsed = core.extractSentences(textarea.value);
-        const completed = parsed.sentences.join('');
-        if (completed) {
+        const value = textarea.value;
+        let cut;
+        if (confirmationToggle.checked) {
+            cut = Math.min(reviewedUpTo, value.length);
+        } else {
+            const parsed = core.extractSentences(value);
+            cut = value.length - parsed.remainder.length;
+        }
+        const redacted = value.slice(0, cut);
+        const visible = value.slice(cut);
+        if (redacted) {
             const span = document.createElement('span');
             span.className = 'redact';
-            span.textContent = completed;
+            span.textContent = redacted;
             highlights.append(span);
         }
-        if (parsed.remainder) {
-            highlights.append(document.createTextNode(parsed.remainder));
+        if (visible) {
+            highlights.append(document.createTextNode(visible));
         }
         syncScroll();
     }
 
     function syncScroll() {
         highlights.style.transform = 'translateY(' + (-textarea.scrollTop) + 'px)';
+    }
+
+    /* ---------- caret geometry (for the keep/cut popover) ---------- */
+    function caretCoords(position) {
+        const computed = window.getComputedStyle(textarea);
+        const div = document.createElement('div');
+        const s = div.style;
+        s.position = 'absolute';
+        s.top = '0';
+        s.left = '-9999px';
+        s.visibility = 'hidden';
+        s.whiteSpace = 'pre-wrap';
+        s.overflowWrap = 'break-word';
+        s.wordBreak = computed.wordBreak;
+        s.boxSizing = 'content-box';
+        const padL = parseFloat(computed.paddingLeft) || 0;
+        const padR = parseFloat(computed.paddingRight) || 0;
+        const borderL = parseFloat(computed.borderLeftWidth) || 0;
+        const borderT = parseFloat(computed.borderTopWidth) || 0;
+        s.width = (textarea.clientWidth - padL - padR) + 'px';
+        s.paddingTop = computed.paddingTop;
+        s.paddingLeft = computed.paddingLeft;
+        s.paddingRight = computed.paddingRight;
+        s.fontFamily = computed.fontFamily;
+        s.fontSize = computed.fontSize;
+        s.fontWeight = computed.fontWeight;
+        s.fontStyle = computed.fontStyle;
+        s.lineHeight = computed.lineHeight;
+        s.letterSpacing = computed.letterSpacing;
+        div.textContent = textarea.value.slice(0, position);
+        const span = document.createElement('span');
+        span.textContent = textarea.value.slice(position) || '.';
+        div.appendChild(span);
+        document.body.appendChild(div);
+        const top = span.offsetTop + borderT;
+        const left = span.offsetLeft + borderL;
+        const height = parseFloat(computed.lineHeight) || 24;
+        document.body.removeChild(div);
+        return { top: top, left: left, height: height };
+    }
+
+    /* ---------- keep / cut lock ---------- */
+    function positionKeepPopover() {
+        if (!awaiting) {
+            keepPopover.hidden = true;
+            return;
+        }
+        keepPopover.hidden = false;
+        const coords = caretCoords(awaiting.end);
+        const rect = textarea.getBoundingClientRect();
+        const half = keepPopover.offsetWidth / 2;
+        let x = rect.left + coords.left - textarea.scrollLeft;
+        x = Math.max(half + 8, Math.min(x, window.innerWidth - half - 8));
+        let y = rect.top + coords.top - textarea.scrollTop;
+        y = Math.max(rect.top + 4, Math.min(y, rect.bottom - 4));
+        keepPopover.style.left = x + 'px';
+        keepPopover.style.top = y + 'px';
+    }
+
+    function checkForPending() {
+        if (awaiting || !confirmationToggle.checked) {
+            return;
+        }
+        const tail = textarea.value.slice(reviewedUpTo);
+        const parsed = core.extractSentences(tail);
+        if (parsed.sentences.length > 0) {
+            awaiting = { start: reviewedUpTo, end: reviewedUpTo + parsed.sentences[0].length };
+            window.requestAnimationFrame(positionKeepPopover);
+        }
+    }
+
+    function keepSentence() {
+        if (!awaiting) {
+            return;
+        }
+        const rect = keepPopover.getBoundingClientRect();
+        spawnSparkle(rect.left + rect.width / 2, rect.top);
+        flashCommand('kept ✓', rect.left + rect.width / 2, rect.top, 'keep');
+        reviewedUpTo = awaiting.end;
+        awaiting = null;
+        keepPopover.hidden = true;
+        textarea.focus();
+        renderBackdrop();
+        updateControls();
+    }
+
+    function cutSentence() {
+        if (!awaiting) {
+            return;
+        }
+        const rect = keepPopover.getBoundingClientRect();
+        flashCommand('cut ✗', rect.left + rect.width / 2, rect.top, 'cut');
+        const value = textarea.value;
+        textarea.value = value.slice(0, awaiting.start) + value.slice(awaiting.end);
+        textarea.selectionStart = awaiting.start;
+        textarea.selectionEnd = awaiting.start;
+        awaiting = null;
+        keepPopover.hidden = true;
+        textarea.focus();
+        renderBackdrop();
+        updateControls();
     }
 
     /* ---------- drafts ---------- */
@@ -235,6 +388,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetEditor() {
         textarea.value = '';
+        reviewedUpTo = 0;
+        awaiting = null;
+        keepPopover.hidden = true;
         updateControls();
         renderBackdrop();
     }
@@ -265,18 +421,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     textarea.addEventListener('input', () => {
+        if (reviewedUpTo > textarea.value.length) {
+            reviewedUpTo = textarea.value.length;
+        }
+        checkForPending();
         updateControls();
         renderBackdrop();
     });
 
-    textarea.addEventListener('scroll', syncScroll);
+    textarea.addEventListener('scroll', () => {
+        syncScroll();
+        if (awaiting) {
+            positionKeepPopover();
+        }
+    });
 
     textarea.addEventListener('keydown', (event) => {
+        // While a sentence is locked for review, input is gated until you decide.
+        if (awaiting) {
+            if (event.metaKey || event.ctrlKey || event.altKey) {
+                return;
+            }
+            if (event.key === 'y' || event.key === 'Y') {
+                event.preventDefault();
+                keepSentence();
+                return;
+            }
+            if (event.key === 'n' || event.key === 'N') {
+                event.preventDefault();
+                cutSentence();
+                return;
+            }
+            if (event.key.length === 1 || event.key === 'Enter'
+                || event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Tab') {
+                event.preventDefault();
+            }
+            return;
+        }
         if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
             event.preventDefault();
             completeDraft();
         }
-        // Plain Enter inserts a newline natively — nothing to do.
+        // Plain Enter inserts a newline natively.
+    });
+
+    textarea.addEventListener('paste', (event) => {
+        if (awaiting) {
+            event.preventDefault();
+        }
+    });
+
+    acceptButton.addEventListener('click', keepSentence);
+    rejectButton.addEventListener('click', cutSentence);
+    [acceptButton, rejectButton].forEach((button) => {
+        button.addEventListener('mousedown', (event) => event.preventDefault());
+    });
+
+    confirmationToggle.addEventListener('change', () => {
+        if (!confirmationToggle.checked) {
+            awaiting = null;
+            keepPopover.hidden = true;
+        } else {
+            reviewedUpTo = 0;
+            checkForPending();
+        }
+        updateKbdHints();
+        renderBackdrop();
     });
 
     blackoutToggle.addEventListener('change', () => {
@@ -324,6 +534,26 @@ document.addEventListener('DOMContentLoaded', () => {
         clearArmTimer = window.setTimeout(disarmClear, 3000);
     });
 
+    function disarmClearDrafts() {
+        window.clearTimeout(clearDraftsArmTimer);
+        clearDraftsButton.classList.remove('is-armed');
+        clearDraftsButton.textContent = 'clear all';
+    }
+
+    clearDraftsButton.addEventListener('click', () => {
+        if (clearDraftsButton.classList.contains('is-armed')) {
+            disarmClearDrafts();
+            drafts.length = 0;
+            saveDrafts();
+            renderDrafts();
+            showToast('All drafts cleared.');
+            return;
+        }
+        clearDraftsButton.classList.add('is-armed');
+        clearDraftsButton.textContent = 'clear all?';
+        clearDraftsArmTimer = window.setTimeout(disarmClearDrafts, 3000);
+    });
+
     sumSave.addEventListener('click', savePending);
     sumCopy.addEventListener('click', () => copyToClipboard(pendingDraft));
     sumDownload.addEventListener('click', () => {
@@ -344,10 +574,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    if (window.BlockCaret) {
-        window.BlockCaret.create({ textarea: textarea, className: 'block-caret' });
-    }
+    window.addEventListener('resize', () => {
+        if (awaiting) {
+            positionKeepPopover();
+        }
+    });
+    window.addEventListener('scroll', () => {
+        if (awaiting) {
+            positionKeepPopover();
+        }
+    }, true);
 
+    updateKbdHints();
     updateControls();
     renderBackdrop();
     renderDrafts();
