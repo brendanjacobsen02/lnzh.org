@@ -279,6 +279,33 @@ nav img:not([class*="size-"]) {
     animation-delay: calc(var(--i) * 70ms);
 }
 
+/* At rest (collapsed): a gentle periodic wave inviting the click. Loops, but the
+   global prefers-reduced-motion catch-all near the end of this file neutralizes it. */
+@keyframes navStarIdle {
+    0%, 70%, 100% { transform: translateY(0); }
+    78% { transform: translateY(-4px)   scaleY(1.07); }
+    85% { transform: translateY(0)      scaleY(0.98); }
+    92% { transform: translateY(-1.5px); }
+}
+
+.dropdown-trigger:not(.active) .nav-star {
+    animation: navStarIdle 3.8s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.07s);
+}
+
+/* Hover (while collapsed): a quick one-hop across the row. More specific than the
+   idle rule, so it wins on hover. */
+@keyframes navStarHop {
+    0%   { transform: translateY(0); }
+    40%  { transform: translateY(-8px) scaleY(1.14); }
+    100% { transform: translateY(0); }
+}
+
+.dropdown-trigger:not(.active):hover .nav-star {
+    animation: navStarHop 0.45s ease;
+    animation-delay: calc(var(--i) * 0.05s);
+}
+
 /* Sidebar attention glow — triggered by the homepage "explore the sidebar!" link */
 @keyframes navGlow {
     0%, 100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }
