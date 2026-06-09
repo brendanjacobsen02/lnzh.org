@@ -148,7 +148,7 @@
         }
     }
 
-    /* ---- inject button + dissolve styles (single <style> element) ---- */
+    /* ---- inject button + panel styles (single <style> element) ---- */
     function injectStyles() {
         if (document.getElementById('theme-toggle-styles')) { return; }
         var style = document.createElement('style');
@@ -373,15 +373,26 @@
         var outgoingPaper = cs.getPropertyValue('--paper').trim() || '#f2f2e4';
         var outgoingInk = cs.getPropertyValue('--ink').trim() || '#000';
 
-        animating = true;
-        irisCloseIn(outgoingPaper, outgoingInk, function midpoint() {
+        function applySwap() {
             document.documentElement.setAttribute('data-theme', next);
             persist(next);
             swapImages(next);
             updateThemeControl(next);
-        }, function done() {
-            animating = false;   // clears exactly when the animation ends
-        });
+        }
+
+        animating = true;
+        // Guard against any synchronous throw inside irisCloseIn (e.g. canvas/
+        // 2D-context unavailable) BEFORE its rAF + failsafe are scheduled — that
+        // would otherwise leave `animating` stuck true and wedge the toggle. On
+        // failure, fall back to an instant swap and release the guard.
+        try {
+            irisCloseIn(outgoingPaper, outgoingInk, applySwap, function done() {
+                animating = false;   // clears exactly when the animation ends
+            });
+        } catch (e) {
+            applySwap();
+            animating = false;
+        }
     }
 
     /* ---- accent state ---- */
