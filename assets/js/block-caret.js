@@ -136,7 +136,13 @@
             }
             lastKey = key;
 
-            const pos = realRect() || mirrorRect(offset);
+            // A caret right after a newline is ambiguous to the live Range API —
+            // getBoundingClientRect reports the END of the previous line, not the
+            // start of the new one (the "jump back to after the ." bug). For that
+            // case use the mirror, which puts the marker on the new line; use the
+            // pixel-perfect real rect everywhere else.
+            const beforeChar = offset > 0 ? input.textContent.charAt(offset - 1) : '';
+            const pos = beforeChar === '\n' ? mirrorRect(offset) : (realRect() || mirrorRect(offset));
             if (!pos || !isFinite(pos.left) || !isFinite(pos.top) || pos.height <= 0) {
                 hide();
                 return;
