@@ -251,12 +251,16 @@ nav img:not([class*="size-"]) {
 
 /* Sidebar attention glow — triggered by the homepage "explore the sidebar!" link */
 @keyframes navGlow {
-    0%, 100% { background-color: transparent; }
-    25%, 60% { background-color: color-mix(in srgb, var(--link) 14%, transparent); }
+    0%, 100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }
+    22% {
+        background-color: color-mix(in srgb, var(--link) 26%, transparent);
+        box-shadow: 0 0 34px 6px color-mix(in srgb, var(--link) 55%, transparent);
+    }
 }
 
 nav.nav-glow {
-    animation: navGlow 1.2s ease-in-out 2;
+    animation: navGlow 0.9s ease-out 2;
+    border-radius: 0 16px 16px 0;
 }
 
 /* ==========================================================================
