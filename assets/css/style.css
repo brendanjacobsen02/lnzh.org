@@ -590,6 +590,8 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     outline: none;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+    caret-color: var(--link);
+    caret-shape: block;
 }
 
 .sentence-input-inline:empty::before {
@@ -602,31 +604,12 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     content: "";
 }
 
-/* Arcade block cursor: hide the native caret while focused and draw a blinking
-   block at the caret (kept pinned to the end while you write). Mid-text clicks
-   are an edge case in this forward-writing tool. */
-.sentence-stream.is-focused {
-    caret-color: transparent;
-}
-
-.sentence-stream.is-focused .sentence-input-inline:empty::before {
+/* Arcade caret: a native block caret in the accent color. caret-shape is a
+   progressive enhancement (falls back to a thin accent caret where unsupported)
+   — always visible and correctly placed, including across newlines and mid-text.
+   Hide the placeholder once the field is focused. */
+.sentence-input-inline:focus:empty::before {
     content: "";
-}
-
-.sentence-stream.is-focused .sentence-input-inline::after {
-    content: "";
-    display: inline-block;
-    width: 0.54em;
-    height: 1.05em;
-    margin-left: 1px;
-    vertical-align: -0.18em;
-    background: var(--link);
-    box-shadow: 0 0 0 1px var(--link);
-    animation: writingBlink 1.05s steps(1) infinite;
-}
-
-@keyframes writingBlink {
-    50% { opacity: 0; }
 }
 
 .sentence-fragment {

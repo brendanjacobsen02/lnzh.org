@@ -457,9 +457,6 @@ document.addEventListener('DOMContentLoaded', () => {
         input.focus();
     });
 
-    stream.addEventListener('focusin', () => stream.classList.add('is-focused'));
-    stream.addEventListener('focusout', () => stream.classList.remove('is-focused'));
-
     confirmationToggle.addEventListener('change', () => {
         if (!confirmationToggle.checked) {
             reviewedSentences.forEach((sentence) => { sentence.keep = true; });
