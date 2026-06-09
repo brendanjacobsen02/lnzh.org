@@ -139,19 +139,23 @@
      the new theme), and hold the transparent 100% state after. steps() keeps
      the flash + fade chunky/arcade rather than a smooth blur. */
   .iris-cell.is-go {
-    animation: irisFlare var(--iris-dur, 520ms) steps(8, end) both;
+    animation: irisFlare var(--iris-dur, 320ms) steps(8, end) both;
     animation-delay: var(--iris-delay, 0ms);
   }
+  /* Two quick glow spikes (a flicker/pulse), THEN the old fill rots away. The
+     glow only shows during the spikes, so the leading edge stays a thin, mean
+     flickering band instead of a fat ring. The noise-warped, tendrilled delays
+     (computed in JS) make that band ragged — like something corroding inward —
+     and the grain jitter makes the trailing old theme crumble rather than wipe. */
   @keyframes irisFlare {
-    0%   { opacity: 1; background: var(--iris-fill);
-           box-shadow: 0 0 0 0 var(--iris-glow); }
-    24%  { opacity: 1; background: var(--iris-glow);
-           box-shadow: 0 0 var(--iris-bloom, 12px)
-                       calc(var(--iris-bloom, 12px) * .3) var(--iris-glow); }
-    52%  { opacity: 1; background: var(--iris-glow);
-           box-shadow: 0 0 0 0 var(--iris-glow); }
-    100% { opacity: 0; background: var(--iris-glow);
-           box-shadow: 0 0 0 0 var(--iris-glow); }
+    0%   { opacity: 1; background: var(--iris-fill); box-shadow: 0 0 0 0 transparent; }
+    16%  { opacity: 1; background: var(--iris-glow);
+           box-shadow: 0 0 var(--iris-bloom, 10px) calc(var(--iris-bloom, 10px) * .35) var(--iris-glow); }
+    28%  { opacity: 1; background: var(--iris-fill); box-shadow: 0 0 0 0 transparent; }
+    40%  { opacity: 1; background: var(--iris-glow);
+           box-shadow: 0 0 calc(var(--iris-bloom, 10px) * .6) 0 var(--iris-glow); }
+    52%  { opacity: 1; background: var(--iris-fill); box-shadow: 0 0 0 0 transparent; }
+    100% { opacity: 0; background: var(--iris-fill); box-shadow: 0 0 0 0 transparent; }
   }
 
   /* iris tuning controls (demo-only) */
@@ -218,10 +222,11 @@
   <h1>Dark Mode transition demo</h1>
   <p class="sub">
     Compare the candidate theme transitions on color swatches and sample 8-bit
-    icons. <strong>Iris close-in</strong> is the new chosen effect: chunky blocks
-    clear outer ring → inner ring, so the new theme floods in from the edges and
-    the old theme shrinks to a block-circle at the center, with a glowing
-    leading-edge ring that pulses inward (tune it with the sliders below).
+    icons. <strong>Iris close-in</strong> is the new chosen effect: small blocks
+    clear from the edges inward along a noise-warped, tendrilled front — so the
+    new theme corrodes its way in and the old theme is eaten down to a ragged dot
+    at the center, a thin flickering edge closing like a parasite (tune it below;
+    every flip warps differently).
     <strong>Pixel-dissolve</strong> is the previous effect (same blocks, random
     order). <strong>CRT power-cycle</strong> is the runner-up (collapse-to-line,
     then bloom open). Each replay button flips the theme; click again to flip
@@ -237,19 +242,29 @@
 
   <div class="iris-tune">
     <strong>iris ▸</strong>
+    <label>block size
+      <input type="range" id="iris-cell" min="12" max="44" step="2" value="22">
+      <output id="iris-cell-out">22px</output>
+    </label>
     <label>ring speed
-      <input type="range" id="iris-speed" min="40" max="140" step="5" value="75">
-      <output id="iris-speed-out">75ms/ring</output>
+      <input type="range" id="iris-speed" min="8" max="60" step="2" value="26">
+      <output id="iris-speed-out">26ms/ring</output>
+    </label>
+    <label>wildness
+      <input type="range" id="iris-wild" min="0" max="100" step="5" value="60">
+      <output id="iris-wild-out">60%</output>
     </label>
     <label>glow bloom
-      <input type="range" id="iris-bloom" min="0" max="28" step="1" value="12">
-      <output id="iris-bloom-out">12px</output>
+      <input type="range" id="iris-bloom" min="0" max="28" step="1" value="10">
+      <output id="iris-bloom-out">10px</output>
     </label>
     <label>glow color
       <select id="iris-glow">
         <option value="accent" selected>accent (link)</option>
         <option value="ink">ink flash</option>
         <option value="paper-raised">paper flash</option>
+        <option value="toxic">toxic green</option>
+        <option value="blood">blood red</option>
       </select>
     </label>
   </div>
@@ -355,17 +370,20 @@
     busy = true;
 
     // Tunables (live from the demo sliders).
-    var ringDelay = +document.getElementById('iris-speed').value;   // ms/ring
-    var bloom     = +document.getElementById('iris-bloom').value;   // px
+    var CELL      = +document.getElementById('iris-cell').value;        // px
+    var ringDelay = +document.getElementById('iris-speed').value;       // ms/ring
+    var wild      = +document.getElementById('iris-wild').value / 100;  // 0..1
+    var bloom     = +document.getElementById('iris-bloom').value;       // px
     var glowSrc   = document.getElementById('iris-glow').value;
 
     // Outgoing-theme colors (the leading edge belongs to the old screen).
     var outgoing = readVar('--paper', '#f2f2e4');
     var glow = glowSrc === 'ink' ? readVar('--ink', '#000')
              : glowSrc === 'paper-raised' ? readVar('--paper-raised', '#fffdf4')
+             : glowSrc === 'toxic' ? '#9bff2e'
+             : glowSrc === 'blood' ? '#ff2424'
              : readVar('--link', '#119c36');   // 'accent'
 
-    var CELL = 56;
     var cols = Math.ceil(window.innerWidth / CELL);
     var rows = Math.ceil(window.innerHeight / CELL);
 
@@ -377,19 +395,64 @@
     overlay.style.setProperty('--iris-glow', glow);
     overlay.style.setProperty('--iris-bloom', bloom + 'px');
 
-    // Grid-space center; the farthest cell (a corner) sets the outer ring.
     var cx = (cols - 1) / 2;
     var cy = (rows - 1) / 2;
-    var maxRing = Math.round(Math.hypot(cx, cy));
 
-    var cells = [];
+    // ---- per-replay noise field: angular tendrils + blobby corrosion. Random
+    //      every flip, so the parasite closes in differently each time. The
+    //      tendrils warp the circle into reaching fingers; the blobs eat
+    //      irregular bites out of the front. ----
+    var H = [], nH = 4 + Math.floor(Math.random() * 3), ampSum = 0;
+    for (var k = 0; k < nH; k++) {
+      var a = 0.4 + Math.random();
+      ampSum += a;
+      H.push({ f: 2 + Math.floor(Math.random() * 7), a: a, p: Math.random() * 6.2832 });
+    }
+    function tendril(theta) {           // angular fingers -> ~[-1,1]
+      var s = 0;
+      for (var t = 0; t < H.length; t++) { s += H[t].a * Math.sin(H[t].f * theta + H[t].p); }
+      return s / ampSum;
+    }
+    var sA = Math.random() * 6.2832, sB = Math.random() * 6.2832,
+        sC = Math.random() * 6.2832, bf = 0.16 + Math.random() * 0.18;
+    function blob(c, r) {               // low-freq blotches -> ~[-1,1]
+      return (Math.sin(c * bf + sA) * Math.cos(r * bf + sB)
+              + 0.6 * Math.sin((c + r) * bf * 0.7 + sC)) / 1.6;
+    }
+
+    var tendrilAmp = wild * 5;          // up to ~5 cells of angular warp
+    var blobAmp    = wild * 4;          // up to ~4 cells of blotch warp
+    var grainMs    = ringDelay * (0.6 + wild * 1.8); // crumble jitter (ms)
+
+    // Pass 1: effective (noise-warped) radius per cell; track the outer ring.
+    var total = cols * rows;
+    var eff = new Float64Array(total);
+    var maxEff = 0, idx = 0;
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++) {
+        var dx = c - cx, dy = r - cy;
+        var d = Math.hypot(dx, dy)
+              + tendril(Math.atan2(dy, dx)) * tendrilAmp
+              + blob(c, r) * blobAmp;
+        if (d < 0) { d = 0; }
+        eff[idx++] = d;
+        if (d > maxEff) { maxEff = d; }
+      }
+    }
+    var maxRing = Math.round(maxEff);
+
+    // Pass 2: build cells; delay by descending warped ring + grain jitter, so
+    // the outer ragged front fires first and crumbles inward to the center.
+    var cells = [];
+    idx = 0;
+    for (var r2 = 0; r2 < rows; r2++) {
+      for (var c2 = 0; c2 < cols; c2++) {
         var cell = document.createElement('div');
         cell.className = 'iris-cell';
-        var ring = Math.round(Math.hypot(c - cx, r - cy));
-        // Outermost ring (ring === maxRing) fires first -> delay 0.
-        cell.style.setProperty('--iris-delay', (maxRing - ring) * ringDelay + 'ms');
+        var ring = Math.round(eff[idx++]);
+        var delay = (maxRing - ring) * ringDelay + Math.random() * grainMs;
+        if (delay < 0) { delay = 0; }
+        cell.style.setProperty('--iris-delay', delay.toFixed(0) + 'ms');
         overlay.appendChild(cell);
         cells.push(cell);
       }
@@ -403,11 +466,11 @@
       for (var i = 0; i < cells.length; i++) { cells[i].classList.add('is-go'); }
     });
 
-    var DUR = 520; // matches --iris-dur default
+    var DUR = 320; // matches --iris-dur default
     setTimeout(function () {
       if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
       busy = false;
-    }, maxRing * ringDelay + DUR + 200);
+    }, maxRing * ringDelay + grainMs + DUR + 200);
   }
 
   /* ---- pixel-dissolve (same algorithm as theme-toggle.js) ---- */
@@ -534,12 +597,14 @@
   });
 
   /* ---- live readouts for the iris sliders ---- */
-  var speedIn = document.getElementById('iris-speed');
-  var speedOut = document.getElementById('iris-speed-out');
-  var bloomIn = document.getElementById('iris-bloom');
-  var bloomOut = document.getElementById('iris-bloom-out');
-  speedIn.addEventListener('input', function () { speedOut.textContent = speedIn.value + 'ms/ring'; });
-  bloomIn.addEventListener('input', function () { bloomOut.textContent = bloomIn.value + 'px'; });
+  function bindOut(inId, outId, suffix) {
+    var i = document.getElementById(inId), o = document.getElementById(outId);
+    i.addEventListener('input', function () { o.textContent = i.value + suffix; });
+  }
+  bindOut('iris-cell', 'iris-cell-out', 'px');
+  bindOut('iris-speed', 'iris-speed-out', 'ms/ring');
+  bindOut('iris-wild', 'iris-wild-out', '%');
+  bindOut('iris-bloom', 'iris-bloom-out', 'px');
 })();
 </script>
 </body>
