@@ -145,11 +145,6 @@
     "class": "flat"
   },
   {
-    "source": "assets/images/content/why_.png",
-    "variant": "assets/images/content/why_-dark.png",
-    "class": "flat"
-  },
-  {
     "source": "assets/images/content/zelle.png",
     "variant": "assets/images/content/zelle-dark.png",
     "class": "flat"

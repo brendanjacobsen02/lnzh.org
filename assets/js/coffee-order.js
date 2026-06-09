@@ -70,9 +70,9 @@ function isBlackoutDate(dateString) {
     return BLACKOUT_DATES.includes(dateString);
 }
 
-function formatDateLabel(dateString, includeWeekday = true) {
+function formatDateLabel(dateString) {
     const parsed = new Date(`${dateString}T00:00:00`);
-    const options = includeWeekday ? { weekday: 'short', month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric' };
+    const options = { weekday: 'short', month: 'short', day: 'numeric' };
     return parsed.toLocaleDateString(undefined, options);
 }
 
@@ -352,23 +352,6 @@ function requiresMilk(drink) {
 
 function requiresCup() {
     return true;
-}
-
-function getTempLabel() {
-    return selectedTemp ? selectedTemp : 'No temp selection';
-}
-
-function getMilkLabel() {
-    return selectedMilk ? selectedMilk : 'No milk selection';
-}
-
-function getDateLabel(dateString) {
-    const today = getPacificDateString();
-    const baseLabel = formatDateLabel(dateString);
-    if (dateString !== today) {
-        return `${baseLabel} (preorder)`;
-    }
-    return `${baseLabel} (today)`;
 }
 
 function selectedName() {

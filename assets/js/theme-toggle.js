@@ -63,7 +63,6 @@
         'assets/images/content/tomato.png',
         'assets/images/content/upload.png',
         'assets/images/content/venmo.png',
-        'assets/images/content/why_.png',
         'assets/images/content/zelle.png',
         'assets/images/icons/XD.png',
         'assets/images/icons/chess.png',
