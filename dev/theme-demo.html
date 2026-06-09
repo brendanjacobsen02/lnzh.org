@@ -283,6 +283,10 @@
       <input type="range" id="iris-ink" min="0" max="100" step="5" value="80">
       <output id="iris-ink-out">80%</output>
     </label>
+    <label>glow noise
+      <input type="range" id="iris-noise" min="0" max="100" step="5" value="60">
+      <output id="iris-noise-out">60%</output>
+    </label>
     <label>supernova
       <input type="range" id="iris-nova-rate" min="0" max="100" step="1" value="2">
       <output id="iris-nova-out">1 in 50</output>
@@ -390,6 +394,22 @@
     return getComputedStyle(document.documentElement)
       .getPropertyValue(name).trim() || fallback;
   }
+  // Vivid glow palette: the 6 accent dots (legible on both themes) + toxic + blood.
+  var WILD_COLORS = ['#3fd06a', '#5a92a3', '#d29a52', '#c26c68', '#9a7eac', '#bbae4a',
+                     '#9bff2e', '#ff2424'];
+  // Brightness-offset a hex color by +/- delta per channel (ADDITIVE, so even
+  // pure-black ink picks up grain instead of staying flat). Returns rgb().
+  function shadeColor(hex, delta) {
+    var h = hex.replace('#', '');
+    if (h.length === 3) { h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]; }
+    var r = parseInt(h.substr(0, 2), 16) + delta;
+    var g = parseInt(h.substr(2, 2), 16) + delta;
+    var b = parseInt(h.substr(4, 2), 16) + delta;
+    r = r < 0 ? 0 : r > 255 ? 255 : r;
+    g = g < 0 ? 0 : g > 255 ? 255 : g;
+    b = b < 0 ? 0 : b > 255 ? 255 : b;
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
   /* Shared: read params + geometry from the sliders (no DOM built here). */
   function irisParams() {
     var CELL      = +document.getElementById('iris-cell').value;        // px
@@ -397,16 +417,14 @@
     var wild      = +document.getElementById('iris-wild').value / 100;  // 0..1
     var bloom     = +document.getElementById('iris-bloom').value;       // px
     var inkPct    = +document.getElementById('iris-ink').value / 100;   // weighted-random
+    var noise     = +document.getElementById('iris-noise').value / 100; // glow grain
     var glowSrc   = document.getElementById('iris-glow').value;
     var outgoing  = readVar('--paper', '#f2f2e4');  // leading edge = old screen
     var ink       = readVar('--ink', '#000');
-    // The vivid palette: the 6 accent dots (read on both themes) + toxic + blood.
-    var WILD = ['#3fd06a', '#5a92a3', '#d29a52', '#c26c68', '#9a7eac', '#bbae4a',
-                '#9bff2e', '#ff2424'];
     var glow;
     if (glowSrc === 'random') {
       // inkPct of the time an ink flash; otherwise a random color, spread evenly.
-      glow = Math.random() < inkPct ? ink : WILD[Math.floor(Math.random() * WILD.length)];
+      glow = Math.random() < inkPct ? ink : WILD_COLORS[Math.floor(Math.random() * WILD_COLORS.length)];
     } else if (glowSrc === 'ink') { glow = ink; }
     else if (glowSrc === 'paper-raised') { glow = readVar('--paper-raised', '#fffdf4'); }
     else if (glowSrc === 'toxic') { glow = '#9bff2e'; }
@@ -419,7 +437,7 @@
     var W = window.innerWidth, Hh = window.innerHeight;
     var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL);
     return {
-      CELL: CELL, ringDelay: ringDelay, wild: wild, bloom: bloom, nova: nova,
+      CELL: CELL, ringDelay: ringDelay, wild: wild, bloom: bloom, nova: nova, noise: noise,
       outgoing: outgoing, glow: glow, W: W, Hh: Hh, cols: cols, rows: rows,
       cellW: W / cols, cellH: Hh / rows, cx: (cols - 1) / 2, cy: (rows - 1) / 2,
       grainMs: ringDelay * (0.6 + wild * 1.8)
@@ -511,6 +529,14 @@
     var ctx = canvas.getContext('2d');
     var cols = p.cols, total = p.cols * p.rows;
     var cw = Math.ceil(p.cellW) + 1, ch = Math.ceil(p.cellH) + 1, bloom = p.bloom, nova = p.nova;
+    // Per-cell glow color, noised once for grain (so even the common ink flash is
+    // grainy, not flat); for nova each cell gets its OWN vivid color -> a colorful
+    // supernova. Stable per block so it reads as texture, not per-frame flicker.
+    var cellGlow = new Array(p.cols * p.rows);
+    for (var s = 0; s < cellGlow.length; s++) {
+      var base = nova ? WILD_COLORS[(Math.random() * WILD_COLORS.length) | 0] : p.glow;
+      cellGlow[s] = shadeColor(base, ((Math.random() - 0.5) * 2 * p.noise * 120) | 0);
+    }
 
     function draw(t) {
       ctx.clearRect(0, 0, p.W, p.Hh);
@@ -526,18 +552,19 @@
         var cover = ph < 0.52 ? 1 : 1 - (ph - 0.52) / 0.48;  // fade old away
         var spike = (ph >= 0.10 && ph < 0.22) || (ph >= 0.34 && ph < 0.46); // 2 flickers
         if (spike) {
+          var gc = cellGlow[i];                          // per-cell noised/vivid color
           if (bloom > 0) {                               // chunky halo (no blur)
             if (nova) {                                  // additive -> white-hot bloom
               ctx.globalCompositeOperation = 'lighter';
-              ctx.globalAlpha = 0.5 * cover; ctx.fillStyle = p.glow;
+              ctx.globalAlpha = 0.5 * cover; ctx.fillStyle = gc;
               ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
               ctx.globalCompositeOperation = 'source-over';
             } else {
-              ctx.globalAlpha = 0.28 * cover; ctx.fillStyle = p.glow;
+              ctx.globalAlpha = 0.28 * cover; ctx.fillStyle = gc;
               ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
             }
           }
-          ctx.globalAlpha = cover; ctx.fillStyle = p.glow; ctx.fillRect(x, y, cw, ch);
+          ctx.globalAlpha = cover; ctx.fillStyle = gc; ctx.fillRect(x, y, cw, ch);
         } else {
           ctx.globalAlpha = cover; ctx.fillStyle = p.outgoing; ctx.fillRect(x, y, cw, ch);
         }
@@ -791,6 +818,7 @@
   bindOut('iris-wild', 'iris-wild-out', '%');
   bindOut('iris-bloom', 'iris-bloom-out', 'px');
   bindOut('iris-ink', 'iris-ink-out', '%');
+  bindOut('iris-noise', 'iris-noise-out', '%');
   // supernova rarity readout as "1 in N"
   (function () {
     var i = document.getElementById('iris-nova-rate'), o = document.getElementById('iris-nova-out');
