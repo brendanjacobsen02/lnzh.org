@@ -570,4 +570,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateKbdHints();
     renderSentences();
     renderDrafts();
+
+    if (window.BlockCaret) {
+        window.BlockCaret.create({ stream: stream, input: input, className: 'block-caret' });
+    }
 });

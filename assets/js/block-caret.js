@@ -1,120 +1,85 @@
-// block-caret.js — a terminal-style block cursor for a contenteditable element.
-// Hides the native caret and overlays a blinking block at the caret cell that
-// inverts what's behind it (so the character under it stays readable), in both
-// light and dark themes. Reusable: window.BlockCaret.create(editableEl, opts).
+// block-caret.js — a reliable, accent-colored block cursor for the writing editor.
 //
-// Caret position is measured reliably: the next character's rect when there is
-// one, else the collapsed-range rect, else a throwaway marker inserted at the
-// caret (restored afterwards by character offset, which survives node splits).
+// Per docs/superpowers/specs/2026-06-09-block-caret-editor-design.md, the caret is
+// measured from a MIRROR, never from the live editable: on each caret move we clone
+// the stream, truncate the cloned input to the caret offset, drop in a marker span,
+// lay the clone over the real stream (hidden), and read the marker's rect. Because
+// we never mutate the live DOM or selection, typing stays rock-solid; because a real
+// element always has a rect, the caret is correct on empty fields, empty lines, and
+// right after newlines — the cases that broke every in-place approach.
+//
+// Reusable shape: BlockCaret.create({ stream, input, className }).
 (function () {
     'use strict';
 
-    function create(editable, options) {
-        options = options || {};
+    function create(opts) {
+        const stream = opts.stream;
+        const input = opts.input;
         const caret = document.createElement('span');
-        caret.className = options.className || 'block-caret';
+        caret.className = opts.className || 'block-caret';
         caret.setAttribute('aria-hidden', 'true');
         document.body.appendChild(caret);
-        editable.classList.add('has-block-caret');
+        input.classList.add('has-block-caret');
 
-        let measuring = false;
-        let lastKey = null;
         let rafId = 0;
+        let lastKey = null;
 
-        function inEditable(node) {
-            return node && (node === editable || editable.contains(node));
+        function inInput(node) {
+            return node && (node === input || input.contains(node));
         }
 
         function caretOffset() {
             const sel = window.getSelection();
-            if (!sel || sel.rangeCount === 0 || !inEditable(sel.anchorNode)) {
+            if (!sel || sel.rangeCount === 0 || !inInput(sel.anchorNode)) {
                 return null;
             }
             const range = sel.getRangeAt(0);
             const pre = range.cloneRange();
-            pre.selectNodeContents(editable);
+            pre.selectNodeContents(input);
             pre.setEnd(range.endContainer, range.endOffset);
             return pre.toString().length;
         }
 
-        function setCaretOffset(offset) {
-            const sel = window.getSelection();
-            const range = document.createRange();
-            const walker = document.createTreeWalker(editable, NodeFilter.SHOW_TEXT, null);
-            let remaining = offset;
-            let node = walker.nextNode();
-            if (!node) {
-                range.selectNodeContents(editable);
-                range.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(range);
-                return;
-            }
-            while (node) {
-                const len = node.nodeValue.length;
-                if (remaining <= len) {
-                    range.setStart(node, remaining);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                    return;
-                }
-                remaining -= len;
-                const next = walker.nextNode();
-                if (!next) {
-                    range.setStart(node, len);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                    return;
-                }
-                node = next;
-            }
-        }
+        function measure(offset) {
+            const streamRect = stream.getBoundingClientRect();
+            const mirror = stream.cloneNode(true);
+            mirror.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
 
-        function measureRect() {
-            const sel = window.getSelection();
-            if (!sel || sel.rangeCount === 0 || !inEditable(sel.anchorNode)) {
-                return null;
-            }
-            const range = sel.getRangeAt(0);
-
-            // 1) the character right after the caret — block sits on its cell
-            const node = range.endContainer;
-            if (node.nodeType === 3 && range.endOffset < node.nodeValue.length
-                && node.nodeValue[range.endOffset] !== '\n') {
-                const charRange = document.createRange();
-                charRange.setStart(node, range.endOffset);
-                charRange.setEnd(node, range.endOffset + 1);
-                const rects = charRange.getClientRects();
-                const r = rects.length ? rects[0] : charRange.getBoundingClientRect();
-                if (r && r.height > 0) {
-                    return { left: r.left, top: r.top, width: r.width, height: r.height };
-                }
-            }
-
-            // 2) collapsed caret rect
-            const collapsed = range.cloneRange();
-            collapsed.collapse(true);
-            let r = collapsed.getBoundingClientRect();
-            if (r && r.height > 0 && (r.top !== 0 || r.left !== 0)) {
-                return { left: r.left, top: r.top, width: 0, height: r.height };
-            }
-
-            // 3) marker fallback (empty field / empty line / just after a newline)
-            const offset = caretOffset();
-            measuring = true;
             const marker = document.createElement('span');
             marker.textContent = '\u200b';
-            range.cloneRange().insertNode(marker);
-            r = marker.getBoundingClientRect();
-            marker.remove();
-            editable.normalize();
-            if (offset != null) {
-                setCaretOffset(offset);
+            const mirrorInput = mirror.querySelector('.sentence-input-inline');
+            if (mirrorInput) {
+                mirrorInput.textContent = input.textContent.slice(0, offset);
+                mirrorInput.appendChild(marker);
+            } else {
+                mirror.appendChild(marker);
             }
-            measuring = false;
-            return { left: r.left, top: r.top, width: 0, height: r.height };
+
+            mirror.style.position = 'fixed';
+            mirror.style.left = streamRect.left + 'px';
+            mirror.style.top = streamRect.top + 'px';
+            mirror.style.width = streamRect.width + 'px';
+            mirror.style.height = 'auto';
+            mirror.style.minHeight = '0';
+            mirror.style.maxHeight = 'none';
+            mirror.style.overflow = 'visible';
+            mirror.style.visibility = 'hidden';
+            mirror.style.pointerEvents = 'none';
+            mirror.style.transform = 'none';
+            mirror.style.margin = '0';
+            mirror.style.zIndex = '-1';
+            document.body.appendChild(mirror);
+
+            const markerRect = marker.getBoundingClientRect();
+            const mirrorRect = mirror.getBoundingClientRect();
+            document.body.removeChild(mirror);
+
+            return {
+                left: (markerRect.left - mirrorRect.left) + streamRect.left - stream.scrollLeft,
+                top: (markerRect.top - mirrorRect.top) + streamRect.top - stream.scrollTop,
+                height: markerRect.height,
+                streamRect: streamRect,
+            };
         }
 
         function hide() {
@@ -122,51 +87,54 @@
         }
 
         function update() {
-            if (measuring) {
-                return;
-            }
             const sel = window.getSelection();
-            if (document.activeElement !== editable || !sel || !sel.isCollapsed || !inEditable(sel.anchorNode)) {
+            if (document.activeElement !== input || !sel || !sel.isCollapsed || !inInput(sel.anchorNode)) {
                 hide();
                 lastKey = null;
                 return;
             }
-            // Skip when nothing that affects the caret position changed — this also
-            // breaks the selectionchange loop caused by the marker measurement.
-            const key = caretOffset() + '|' + editable.textContent.length + '|'
-                + window.scrollX + '|' + window.scrollY + '|'
-                + window.innerWidth + '|' + window.innerHeight + '|' + (editable.scrollTop || 0);
+            const offset = caretOffset();
+            if (offset == null) {
+                hide();
+                lastKey = null;
+                return;
+            }
+            const streamTop = stream.getBoundingClientRect().top;
+            const key = [offset, input.textContent.length, stream.textContent.length,
+                window.scrollX, window.scrollY, window.innerWidth, stream.scrollTop, Math.round(streamTop)].join('|');
             if (key === lastKey) {
                 return;
             }
-            const rect = measureRect();
-            if (!rect) {
+            lastKey = key;
+
+            const pos = measure(offset);
+            if (!pos || !isFinite(pos.left) || !isFinite(pos.top)) {
                 hide();
-                lastKey = null;
                 return;
             }
-            lastKey = key;
-            const fontSize = parseFloat(window.getComputedStyle(editable).fontSize) || 16;
-            const width = rect.width > 0 ? rect.width : fontSize * 0.55;
+            // Don't draw a caret that has scrolled out of the editor's viewport.
+            if (pos.top + pos.height < pos.streamRect.top - 1 || pos.top > pos.streamRect.bottom + 1) {
+                hide();
+                return;
+            }
+            const fontSize = parseFloat(window.getComputedStyle(input).fontSize) || 16;
+            const height = Math.min(pos.height, fontSize * 1.3);
             caret.style.display = 'block';
-            caret.style.left = rect.left + 'px';
-            caret.style.top = rect.top + 'px';
-            caret.style.width = width + 'px';
-            caret.style.height = rect.height + 'px';
+            caret.style.left = pos.left + 'px';
+            caret.style.top = (pos.top + (pos.height - height) / 2) + 'px';
+            caret.style.width = (fontSize * 0.55) + 'px';
+            caret.style.height = height + 'px';
         }
 
         function queue() {
-            if (measuring) {
-                return;
-            }
             window.cancelAnimationFrame(rafId);
             rafId = window.requestAnimationFrame(update);
         }
 
         document.addEventListener('selectionchange', queue);
-        editable.addEventListener('input', queue);
-        editable.addEventListener('focus', queue);
-        editable.addEventListener('blur', () => { hide(); lastKey = null; });
+        input.addEventListener('input', queue);
+        input.addEventListener('focus', queue);
+        input.addEventListener('blur', () => { hide(); lastKey = null; });
         window.addEventListener('scroll', queue, true);
         window.addEventListener('resize', queue);
 
