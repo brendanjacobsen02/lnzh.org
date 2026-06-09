@@ -531,6 +531,7 @@ main {
 
 /* Main Content Area */
 main {
+    flex: 1 0 auto;   /* grow to push the footer to the bottom on short pages */
     margin-left: 20%;
     margin-right: 7.5%;
     padding: 60px 20px 60px 20px;
@@ -1857,6 +1858,8 @@ main a:has(.content-divider):hover {
 
 /* Footer */
 footer {
+    flex-shrink: 0;
+    margin-top: 2.5rem;
     margin-left: 20%;
     margin-right: 10%;
     padding: 20px 40px 60px 40px;
