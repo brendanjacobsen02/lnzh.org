@@ -279,6 +279,15 @@
         <option value="blood">blood red</option>
       </select>
     </label>
+    <label>ink %
+      <input type="range" id="iris-ink" min="0" max="100" step="5" value="80">
+      <output id="iris-ink-out">80%</output>
+    </label>
+    <label>supernova
+      <input type="range" id="iris-nova-rate" min="0" max="100" step="1" value="2">
+      <output id="iris-nova-out">1 in 50</output>
+    </label>
+    <label><input type="checkbox" id="iris-nova-force"> force supernova</label>
     <label>renderer
       <select id="iris-renderer">
         <option value="canvas" selected>canvas (fast)</option>
@@ -387,6 +396,7 @@
     var ringDelay = +document.getElementById('iris-speed').value;       // ms/ring
     var wild      = +document.getElementById('iris-wild').value / 100;  // 0..1
     var bloom     = +document.getElementById('iris-bloom').value;       // px
+    var inkPct    = +document.getElementById('iris-ink').value / 100;   // weighted-random
     var glowSrc   = document.getElementById('iris-glow').value;
     var outgoing  = readVar('--paper', '#f2f2e4');  // leading edge = old screen
     var ink       = readVar('--ink', '#000');
@@ -395,17 +405,21 @@
                 '#9bff2e', '#ff2424'];
     var glow;
     if (glowSrc === 'random') {
-      // ~80% ink flash; ~20% a random color, spread evenly across all colors.
-      glow = Math.random() < 0.8 ? ink : WILD[Math.floor(Math.random() * WILD.length)];
+      // inkPct of the time an ink flash; otherwise a random color, spread evenly.
+      glow = Math.random() < inkPct ? ink : WILD[Math.floor(Math.random() * WILD.length)];
     } else if (glowSrc === 'ink') { glow = ink; }
     else if (glowSrc === 'paper-raised') { glow = readVar('--paper-raised', '#fffdf4'); }
     else if (glowSrc === 'toxic') { glow = '#9bff2e'; }
     else if (glowSrc === 'blood') { glow = '#ff2424'; }
     else { glow = readVar('--link', '#119c36'); }   // 'accent'
+    // Rare SUPERNOVA: slower, much bigger + brighter (additive) bloom.
+    var nova = document.getElementById('iris-nova-force').checked
+            || Math.random() < (+document.getElementById('iris-nova-rate').value / 100);
+    if (nova) { ringDelay = Math.round(ringDelay * 1.7); bloom = Math.max(bloom * 3, 96); }
     var W = window.innerWidth, Hh = window.innerHeight;
     var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL);
     return {
-      CELL: CELL, ringDelay: ringDelay, wild: wild, bloom: bloom,
+      CELL: CELL, ringDelay: ringDelay, wild: wild, bloom: bloom, nova: nova,
       outgoing: outgoing, glow: glow, W: W, Hh: Hh, cols: cols, rows: rows,
       cellW: W / cols, cellH: Hh / rows, cx: (cols - 1) / 2, cy: (rows - 1) / 2,
       grainMs: ringDelay * (0.6 + wild * 1.8)
@@ -496,7 +510,7 @@
       + 'width:100vw;height:100vh;image-rendering:pixelated;';
     var ctx = canvas.getContext('2d');
     var cols = p.cols, total = p.cols * p.rows;
-    var cw = Math.ceil(p.cellW) + 1, ch = Math.ceil(p.cellH) + 1, bloom = p.bloom;
+    var cw = Math.ceil(p.cellW) + 1, ch = Math.ceil(p.cellH) + 1, bloom = p.bloom, nova = p.nova;
 
     function draw(t) {
       ctx.clearRect(0, 0, p.W, p.Hh);
@@ -512,9 +526,16 @@
         var cover = ph < 0.52 ? 1 : 1 - (ph - 0.52) / 0.48;  // fade old away
         var spike = (ph >= 0.10 && ph < 0.22) || (ph >= 0.34 && ph < 0.46); // 2 flickers
         if (spike) {
-          if (bloom > 0) {                               // cheap chunky halo (no blur)
-            ctx.globalAlpha = 0.28 * cover; ctx.fillStyle = p.glow;
-            ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
+          if (bloom > 0) {                               // chunky halo (no blur)
+            if (nova) {                                  // additive -> white-hot bloom
+              ctx.globalCompositeOperation = 'lighter';
+              ctx.globalAlpha = 0.5 * cover; ctx.fillStyle = p.glow;
+              ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
+              ctx.globalCompositeOperation = 'source-over';
+            } else {
+              ctx.globalAlpha = 0.28 * cover; ctx.fillStyle = p.glow;
+              ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
+            }
           }
           ctx.globalAlpha = cover; ctx.fillStyle = p.glow; ctx.fillRect(x, y, cw, ch);
         } else {
@@ -526,9 +547,16 @@
 
     draw(0);                       // cover the page before the flip
     document.body.appendChild(canvas);
-    flip(next);
-    meteredRun('canvas', endT, draw, function () {
-      if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); }
+    // Blip mask: spread the one-time heavy work across frames so no single
+    // ANIMATED frame eats the full-page restyle. The cover stays static while
+    // the theme flips; the metered animation starts a frame later, clean.
+    requestAnimationFrame(function () {
+      flip(next);
+      requestAnimationFrame(function () {
+        meteredRun('canvas', endT, draw, function () {
+          if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); }
+        });
+      });
     });
   }
 
@@ -568,7 +596,7 @@
     busy = true;
     var p = irisParams();
     var d = buildDelays(p);
-    var DUR = 320; // matches --iris-dur default
+    var DUR = p.nova ? 600 : 320; // supernova lingers + flares longer
     var endT = d.maxRing * p.ringDelay + p.grainMs + DUR + 80;
     if (document.getElementById('iris-renderer').value === 'dom') {
       irisRenderDOM(p, d, DUR, endT, next);
@@ -674,6 +702,55 @@
     });
   }
 
+  /* ---- accent-swatch ripple: a quick block shockwave expanding from the
+     clicked swatch in the new accent color (decorative — the accent itself
+     swaps instantly underneath). Same canvas machinery, no theme flip. ---- */
+  function rippleFromAccent(ox, oy, color) {
+    var CELL = 22, RATE = 0.22, DUR = 240;   // ms/px expansion, per-cell flash
+    var W = window.innerWidth, Hh = window.innerHeight;
+    var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL);
+    var cellW = W / cols, cellH = Hh / rows;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = Hh;
+    canvas.style.cssText = 'position:fixed;inset:0;z-index:9998;pointer-events:none;'
+      + 'width:100vw;height:100vh;image-rendering:pixelated;';
+    var ctx = canvas.getContext('2d');
+    if (!ctx) { return; }
+    var cw = Math.ceil(cellW) + 1, ch = Math.ceil(cellH) + 1, bloom = 14;
+    var total = cols * rows, delay = new Float64Array(total), maxDist = 0, idx = 0;
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var dist = Math.hypot(c * cellW + cellW / 2 - ox, r * cellH + cellH / 2 - oy);
+        delay[idx++] = dist * RATE;
+        if (dist > maxDist) { maxDist = dist; }
+      }
+    }
+    function draw(t) {
+      ctx.clearRect(0, 0, W, Hh);
+      for (var i = 0; i < total; i++) {
+        var local = t - delay[i];
+        if (local < 0 || local >= DUR) { continue; }   // before/after -> transparent
+        var ph = local / DUR;
+        var a = (ph < 0.3 ? ph / 0.3 : 1 - (ph - 0.3) / 0.7) * 0.9;  // ramp up, fade out
+        var x = ((i % cols) * cellW) | 0, y = (((i / cols) | 0) * cellH) | 0;
+        ctx.globalAlpha = a * 0.4; ctx.fillStyle = color;
+        ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
+        ctx.globalAlpha = a; ctx.fillRect(x, y, cw, ch);
+      }
+      ctx.globalAlpha = 1;
+    }
+    document.body.appendChild(canvas);
+    var endT = maxDist * RATE + DUR + 60, t0 = null;
+    function loop(now) {
+      if (t0 === null) { t0 = now; }
+      var t = now - t0;
+      draw(t);
+      if (t < endT) { requestAnimationFrame(loop); }
+      else if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); }
+    }
+    requestAnimationFrame(loop);
+  }
+
   /* ---- accent picker (mirrors the site's settings panel) ---- */
   var ACCENTS = ['green', 'teal', 'amber', 'coral', 'violet', 'olive'];
   var ACCENT_DOT = { green:'#3fd06a', teal:'#5a92a3', amber:'#d29a52', coral:'#c26c68', violet:'#9a7eac', olive:'#bbae4a' };
@@ -689,6 +766,10 @@
     b.addEventListener('click', function () {
       if (name === 'green') { document.documentElement.removeAttribute('data-accent'); }
       else { document.documentElement.setAttribute('data-accent', name); }
+      if (!reduced()) {
+        var rect = b.getBoundingClientRect();
+        rippleFromAccent(rect.left + rect.width / 2, rect.top + rect.height / 2, ACCENT_DOT[name]);
+      }
     });
     accentRow.appendChild(b);
   });
@@ -709,6 +790,16 @@
   bindOut('iris-speed', 'iris-speed-out', 'ms/ring');
   bindOut('iris-wild', 'iris-wild-out', '%');
   bindOut('iris-bloom', 'iris-bloom-out', 'px');
+  bindOut('iris-ink', 'iris-ink-out', '%');
+  // supernova rarity readout as "1 in N"
+  (function () {
+    var i = document.getElementById('iris-nova-rate'), o = document.getElementById('iris-nova-out');
+    function upd() {
+      var pct = +i.value;
+      o.textContent = pct <= 0 ? 'never' : '1 in ' + Math.round(100 / pct);
+    }
+    i.addEventListener('input', upd); upd();
+  })();
 })();
 </script>
 </body>
