@@ -1,0 +1,144 @@
+/* ==========================================================================
+   Supernova palettes as FULL-SITE themes.
+   Each html[data-palette="…"] block remaps the same tokens style.css defines,
+   so the whole site wears the nebula palette — not just the theme-toggle burst.
+   These are dark, moody themes; each palette's `--paper` matches the matching
+   supernova `space` colour in dev/theme-demo.html, so a burst dissolves into the
+   page. Loaded AFTER style.css, so it wins ties with html[data-theme="dark"].
+   Preview only for now (dev/palette-preview.html) — not linked into prod pages.
+   ========================================================================== */
+
+/* ---- cosmic — deep violet void, starlight text. Dark + mysterious. ---- */
+html[data-palette="cosmic"] {
+    --paper: #06040f;
+    --paper-raised: #100b22;
+    --paper-raised-rgb: 16, 11, 34;
+    --ink: #ece7fa;
+    --ink-soft: #ddd6f0;
+    --text: #c7bfe2;
+    --text-rgb: 199, 191, 226;
+    --muted: #867ead;
+    --faint: #564f78;
+    --backdrop: #100b22;
+    --accent: #c7bfe2;
+    --redact: #c7bfe2;
+    --line: #241d40;
+    --line-soft: #191331;
+    --line-strong: #b6aedc;
+    --shadow-rgb: 0, 0, 0;
+    --inset-highlight: rgba(255, 255, 255, 0.04);
+    --link: #a48cf0;
+    --link-hover: #c8b8ff;
+    --cat-amber: #e0b873;  --cat-coral: #d07fc0;  --cat-olive: #b3aa66;
+    --cat-violet: #a98fe0; --cat-teal: #6fb6d6;   --cat-green: #6db8a0;
+    --cat-amber-deep: #caa45f;  --cat-coral-deep: #bd6fad;  --cat-olive-deep: #a0975a;
+    --cat-violet-deep: #9a80d2; --cat-teal-deep: #5fa6c6;   --cat-green-deep: #5ea88f;
+}
+
+/* ---- ember — warm dark, glowing-coals. Cozy for long reading. ---- */
+html[data-palette="ember"] {
+    --paper: #120804;
+    --paper-raised: #21130a;
+    --paper-raised-rgb: 33, 19, 10;
+    --ink: #ffeede;
+    --ink-soft: #f6e2cf;
+    --text: #e6cfb6;
+    --text-rgb: 230, 207, 182;
+    --muted: #b18c6c;
+    --faint: #735340;
+    --backdrop: #21130a;
+    --accent: #e6cfb6;
+    --redact: #e6cfb6;
+    --line: #3a2414;
+    --line-soft: #2a190d;
+    --line-strong: #d8b88e;
+    --shadow-rgb: 0, 0, 0;
+    --inset-highlight: rgba(255, 255, 255, 0.04);
+    --link: #f2a23c;
+    --link-hover: #ffc26a;
+    --cat-amber: #eaa44e;  --cat-coral: #e07c5a;  --cat-olive: #d4b24e;
+    --cat-violet: #d6928c; --cat-teal: #cf9a5e;   --cat-green: #a8a85a;
+    --cat-amber-deep: #d4923f;  --cat-coral-deep: #cc6c4c;  --cat-olive-deep: #c0a042;
+    --cat-violet-deep: #c47f79; --cat-teal-deep: #bb884e;   --cat-green-deep: #97964c;
+}
+
+/* ---- aurora — deep green field, mint text. Uses the site's own accents. ---- */
+html[data-palette="aurora"] {
+    --paper: #04120c;
+    --paper-raised: #0a2016;
+    --paper-raised-rgb: 10, 32, 22;
+    --ink: #e6fff0;
+    --ink-soft: #d4f5e2;
+    --text: #bfe2cf;
+    --text-rgb: 191, 226, 207;
+    --muted: #7eac92;
+    --faint: #4f7860;
+    --backdrop: #0a2016;
+    --accent: #bfe2cf;
+    --redact: #bfe2cf;
+    --line: #143524;
+    --line-soft: #0e2519;
+    --line-strong: #aedcc0;
+    --shadow-rgb: 0, 0, 0;
+    --inset-highlight: rgba(255, 255, 255, 0.04);
+    --link: #5fd6a0;
+    --link-hover: #9af0c8;
+    --cat-amber: #c8b06a;  --cat-coral: #cd7aa8;  --cat-olive: #aaba5e;
+    --cat-violet: #a98fd6; --cat-teal: #5fc6c0;   --cat-green: #5fd08a;
+    --cat-amber-deep: #b49c58;  --cat-coral-deep: #bb6a98;  --cat-olive-deep: #98a852;
+    --cat-violet-deep: #9a80c8; --cat-teal-deep: #4fb2ac;   --cat-green-deep: #4fbc78;
+}
+
+/* ---- inkwash — cool charcoal duotone, accent-green spark. Most readable. ---- */
+html[data-palette="inkwash"] {
+    --paper: #0a0910;
+    --paper-raised: #16151e;
+    --paper-raised-rgb: 22, 21, 30;
+    --ink: #f2f2ea;
+    --ink-soft: #e2e2da;
+    --text: #c8c6d2;
+    --text-rgb: 200, 198, 210;
+    --muted: #86848f;
+    --faint: #56545f;
+    --backdrop: #16151e;
+    --accent: #c8c6d2;
+    --redact: #c8c6d2;
+    --line: #26242f;
+    --line-soft: #1a1822;
+    --line-strong: #bcbac6;
+    --shadow-rgb: 0, 0, 0;
+    --inset-highlight: rgba(255, 255, 255, 0.04);
+    --link: #6fd58f;
+    --link-hover: #a6ecbd;
+    --cat-amber: #d29a52;  --cat-coral: #c26c68;  --cat-olive: #bbae4a;
+    --cat-violet: #9a7eac; --cat-teal: #5a92a3;   --cat-green: #4fa06b;
+    --cat-amber-deep: #c68a45;  --cat-coral-deep: #c47470;  --cat-olive-deep: #a89a3c;
+    --cat-violet-deep: #9a7cae; --cat-teal-deep: #5c92a6;   --cat-green-deep: #4c9d66;
+}
+
+/* ---- toxic — acid green + blood-red sparks. Punky/playful. ---- */
+html[data-palette="toxic"] {
+    --paper: #05100a;
+    --paper-raised: #0e1d12;
+    --paper-raised-rgb: 14, 29, 18;
+    --ink: #eaffe0;
+    --ink-soft: #d6f5c8;
+    --text: #bfe0b0;
+    --text-rgb: 191, 224, 176;
+    --muted: #7ea874;
+    --faint: #4f7848;
+    --backdrop: #0e1d12;
+    --accent: #bfe0b0;
+    --redact: #bfe0b0;
+    --line: #163518;
+    --line-soft: #0e250f;
+    --line-strong: #a8dca0;
+    --shadow-rgb: 0, 0, 0;
+    --inset-highlight: rgba(255, 255, 255, 0.04);
+    --link: #9bff2e;
+    --link-hover: #c6ff7a;
+    --cat-amber: #cba94e;  --cat-coral: #ef5a4a;  --cat-olive: #9ac24e;
+    --cat-violet: #c77d6a; --cat-teal: #5fc88c;   --cat-green: #6fd84a;
+    --cat-amber-deep: #b6954a;  --cat-coral-deep: #d94a3c;  --cat-olive-deep: #8aae46;
+    --cat-violet-deep: #b46f5e; --cat-teal-deep: #4fb47c;   --cat-green-deep: #5fc43e;
+}

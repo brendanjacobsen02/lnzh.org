@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supernova palette preview — whole site</title>
+<style>
+  :root { --bar: #0c0b14; --barline: #2a2738; --bartext: #d8d6e4; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; }
+  body { display: flex; flex-direction: column; font-family: 'Archivo', ui-sans-serif, system-ui, sans-serif; }
+  .bar {
+    flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    padding: 10px 14px; background: var(--bar); border-bottom: 1px solid var(--barline);
+    color: var(--bartext); font-size: 13px;
+  }
+  .bar .grp { display: flex; align-items: center; gap: 6px; }
+  .bar .sep { width: 1px; height: 22px; background: var(--barline); margin: 0 4px; }
+  .lbl { opacity: .6; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+  button.pal, button.pg {
+    cursor: pointer; border: 1px solid var(--barline); background: #141320; color: var(--bartext);
+    border-radius: 7px; padding: 6px 11px; font: inherit; font-size: 12px; display: inline-flex;
+    align-items: center; gap: 7px; transition: border-color .15s, background .15s;
+  }
+  button.pal:hover, button.pg:hover { border-color: #5a5570; }
+  button.pal[aria-pressed="true"] { border-color: #cfc9ff; background: #1f1c30; }
+  .sw { width: 13px; height: 13px; border-radius: 3px; display: inline-block; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+  .frame-wrap { flex: 1 1 auto; min-height: 0; }
+  iframe { width: 100%; height: 100%; border: 0; background: #000; display: block; }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <span class="lbl">palette</span>
+    <div class="grp" id="pal-row"></div>
+    <button class="pal" data-pal="__dark"><span class="sw" style="background:#16150f"></span>current dark</button>
+    <button class="pal" data-pal="__light"><span class="sw" style="background:#f2f2e4"></span>current light</button>
+    <div class="sep"></div>
+    <span class="lbl">page</span>
+    <div class="grp" id="pg-row"></div>
+  </div>
+  <div class="frame-wrap"><iframe id="site" src="/index.html"></iframe></div>
+
+<script>
+  // Swatch = the palette's page background + its link accent, pulled from palettes.css intent.
+  var PALS = [
+    { id: 'cosmic',  paper: '#06040f', link: '#a48cf0' },
+    { id: 'ember',   paper: '#120804', link: '#f2a23c' },
+    { id: 'aurora',  paper: '#04120c', link: '#5fd6a0' },
+    { id: 'inkwash', paper: '#0a0910', link: '#6fd58f' },
+    { id: 'toxic',   paper: '#05100a', link: '#9bff2e' }
+  ];
+  var PAGES = [
+    { id: 'home',  label: 'home',  url: '/index.html' },
+    { id: 'blog',  label: 'blog',  url: '/blog/' },
+    { id: 'post',  label: 'a post', url: '/blog/otherworldly/' },
+    { id: 'list',  label: 'list',  url: '/list/' },
+    { id: 'about', label: 'about', url: '/about/' }
+  ];
+
+  var frame = document.getElementById('site');
+  var current = localStorage.getItem('previewPalette') || 'cosmic';
+
+  function applyPalette(p) {
+    var doc = frame.contentDocument;
+    if (!doc || !doc.documentElement) return;
+    if (!doc.getElementById('palette-css')) {
+      var l = doc.createElement('link');
+      l.id = 'palette-css'; l.rel = 'stylesheet'; l.href = '/assets/css/palettes.css';
+      doc.head.appendChild(l);
+    }
+    var html = doc.documentElement;
+    if (p === '__dark')  { html.removeAttribute('data-palette'); html.setAttribute('data-theme', 'dark'); }
+    else if (p === '__light') { html.removeAttribute('data-palette'); html.setAttribute('data-theme', 'light'); }
+    else { html.setAttribute('data-theme', 'dark'); html.removeAttribute('data-accent'); html.setAttribute('data-palette', p); }
+  }
+
+  function setPalette(p) {
+    current = p;
+    localStorage.setItem('previewPalette', p);
+    applyPalette(p);
+    document.querySelectorAll('button.pal').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.dataset.pal === p ? 'true' : 'false');
+    });
+  }
+
+  // build palette buttons (insert before the two "current" buttons)
+  var palRow = document.getElementById('pal-row');
+  PALS.forEach(function (pl) {
+    var b = document.createElement('button');
+    b.className = 'pal'; b.dataset.pal = pl.id;
+    b.innerHTML = '<span class="sw" style="background:' + pl.paper + '"></span>'
+      + '<span class="sw" style="background:' + pl.link + '"></span>' + pl.id;
+    b.addEventListener('click', function () { setPalette(pl.id); });
+    palRow.appendChild(b);
+  });
+  document.querySelectorAll('button.pal[data-pal^="__"]').forEach(function (b) {
+    b.addEventListener('click', function () { setPalette(b.dataset.pal); });
+  });
+
+  // page quick-links
+  var pgRow = document.getElementById('pg-row');
+  PAGES.forEach(function (pg) {
+    var b = document.createElement('button');
+    b.className = 'pg'; b.textContent = pg.label;
+    b.addEventListener('click', function () { frame.src = pg.url; });
+    pgRow.appendChild(b);
+  });
+
+  // re-apply on every (re)load, including in-iframe navigation
+  frame.addEventListener('load', function () { applyPalette(current); });
+  // reflect initial pressed state
+  document.querySelectorAll('button.pal').forEach(function (b) {
+    b.setAttribute('aria-pressed', b.dataset.pal === current ? 'true' : 'false');
+  });
+</script>
+</body>
+</html>
