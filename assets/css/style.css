@@ -251,6 +251,10 @@ nav img:not([class*="size-"]) {
     line-height: 0;
     display: flex;
     align-items: center;
+    /* Room between the hr and the 4-star toggle. The hr's own margin-bottom is
+       capped by the catch-all `nav img:not([class*="size-"])` rule, so the gap lives
+       here, above the stars. Reset in the tablet/mobile (horizontal) nav below. */
+    margin-top: 2.25rem;
 }
 
 /* 4-star dropdown toggle. nav-dropdown.js swaps the <img> for a flex row of four
@@ -483,8 +487,12 @@ body.critters-calm .critter-motion--sway {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 1.45rem;               /* even, generous vertical rhythm — replaces the
-                                   tight, size-dependent per-item margins below */
+    /* No flex gap on purpose. Each menu word is a hand-drawn image scaled (via its
+       size-N class) so every word reads the same OPTICAL size — a taller/longer word
+       gets a bigger image and, by design, a smaller margin, so the visual rhythm
+       between the ink stays even. That size-aware spacing lives on the per-size
+       `nav img.size-N` "padding factor" margins; a uniform gap here flattens it.
+       Let the per-size margins own the vertical spacing. */
     padding: 0;
     margin: 0;
 }
@@ -496,14 +504,9 @@ body.critters-calm .critter-motion--sway {
     opacity: 0;                 /* hidden until the menu opens */
 }
 
-/* Spacing inside the menu is owned by .dropdown-list's gap, so drop the per-size
-   image/word margins here — they made the rhythm cramped and uneven (the bigger
-   the word, the smaller its gap). */
-.dropdown-item img,
-.dropdown-item .nav-temp-link {
-    margin-top: 0;
-    margin-bottom: 0;
-}
+/* Menu spacing is owned by the per-size `nav img.size-N` margins (the "padding
+   factor" system) so every hand-drawn word reads the same optical size with an even
+   rhythm — do NOT zero them here or add a uniform gap on .dropdown-list. */
 
 /* Breathing room between the four-star toggle and the first menu word. */
 .dropdown-trigger {
@@ -2365,6 +2368,7 @@ footer a img {
     .dropdown-trigger {
         height: auto;
         overflow: visible;
+        margin-top: 0;     /* horizontal top bar: no hr→4star gap */
         margin-bottom: 0;  /* desktop adds room below the stars; the top bar doesn't want it */
     }
 
@@ -2520,6 +2524,7 @@ footer a img {
         height: auto;
         overflow: visible;
         width: 100%;  /* Force dropdown to start on new row */
+        margin-top: 0;
         margin-bottom: 0;
     }
 
