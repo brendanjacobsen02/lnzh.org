@@ -110,8 +110,7 @@ git worktree remove ../lnzh-<name> && git branch -D <branch>
 ```
 
 If the push is rejected because `main` moved, rebase your branch on the new `origin/main`
-and push again. (`scripts/ship.sh` still exists but opens a PR first — skip it; direct push
-is the default now.) Always **report what you merged** afterward — the commit + what changed.
+and push again. Always **report what you merged** afterward — the commit + what changed.
 
 The one judgment call left to you: **don't push half-finished work to the live site.** If
 something genuinely isn't ready, leave it on its branch and tell me — that's about
