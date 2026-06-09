@@ -300,6 +300,33 @@
     </label>
   </div>
 
+  <div class="iris-tune" id="nova-tune">
+    <strong>💥 supernova ▸</strong>
+    <button class="pixel" id="btn-nova" type="button">💥 Replay supernova</button>
+    <label>palette
+      <select id="iris-nova-palette">
+        <option value="cosmic" selected>cosmic — violet/cyan</option>
+        <option value="ember">ember — warm solar</option>
+        <option value="aurora">aurora — site greens</option>
+        <option value="inkwash">inkwash — duotone</option>
+        <option value="toxic">toxic — green/blood</option>
+      </select>
+    </label>
+    <label>gas fill
+      <input type="range" id="iris-nova-fill" min="0" max="100" step="5" value="40">
+      <output id="iris-nova-fill-out">40%</output>
+    </label>
+    <label>star density
+      <input type="range" id="iris-nova-stars" min="0" max="12" step="0.5" value="3">
+      <output id="iris-nova-stars-out">3%</output>
+    </label>
+    <label>duration
+      <input type="range" id="iris-nova-dur" min="400" max="1200" step="50" value="600">
+      <output id="iris-nova-dur-out">600ms</output>
+    </label>
+    <label><input type="checkbox" id="iris-nova-burst" checked> burst outward (off = implode)</label>
+  </div>
+
   <div class="grid" id="swatches"></div>
 
   <div class="icons" id="icons"></div>
@@ -402,10 +429,36 @@
   // never blow out); bright warm STAR FLECKS are sparse pinpricks on a deep
   // SPACE backdrop. That contrast — a mostly-dark field with rare bright stars —
   // reads as a real nebula instead of a confetti rainbow.
-  var NEBULA_COLORS = ['#2a0d4e', '#3b1163', '#5a1a7a', '#7a1d6b',
-                       '#10314f', '#123a63', '#0e4d5c', '#1d6d7a'];
-  var NEBULA_SPACE = '#070512';
-  var NEBULA_FLECKS = ['#fff4d6', '#ffd9a0', '#ffe9b3', '#cfe8ff'];
+  // Supernova palettes. `gas` = deep low-luminance cloud hues (screen-blended so
+  // neighbours band into clouds, never white out), `space` = the dark backdrop,
+  // `flecks` = sparse bright star pinpricks. Presets span warm↔cool and
+  // generic-cosmic↔unmistakably-ours (aurora/inkwash pull the site's own accents).
+  var NOVA_PALETTES = {
+    cosmic:  { // the original — deep space violets/magentas + warm star flecks
+      gas:    ['#2a0d4e', '#3b1163', '#5a1a7a', '#7a1d6b', '#10314f', '#123a63', '#0e4d5c', '#1d6d7a'],
+      space:  '#070512',
+      flecks: ['#fff4d6', '#ffd9a0', '#ffe9b3', '#cfe8ff'] },
+    ember:   { // warm solar detonation — maroon/rust/amber gas, gold flecks
+      gas:    ['#3a0d0d', '#5e1410', '#7a2410', '#9a3a12', '#b85a18', '#7a3a0e', '#5a2a0c', '#8a4a14'],
+      space:  '#120603',
+      flecks: ['#ffe9b3', '#ffd27a', '#fff4d6', '#ffb866'] },
+    aurora:  { // the site's own greens/teals/violets — reads as ours, not stock
+      gas:    ['#0e3a24', '#11512f', '#1a6d4a', '#0e4d5c', '#1d6d7a', '#2a5a6a', '#3a2a5a', '#4a2a6a'],
+      space:  '#04120c',
+      flecks: ['#caffd6', '#cffaff', '#e9ffe0', '#bff0d0'] },
+    inkwash: { // restrained duotone — paper/ink gas, accent-green sparks
+      gas:    ['#14131a', '#1c1b24', '#26242f', '#322f3c', '#1a1820', '#2a2733', '#201e28', '#36333f'],
+      space:  '#0a0910',
+      flecks: ['#f2f2e4', '#fffdf4', '#3fd06a', '#e8e6d6'] },
+    toxic:   { // playful punk — toxic green + blood-red sparks
+      gas:    ['#0c3a10', '#114d16', '#1a6b1e', '#2a7a12', '#7a1010', '#9a1414', '#5a0e0e', '#3a6b12'],
+      space:  '#05100a',
+      flecks: ['#9bff2e', '#ff2424', '#ffe9b3', '#caffa0'] }
+  };
+  function novaPalette() {
+    var sel = document.getElementById('iris-nova-palette');
+    return (sel && NOVA_PALETTES[sel.value]) || NOVA_PALETTES.cosmic;
+  }
   // Brightness-offset a hex color by +/- delta per channel (ADDITIVE, so even
   // pure-black ink picks up grain instead of staying flat). Returns rgb().
   function shadeColor(hex, delta) {
@@ -443,11 +496,18 @@
     var nova = document.getElementById('iris-nova-force').checked
             || Math.random() < (+document.getElementById('iris-nova-rate').value / 100);
     if (nova) { ringDelay = Math.round(ringDelay * 1.7); bloom = 14; }  // big bloom was the white-out
+    // Nova look knobs (read live from the supernova control block).
+    var novaDur   = +document.getElementById('iris-nova-dur').value;          // ms the cloud lingers
+    var gasFill   = +document.getElementById('iris-nova-fill').value / 100;   // cloud fullness 0..1
+    var starPct   = +document.getElementById('iris-nova-stars').value / 100;  // fraction of cells = flecks
+    var novaBurst = document.getElementById('iris-nova-burst').checked;       // true = ignite center→out
+    var novaPal   = novaPalette();
     var W = window.innerWidth, Hh = window.innerHeight;
     var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL);
     return {
       CELL: CELL, ringDelay: ringDelay, wild: wild, bloom: bloom, nova: nova, noise: noise,
       outgoing: outgoing, glow: glow, W: W, Hh: Hh, cols: cols, rows: rows,
+      novaDur: novaDur, gasFill: gasFill, starPct: starPct, novaBurst: novaBurst, novaPal: novaPal,
       cellW: W / cols, cellH: Hh / rows, cx: (cols - 1) / 2, cy: (rows - 1) / 2,
       grainMs: ringDelay * (0.6 + wild * 1.8)
     };
@@ -487,9 +547,9 @@
     var maxRing = Math.round(maxEff);
     var delay = new Float64Array(total);
     for (var i = 0; i < total; i++) {
-      // nova bursts OUTWARD (center ignites first); the iris closes IN (outer first).
+      // nova (burst) ignites center→out; iris + imploding nova clear outer→in.
       var ring = Math.round(eff[i]);
-      var dl = (p.nova ? ring : (maxRing - ring)) * p.ringDelay + Math.random() * p.grainMs;
+      var dl = ((p.nova && p.novaBurst) ? ring : (maxRing - ring)) * p.ringDelay + Math.random() * p.grainMs;
       delay[i] = dl < 0 ? 0 : dl;
     }
     return { delay: delay, maxRing: maxRing };
@@ -543,15 +603,16 @@
     // Per-cell glow color, noised once for grain (so even the common ink flash is
     // grainy, not flat); for nova each cell gets its OWN vivid color -> a colorful
     // supernova. Stable per block so it reads as texture, not per-frame flicker.
+    var pal = p.novaPal;
     var cellGlow = new Array(p.cols * p.rows);
     for (var s = 0; s < cellGlow.length; s++) {
-      var base = nova ? NEBULA_COLORS[(Math.random() * NEBULA_COLORS.length) | 0] : p.glow;
+      var base = nova ? pal.gas[(Math.random() * pal.gas.length) | 0] : p.glow;
       cellGlow[s] = shadeColor(base, ((Math.random() - 0.5) * 2 * p.noise * 120) | 0);
     }
-    // nova only: ~3% of cells are bright star flecks; the rest are deep gas on space.
+    // nova only: a tunable fraction of cells are bright star flecks; rest = deep gas on space.
     var isFleck = new Uint8Array(p.cols * p.rows);
-    if (nova) { for (var fk = 0; fk < isFleck.length; fk++) { isFleck[fk] = Math.random() < 0.03 ? 1 : 0; } }
-    var baseFill = nova ? NEBULA_SPACE : p.outgoing;
+    if (nova) { for (var fk = 0; fk < isFleck.length; fk++) { isFleck[fk] = Math.random() < p.starPct ? 1 : 0; } }
+    var baseFill = nova ? pal.space : p.outgoing;
 
     function draw(t) {
       ctx.clearRect(0, 0, p.W, p.Hh);
@@ -571,7 +632,7 @@
           if (bloom > 0) {
             if (nova) {                                  // screen -> deep gas, never white
               ctx.globalCompositeOperation = 'screen';
-              ctx.globalAlpha = 0.22 * cover; ctx.fillStyle = gc;
+              ctx.globalAlpha = (0.10 + p.gasFill * 0.45) * cover; ctx.fillStyle = gc;
               ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
               ctx.globalCompositeOperation = 'source-over';
             } else {
@@ -587,7 +648,7 @@
         if (nova && isFleck[i] && ph > 0.08 && ph < 0.72) {
           ctx.globalCompositeOperation = 'lighter';
           ctx.globalAlpha = (0.5 + Math.random() * 0.5) * cover;
-          ctx.fillStyle = NEBULA_FLECKS[i & 3];
+          ctx.fillStyle = pal.flecks[i & 3];
           var q = (cw >> 1) || 2;
           ctx.fillRect(x + (q >> 1), y + (q >> 1), q, q);
           ctx.globalCompositeOperation = 'source-over';
@@ -647,7 +708,7 @@
     busy = true;
     var p = irisParams();
     var d = buildDelays(p);
-    var DUR = p.nova ? 600 : 320; // supernova lingers + flares longer
+    var DUR = p.nova ? p.novaDur : 320; // supernova lingers + flares longer
     var endT = d.maxRing * p.ringDelay + p.grainMs + DUR + 80;
     if (document.getElementById('iris-renderer').value === 'dom') {
       irisRenderDOM(p, d, DUR, endT, next);
@@ -826,6 +887,13 @@
   });
 
   document.getElementById('btn-iris').addEventListener('click', irisCloseIn);
+  // Dedicated supernova replay: force a nova for this one flip, then restore the toggle.
+  document.getElementById('btn-nova').addEventListener('click', function () {
+    var f = document.getElementById('iris-nova-force'), prev = f.checked;
+    f.checked = true;
+    irisCloseIn();       // reads nova-force synchronously before returning
+    f.checked = prev;
+  });
   document.getElementById('btn-dissolve').addEventListener('click', pixelDissolve);
   document.getElementById('btn-crt').addEventListener('click', crtPowerCycle);
   document.getElementById('btn-instant').addEventListener('click', function () {
@@ -843,6 +911,9 @@
   bindOut('iris-bloom', 'iris-bloom-out', 'px');
   bindOut('iris-ink', 'iris-ink-out', '%');
   bindOut('iris-noise', 'iris-noise-out', '%');
+  bindOut('iris-nova-fill', 'iris-nova-fill-out', '%');
+  bindOut('iris-nova-stars', 'iris-nova-stars-out', '%');
+  bindOut('iris-nova-dur', 'iris-nova-dur-out', 'ms');
   // supernova rarity readout as "1 in N"
   (function () {
     var i = document.getElementById('iris-nova-rate'), o = document.getElementById('iris-nova-out');
