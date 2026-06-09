@@ -324,18 +324,29 @@ nav img:not([class*="size-"]) {
     animation-delay: calc(var(--i) * 0.05s);
 }
 
-/* Sidebar attention glow — triggered by the homepage "explore the sidebar!" link */
-@keyframes navGlow {
-    0%, 100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }
-    22% {
-        background-color: color-mix(in srgb, var(--link) 26%, transparent);
-        box-shadow: 0 0 34px 6px color-mix(in srgb, var(--link) 55%, transparent);
-    }
+/* Sidebar attention jiggle — the homepage "explore the sidebar!" link ripples a
+   playful hand-drawn wobble top→down through every nav element (logo, stars, words).
+   Per-element animation-delay is set in nav-dropdown.js so the cascade follows DOM
+   order no matter how the markup nests. Reduced-motion neutralizes it via the
+   global animation-duration catch-all near the end of this file. */
+@keyframes navJiggle {
+    0%   { transform: rotate(0deg)    translateY(0)    scale(1); }
+    16%  { transform: rotate(-6deg)   translateY(-3px) scale(1.06); }
+    34%  { transform: rotate(5deg)    translateY(0)    scale(1.04); }
+    52%  { transform: rotate(-3.5deg) translateY(-1px) scale(1.02); }
+    70%  { transform: rotate(2deg)    translateY(0)    scale(1.01); }
+    85%  { transform: rotate(-1deg)   translateY(0)    scale(1); }
+    100% { transform: rotate(0deg)    translateY(0)    scale(1); }
 }
 
-nav.nav-glow {
-    animation: navGlow 0.9s ease-out 2;
-    border-radius: 0 16px 16px 0;
+.nav-jiggling {
+    animation: navJiggle 0.62s cubic-bezier(0.34, 1.25, 0.5, 1) both;
+    transform-origin: left center;
+}
+
+/* Stars pivot from their footing, like the idle/hop animations. */
+.nav-star.nav-jiggling {
+    transform-origin: bottom center;
 }
 
 /* ==========================================================================
@@ -472,6 +483,8 @@ body.critters-calm .critter-motion--sway {
     list-style: none;
     display: flex;
     flex-direction: column;
+    gap: 1.45rem;               /* even, generous vertical rhythm — replaces the
+                                   tight, size-dependent per-item margins below */
     padding: 0;
     margin: 0;
 }
@@ -481,6 +494,20 @@ body.critters-calm .critter-motion--sway {
     align-items: center;
     gap: 0.5rem;
     opacity: 0;                 /* hidden until the menu opens */
+}
+
+/* Spacing inside the menu is owned by .dropdown-list's gap, so drop the per-size
+   image/word margins here — they made the rhythm cramped and uneven (the bigger
+   the word, the smaller its gap). */
+.dropdown-item img,
+.dropdown-item .nav-temp-link {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* Breathing room between the four-star toggle and the first menu word. */
+.dropdown-trigger {
+    margin-bottom: 1.15rem;
 }
 
 /* Open: each word drops in with a small bounce, echoing the stars.
@@ -2338,6 +2365,7 @@ footer a img {
     .dropdown-trigger {
         height: auto;
         overflow: visible;
+        margin-bottom: 0;  /* desktop adds room below the stars; the top bar doesn't want it */
     }
 
     .dropdown-content {
@@ -2492,6 +2520,7 @@ footer a img {
         height: auto;
         overflow: visible;
         width: 100%;  /* Force dropdown to start on new row */
+        margin-bottom: 0;
     }
 
     .dropdown-content {
