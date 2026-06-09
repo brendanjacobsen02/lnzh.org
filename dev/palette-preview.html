@@ -69,6 +69,12 @@
       l.id = 'palette-css'; l.rel = 'stylesheet'; l.href = '/assets/css/palettes.css';
       doc.head.appendChild(l);
     }
+    // lingering-supernova glint (self-gates on data-palette="cosmic")
+    if (!doc.getElementById('nebula-glint-js')) {
+      var sc = doc.createElement('script');
+      sc.id = 'nebula-glint-js'; sc.src = '/assets/js/nebula-glint.js';
+      doc.body.appendChild(sc);
+    }
     var html = doc.documentElement;
     if (p === '__dark')  { html.removeAttribute('data-palette'); html.setAttribute('data-theme', 'dark'); }
     else if (p === '__light') { html.removeAttribute('data-palette'); html.setAttribute('data-theme', 'light'); }

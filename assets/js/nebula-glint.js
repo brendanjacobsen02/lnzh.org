@@ -1,0 +1,158 @@
+/*
+ * nebula-glint.js — ambient "lingering supernova" for the special nebula mode.
+ *
+ * A whisper-quiet pixel starfield drawn behind everything: sparse warm/icy
+ * flecks that mostly sit near-invisible and occasionally GLINT (a brief sharp
+ * flare, then fade), plus a few barely-there gas motes drifting for depth — as
+ * if the supernova burst settled and a little of it stayed.
+ *
+ * On-brand, not generic: pixel squares (image-rendering: pixelated) echoing the
+ * 8-bit theme-toggle/supernova, NOT soft glowy particle-js dots. Deliberately
+ * non-intrusive — low alpha, slow, sparse.
+ *
+ * Gated on the special mode: runs only while <html data-palette="cosmic">.
+ * A MutationObserver starts/stops it as the palette flips. Canvas sits at
+ * z-index:-1 (above the page background, below content), like critter-layer--back.
+ * Reduced-motion → a single static sprinkle, no animation.
+ */
+(function () {
+  'use strict';
+  if (window.__nebulaGlint) return;            // single init per document
+  window.__nebulaGlint = true;
+
+  var FLECKS = ['#fff4d6', '#ffd9a0', '#ffe9b3', '#cfe8ff', '#cfe8ff'];  // warm + a little ice
+  var GAS    = ['#5a1aa0', '#2a3fb0', '#0e6d8c'];                        // deep nebula motes
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var canvas, ctx, W, H, dpr, flecks, motes, raf = 0, running = false, t0 = 0;
+
+  function isActive() {
+    return document.documentElement.getAttribute('data-palette') === 'cosmic';
+  }
+
+  function build() {
+    var area = W * H;
+    var n = Math.round(area / 15000);                 // sparse: ~80 on a 1440×900
+    n = Math.max(24, Math.min(160, n));
+    flecks = [];
+    for (var i = 0; i < n; i++) {
+      flecks.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        s: 1 + Math.floor(Math.random() * 3),         // 1–3 px pixel squares
+        c: FLECKS[(Math.random() * FLECKS.length) | 0],
+        base: 0.04 + Math.random() * 0.12,            // resting brightness (dim)
+        tw: 0.4 + Math.random() * 0.9,                // twinkle speed
+        ph: Math.random() * 6.2832,                   // twinkle phase
+        vx: (Math.random() - 0.5) * 0.03,             // very slow drift
+        vy: (Math.random() - 0.5) * 0.03,
+        glint: 0                                       // active glint envelope 0..1
+      });
+    }
+    motes = [];
+    var m = Math.max(2, Math.round(area / 520000));    // 2–4 faint gas motes
+    for (var k = 0; k < m; k++) {
+      motes.push({
+        x: Math.random() * W, y: Math.random() * H,
+        r: 70 + Math.random() * 120,
+        c: GAS[(Math.random() * GAS.length) | 0],
+        a: 0.03 + Math.random() * 0.035,              // barely there
+        tw: 0.12 + Math.random() * 0.18, ph: Math.random() * 6.2832,
+        vx: (Math.random() - 0.5) * 0.05, vy: (Math.random() - 0.5) * 0.05
+      });
+    }
+  }
+
+  function size() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    build();
+  }
+
+  function drawFrame(t) {
+    ctx.clearRect(0, 0, W, H);
+
+    // faint drifting gas — screen-blended so motes glow like the supernova gas
+    ctx.globalCompositeOperation = 'screen';
+    for (var j = 0; j < motes.length; j++) {
+      var mo = motes[j];
+      mo.x += mo.vx; mo.y += mo.vy;
+      if (mo.x < -mo.r) mo.x = W + mo.r; else if (mo.x > W + mo.r) mo.x = -mo.r;
+      if (mo.y < -mo.r) mo.y = H + mo.r; else if (mo.y > H + mo.r) mo.y = -mo.r;
+      var pulse = mo.a * (0.7 + 0.3 * Math.sin(t * 0.001 * mo.tw + mo.ph));
+      var g = ctx.createRadialGradient(mo.x, mo.y, 0, mo.x, mo.y, mo.r);
+      g.addColorStop(0, mo.c); g.addColorStop(1, 'transparent');
+      ctx.globalAlpha = pulse; ctx.fillStyle = g;
+      ctx.fillRect(mo.x - mo.r, mo.y - mo.r, mo.r * 2, mo.r * 2);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+
+    // pixel star-flecks: gentle twinkle, rare sharp glint
+    for (var i = 0; i < flecks.length; i++) {
+      var f = flecks[i];
+      f.x += f.vx; f.y += f.vy;
+      if (f.x < 0) f.x += W; else if (f.x > W) f.x -= W;
+      if (f.y < 0) f.y += H; else if (f.y > H) f.y -= H;
+      var a = f.base + 0.06 * Math.sin(t * 0.001 * f.tw + f.ph);
+      if (f.glint <= 0 && Math.random() < 0.0009) f.glint = 1;   // ignite a glint
+      if (f.glint > 0) {
+        a += f.glint * 0.6;                                       // flare up to ~0.7
+        f.glint -= 0.018;                                         // ~1s decay
+      }
+      if (a <= 0.01) continue;
+      ctx.globalAlpha = a > 0.85 ? 0.85 : a;
+      ctx.fillStyle = f.c;
+      ctx.fillRect(f.x | 0, f.y | 0, f.s, f.s);
+      if (f.glint > 0.45) {                                       // tiny cross at peak glint
+        ctx.globalAlpha = (f.glint - 0.45) * 0.5;
+        ctx.fillRect((f.x | 0) - f.s, f.y | 0, f.s * 3, 1);
+        ctx.fillRect(f.x | 0, (f.y | 0) - f.s, 1, f.s * 3);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function loop(now) {
+    if (!running) return;
+    if (!t0) t0 = now;
+    drawFrame(now - t0);
+    raf = requestAnimationFrame(loop);
+  }
+
+  function start() {
+    if (running) return;
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.className = 'nebula-glint-layer';
+      canvas.setAttribute('aria-hidden', 'true');
+      canvas.style.cssText = 'position:fixed;inset:0;z-index:-1;pointer-events:none;'
+        + 'image-rendering:pixelated;';
+      ctx = canvas.getContext('2d');
+      document.body.appendChild(canvas);
+      window.addEventListener('resize', size, { passive: true });
+    }
+    canvas.style.display = 'block';
+    size();
+    if (reduce) { drawFrame(0); return; }     // static sprinkle, no animation
+    running = true; t0 = 0; raf = requestAnimationFrame(loop);
+  }
+
+  function stop() {
+    running = false;
+    if (raf) cancelAnimationFrame(raf);
+    if (canvas) { ctx.clearRect(0, 0, W, H); canvas.style.display = 'none'; }
+  }
+
+  function sync() { if (isActive()) start(); else stop(); }
+
+  function init() {
+    new MutationObserver(sync).observe(document.documentElement,
+      { attributes: true, attributeFilter: ['data-palette'] });
+    sync();
+  }
+  if (document.body) init();
+  else document.addEventListener('DOMContentLoaded', init);
+})();
