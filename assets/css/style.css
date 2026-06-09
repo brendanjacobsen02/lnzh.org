@@ -259,6 +259,82 @@ nav.nav-glow {
     animation: navGlow 1.2s ease-in-out 2;
 }
 
+/* ==========================================================================
+   Hand-drawn UI kit — drawn frames + clipart slots.
+   Property-driven + asset-swappable: add `has-frame`/`has-art` and point
+   --frame-src / --slot-src at a hand-drawn PNG and the art appears. With no art,
+   frames are invisible and empty slots collapse, so the live page never
+   regresses. 9-slice border-image keeps linework crisp (corners fixed, edges
+   repeat). Add ?guide to the URL (or press "g") to reveal the slots for drawing.
+   ========================================================================== */
+.drawn-frame {
+    --frame-pad: 1.5rem;
+    position: relative;
+    padding: var(--frame-pad);
+}
+
+.drawn-frame.has-frame {
+    --frame-src: none;
+    --frame-slice: 48;       /* px of the source treated as corner/edge regions */
+    --frame-width: 26px;     /* rendered border thickness on screen */
+    --frame-repeat: repeat;  /* repeat | round | space | stretch */
+    border: var(--frame-width) solid transparent;
+    border-image: var(--frame-src) var(--frame-slice) / var(--frame-width) / 0 var(--frame-repeat);
+}
+
+html[data-theme="dark"] .drawn-frame.has-frame {
+    border-image-source: var(--frame-src-dark, var(--frame-src));
+}
+
+.drawn-slot {
+    --slot-ratio: 1;
+    display: none;           /* empty slots take no space in production */
+    width: 100%;
+    aspect-ratio: var(--slot-ratio);
+    background: var(--slot-src, none) center / contain no-repeat;
+}
+
+.drawn-slot.has-art {
+    display: block;
+}
+
+html[data-theme="dark"] .drawn-slot.has-art {
+    background-image: var(--slot-src-dark, var(--slot-src));
+}
+
+/* ---- Guide mode: reveal empty frames/slots so you can see where to draw ---- */
+body.draw-guide .drawn-frame:not(.has-frame) {
+    outline: 2px dashed var(--link);
+    outline-offset: 6px;
+}
+
+body.draw-guide .drawn-slot:not(.has-art) {
+    display: block;
+    position: relative;
+    min-height: 72px;
+    outline: 2px dashed var(--cat-coral);
+    outline-offset: -2px;
+}
+
+body.draw-guide .drawn-frame:not(.has-frame)::before,
+body.draw-guide .drawn-slot:not(.has-art)::before {
+    content: "✎ " attr(data-guide);
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--link);
+    background: var(--paper);
+    padding: 0 4px;
+    pointer-events: none;
+}
+
+body.draw-guide .drawn-slot:not(.has-art)::before {
+    color: var(--cat-coral);
+}
+
 .dropdown-content {
     overflow: hidden;
     transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
