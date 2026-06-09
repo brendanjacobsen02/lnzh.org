@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rejectSentenceButton = document.getElementById('sentence-reject');
     const blackoutToggle = document.getElementById('blackout-toggle');
     const copyButton = document.getElementById('copy-writing');
+    const downloadButton = document.getElementById('download-writing');
     const confirmationToggle = document.getElementById('confirmation-toggle');
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsPanel = document.getElementById('settings-panel');
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         !rejectSentenceButton ||
         !blackoutToggle ||
         !copyButton ||
+        !downloadButton ||
         !confirmationToggle ||
         !settingsToggle ||
         !settingsPanel ||
@@ -80,6 +82,31 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'd' + Date.now() + '-' + Math.floor(Math.random() * 1e6);
     }
 
+    function downloadText(filename, text) {
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    function spawnSparkle(x, y) {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+        const sparkle = document.createElement('span');
+        sparkle.className = 'writing-sparkle';
+        sparkle.textContent = '✦';
+        sparkle.style.left = x + 'px';
+        sparkle.style.top = y + 'px';
+        document.body.append(sparkle);
+        sparkle.addEventListener('animationend', () => sparkle.remove());
+    }
+
     function keptSentences() {
         return reviewedSentences
             .filter((sentence) => sentence.keep)
@@ -98,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateControls() {
         const hasText = draftText().length > 0;
         copyButton.disabled = !hasText;
+        downloadButton.disabled = !hasText;
         renderStats();
     }
 
@@ -127,6 +155,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const actions = document.createElement('div');
             actions.className = 'draft-actions';
 
+            const copyDraftButton = document.createElement('button');
+            copyDraftButton.type = 'button';
+            copyDraftButton.textContent = 'copy';
+            copyDraftButton.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(draft.text);
+                    showToast('Copied.');
+                } catch (err) {
+                    showToast('Copy failed.');
+                }
+            });
+
+            const downloadDraftButton = document.createElement('button');
+            downloadDraftButton.type = 'button';
+            downloadDraftButton.textContent = 'download';
+            downloadDraftButton.addEventListener('click', () => {
+                downloadText('draft-' + core.pad2(index + 1) + '.txt', draft.text);
+                showToast('Downloaded.');
+            });
+
             const deleteButton = document.createElement('button');
             deleteButton.type = 'button';
             deleteButton.textContent = 'delete';
@@ -140,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            actions.append(deleteButton);
+            actions.append(copyDraftButton, downloadDraftButton, deleteButton);
             draftElement.append(label, text, actions);
             draftList.prepend(draftElement);
         });
@@ -275,6 +323,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         reviewedSentences[activeSentenceIndex].keep = true;
+        const rect = keepPopover.getBoundingClientRect();
+        spawnSparkle(rect.left + rect.width / 2, rect.top);
         activeSentenceIndex = -1;
         keepPopover.hidden = true;
         renderSentences();
@@ -311,6 +361,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             showToast('Copy failed.');
         }
+    });
+
+    downloadButton.addEventListener('click', () => {
+        const text = draftText();
+        if (!text) {
+            return;
+        }
+        downloadText('writing-draft.txt', text);
+        showToast('Downloaded.');
     });
 
     renderSentences();
