@@ -237,17 +237,32 @@ nav img:not([class*="size-"]) {
     align-items: center;
 }
 
+/* 4-star dropdown toggle. nav-dropdown.js swaps the <img> for a flex row of four
+   background-sliced <span class="nav-star">, so each star animates on its own.
+   --star-src / --star-aspect are set by the JS from the source PNG (asset-swappable,
+   like the .drawn-* kit). The bare-<img> rules below are the no-JS fallback. */
 .nav-dropdown-toggle {
-    width: auto;
     height: 1.25rem;
+    width: auto;
     display: block;
     object-fit: contain;
     object-position: left center;
-    transition: transform 0.6s cubic-bezier(0.68, -0.4, 0.265, 1.35);
 }
 
-.dropdown-trigger.active .nav-dropdown-toggle {
-    transform: rotate(180deg) scale(1.1);
+.fourstar.nav-dropdown-toggle {
+    display: flex;
+    width: calc(1.25rem * var(--star-aspect, 2.2419));
+}
+
+.nav-star {
+    flex: 1;
+    height: 100%;
+    background-image: var(--star-src);
+    background-repeat: no-repeat;
+    background-size: 400% 100%;                         /* strip = 4× one slice */
+    background-position-x: calc(var(--i) * 33.3333%);   /* 0 / 33.33 / 66.67 / 100% */
+    background-position-y: center;
+    transform-origin: bottom center;
 }
 
 /* Sidebar attention glow — triggered by the homepage "explore the sidebar!" link */
