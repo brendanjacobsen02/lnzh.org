@@ -1,5 +1,5 @@
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 /* ==========================================================================
    Theme tokens
@@ -21,6 +21,9 @@
     --faint: #999;        /* faint / disabled text */
     --backdrop: #111;     /* opaque near-black fill (redaction blackout) */
     --accent: #111;       /* form control accent (checkbox tick) */
+
+    /* Mono chrome face (writing page UI labels, HUD, buttons) */
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
     /* Lines */
     --line: #ccc;            /* default hairline */
@@ -1873,5 +1876,135 @@ footer a img {
     * {
         transition-duration: 0.01ms !important;
         transition-delay: 0ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
     }
+}
+
+/* ==========================================================================
+   Writing page — tech-minimalist + light retro-arcade
+   All color via existing theme variables so dark mode + the accent picker
+   recolor it for free. No new image assets (decoration is swappable).
+   ========================================================================== */
+.writing-tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0.1rem 0 0;
+}
+
+.sentence-stream {
+    min-height: 13rem;
+    padding: 1.25rem 1.35rem;
+    border: 1px solid rgba(var(--text-rgb), 0.22);
+    background:
+        linear-gradient(var(--paper-raised), var(--paper-raised)) padding-box,
+        repeating-linear-gradient(0deg, rgba(var(--text-rgb), 0.035) 0 1px, transparent 1px 9px),
+        repeating-linear-gradient(90deg, rgba(var(--text-rgb), 0.035) 0 1px, transparent 1px 9px);
+    line-height: 1.75;
+    white-space: normal;
+    cursor: text;
+    box-shadow: inset 0 1px 0 var(--inset-highlight);
+    caret-color: var(--link);
+}
+
+/* Idle "ready" block cursor — shown only when the editor is empty. The live
+   editing caret is tinted via caret-color above; a true block caret cannot be
+   reshaped mid-text on a contenteditable, so the block is an idle-only prompt. */
+.sentence-stream:not(.has-sentences) .sentence-input-inline:empty::after {
+    content: "";
+    display: inline-block;
+    width: 0.5em;
+    height: 1.02em;
+    margin-left: 1px;
+    vertical-align: -2px;
+    background: var(--link);
+    animation: writingBlink 1.05s steps(1) infinite;
+}
+
+@keyframes writingBlink {
+    50% { opacity: 0; }
+}
+
+/* HUD scoreboard */
+.writing-hud {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.writing-hud b {
+    color: var(--link);
+    font-weight: 600;
+}
+
+/* Boxy arcade controls */
+.writing-actions .filter-btn,
+.settings-toggle {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    box-shadow: 2px 2px 0 rgba(var(--shadow-rgb), 0.14);
+}
+
+.writing-actions .filter-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 rgba(var(--shadow-rgb), 0.14);
+}
+
+/* Drafts list chrome */
+.completed-drafts h2,
+.completed-draft-label,
+.draft-actions button {
+    font-family: var(--mono);
+}
+
+.completed-draft-label {
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.draft-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+}
+
+.draft-actions button {
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.45rem;
+    border: 1px solid rgba(var(--text-rgb), 0.3);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.draft-actions button:hover {
+    opacity: 0.65;
+}
+
+/* Sparkle that pops when a sentence is kept */
+.writing-sparkle {
+    position: fixed;
+    z-index: 25;
+    color: var(--link);
+    pointer-events: none;
+    font-size: 1rem;
+    animation: writingSparkle 0.7s ease-out forwards;
+}
+
+@keyframes writingSparkle {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    35% { opacity: 1; transform: translate(-50%, -90%) scale(1.15); }
+    100% { opacity: 0; transform: translate(-50%, -150%) scale(0.9); }
 }
