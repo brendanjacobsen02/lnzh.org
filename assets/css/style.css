@@ -245,22 +245,6 @@ nav img:not([class*="size-"]) {
     transition: transform 0.6s cubic-bezier(0.68, -0.4, 0.265, 1.35);
 }
 
-/* Blinking box for first-time visitors */
-@keyframes blinkBorder {
-    0%, 100% {
-        outline: 2px solid var(--line-strong);
-        outline-offset: 4px;
-    }
-    50% {
-        outline: 2px solid transparent;
-        outline-offset: 4px;
-    }
-}
-
-.dropdown-trigger.first-visit-hint .nav-dropdown-toggle {
-    animation: blinkBorder 1s ease-in-out infinite;
-}
-
 .dropdown-trigger.active .nav-dropdown-toggle {
     transform: rotate(180deg) scale(1.1);
 }

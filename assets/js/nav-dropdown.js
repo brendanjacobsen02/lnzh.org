@@ -14,20 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     const dropdownTriggers = document.querySelectorAll('nav .dropdown-trigger');
 
-    // Show blinking hint on first visit
-    const hasVisited = localStorage.getItem('hasVisitedSite');
-    if (!hasVisited && dropdownTriggers.length > 0) {
-        const navDropdown = dropdownTriggers[0];
-        navDropdown.classList.add('first-visit-hint');
-
-        // Remove hint when clicked
-        navDropdown.addEventListener('click', function removeHint() {
-            navDropdown.classList.remove('first-visit-hint');
-            localStorage.setItem('hasVisitedSite', 'true');
-            navDropdown.removeEventListener('click', removeHint);
-        }, { once: true });
-    }
-
     // Handle "open-sidebar" link on homepage
     const openSidebarLink = document.getElementById('open-sidebar');
     if (openSidebarLink) {
@@ -44,9 +30,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const dropdownContent = dropdownTrigger.nextElementSibling;
 
         if (dropdownContent && dropdownContent.classList.contains('dropdown-content')) {
-            // Check localStorage for saved state
+            // Open by default; only collapsed if the visitor explicitly closed it.
             const storageKey = `dropdownExpanded_${index}`;
-            const isExpanded = localStorage.getItem(storageKey) === 'true';
+            const isExpanded = localStorage.getItem(storageKey) !== 'false';
 
             // On mobile/tablet (≤1024px), always start collapsed
             const isMobileOrTablet = window.innerWidth <= 1024;
