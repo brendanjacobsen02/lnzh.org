@@ -22,9 +22,10 @@
 
   var FLECKS = ['#fff4d6', '#ffd9a0', '#ffe9b3', '#cfe8ff', '#cfe8ff'];  // warm + a little ice
   var GAS    = ['#5a1aa0', '#2a3fb0', '#0e6d8c'];                        // deep nebula motes
+  var FLARE_GAS = ['#5a1a7a', '#7a1d6b', '#43135e', '#123a63', '#0e4d5c', '#1d6d7a']; // supernova gas
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var canvas, ctx, W, H, dpr, flecks, motes, raf = 0, running = false, t0 = 0;
+  var canvas, ctx, W, H, dpr, flecks, motes, flares, nextFlare, raf = 0, running = false, t0 = 0;
 
   function isActive() {
     return document.documentElement.getAttribute('data-palette') === 'cosmic';
@@ -32,8 +33,8 @@
 
   function build() {
     var area = W * H;
-    var n = Math.round(area / 15000);                 // sparse: ~80 on a 1440×900
-    n = Math.max(24, Math.min(160, n));
+    var n = Math.round(area / 11000);                 // a touch denser: ~115 on a 1440×900
+    n = Math.max(32, Math.min(200, n));
     flecks = [];
     for (var i = 0; i < n; i++) {
       flecks.push({
@@ -41,7 +42,7 @@
         y: Math.random() * H,
         s: 1 + Math.floor(Math.random() * 3),         // 1–3 px pixel squares
         c: FLECKS[(Math.random() * FLECKS.length) | 0],
-        base: 0.04 + Math.random() * 0.12,            // resting brightness (dim)
+        base: 0.05 + Math.random() * 0.14,            // resting brightness (dim)
         tw: 0.4 + Math.random() * 0.9,                // twinkle speed
         ph: Math.random() * 6.2832,                   // twinkle phase
         vx: (Math.random() - 0.5) * 0.03,             // very slow drift
@@ -61,6 +62,33 @@
         vx: (Math.random() - 0.5) * 0.05, vy: (Math.random() - 0.5) * 0.05
       });
     }
+    flares = [];
+    nextFlare = 700 + Math.random() * 1400;            // first flare soon after start
+  }
+
+  // A small supernova-flavoured flare: a ragged patch of pixel nebula gas + a few
+  // bright flecks that ignites and dissolves at (cx,cy). Born at time `t`.
+  function spawnFlare(t) {
+    var cx = Math.random() * W, cy = Math.random() * H;
+    var R = 55 + Math.random() * 100;
+    var CELL = 12 + (Math.random() * 8 | 0);
+    var cells = [];
+    for (var y = cy - R; y < cy + R; y += CELL) {
+      for (var x = cx - R; x < cx + R; x += CELL) {
+        var d = Math.hypot(x - cx, y - cy) / R;
+        if (d > 1) continue;
+        if (Math.random() > (1 - d * d) * 0.85 + 0.1) continue;   // dense core, ragged edge
+        cells.push({ x: x | 0, y: y | 0, s: CELL + 1, ring: d,
+                     c: FLARE_GAS[(Math.random() * FLARE_GAS.length) | 0] });
+      }
+    }
+    var flk = [], nf = 3 + (Math.random() * 4 | 0);
+    for (var i = 0; i < nf; i++) {
+      flk.push({ x: (cx + (Math.random() - 0.5) * R * 1.4) | 0,
+                 y: (cy + (Math.random() - 0.5) * R * 1.4) | 0,
+                 c: FLECKS[(Math.random() * FLECKS.length) | 0] });
+    }
+    flares.push({ cells: cells, flecks: flk, born: t, life: 1500 + Math.random() * 1100 });
   }
 
   function size() {
@@ -90,6 +118,38 @@
     }
     ctx.globalCompositeOperation = 'source-over';
 
+    // occasional supernova FLARES — a patch igniting + dissolving, here and there
+    if (t > nextFlare && flares.length < 2) {
+      spawnFlare(t);
+      nextFlare = t + 2000 + Math.random() * 3000;
+    }
+    for (var q = flares.length - 1; q >= 0; q--) {
+      var fl = flares[q];
+      var e = (t - fl.born) / fl.life;
+      if (e >= 1) { flares.splice(q, 1); continue; }
+      var env = e < 0.16 ? e / 0.16 : 1 - (e - 0.16) / 0.84;          // quick ignite, slow fade
+      if (env < 0) env = 0;
+      var spike = ((e > 0.10 && e < 0.20) || (e > 0.34 && e < 0.44)) ? 1.3 : 1; // nova flicker
+      ctx.globalCompositeOperation = 'screen';
+      for (var ci = 0; ci < fl.cells.length; ci++) {
+        var cc = fl.cells[ci];
+        ctx.globalAlpha = env * spike * (0.16 + (1 - cc.ring) * 0.34);
+        ctx.fillStyle = cc.c;
+        ctx.fillRect(cc.x, cc.y, cc.s, cc.s);
+      }
+      ctx.globalCompositeOperation = 'lighter';
+      for (var fj = 0; fj < fl.flecks.length; fj++) {
+        var ff = fl.flecks[fj];
+        ctx.globalAlpha = env * spike * 0.85;
+        ctx.fillStyle = ff.c;
+        ctx.fillRect(ff.x, ff.y, 2, 2);
+        ctx.globalAlpha = env * spike * 0.5;                    // star cross on the bright flecks
+        ctx.fillRect(ff.x - 2, ff.y, 5, 1);
+        ctx.fillRect(ff.x, ff.y - 2, 1, 5);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
     // pixel star-flecks: gentle twinkle, rare sharp glint
     for (var i = 0; i < flecks.length; i++) {
       var f = flecks[i];
@@ -97,7 +157,7 @@
       if (f.x < 0) f.x += W; else if (f.x > W) f.x -= W;
       if (f.y < 0) f.y += H; else if (f.y > H) f.y -= H;
       var a = f.base + 0.06 * Math.sin(t * 0.001 * f.tw + f.ph);
-      if (f.glint <= 0 && Math.random() < 0.0009) f.glint = 1;   // ignite a glint
+      if (f.glint <= 0 && Math.random() < 0.0013) f.glint = 1;   // ignite a glint
       if (f.glint > 0) {
         a += f.glint * 0.6;                                       // flare up to ~0.7
         f.glint -= 0.018;                                         // ~1s decay
