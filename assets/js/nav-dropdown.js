@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     dropdownTriggers.forEach((dropdownTrigger, index) => {
+        enhanceStarToggle(dropdownTrigger);
         const dropdownContent = dropdownTrigger.nextElementSibling;
 
         if (dropdownContent && dropdownContent.classList.contains('dropdown-content')) {
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dropdownContent.style.maxHeight = 'none';
                 dropdownContent.classList.add('active');
                 dropdownTrigger.classList.add('active');
+                // NB: no .nav-anim-open here — the restore must not play the bounce.
 
                 // Re-enable transitions after a brief delay
                 setTimeout(() => {
@@ -76,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Collapse - remove active first for reverse animation
                     dropdownContent.classList.remove('active');
                     dropdownTrigger.classList.remove('active');
+                    dropdownContent.classList.remove('nav-anim-open');
+                    dropdownTrigger.classList.remove('nav-anim-open');
 
                     // Wait for item animations to complete, then collapse height
                     setTimeout(() => {
@@ -93,6 +97,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         dropdownContent.classList.add('active');
                         dropdownTrigger.classList.add('active');
+                        // user-initiated open → play the bounce (never set on restore)
+                        dropdownContent.classList.add('nav-anim-open');
+                        dropdownTrigger.classList.add('nav-anim-open');
                     }, 10);
 
                     localStorage.setItem(storageKey, 'true');
@@ -151,6 +158,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initCursorSprite();
 });
+
+// Replace the single 4-star <img> toggle with four background-sliced <span>s so
+// each star can animate on its own. --star-src / --star-aspect are read from the
+// source PNG, keeping the toggle asset-swappable (e.g. four hand-drawn stars later).
+function enhanceStarToggle(trigger) {
+    const img = trigger.querySelector('img.nav-dropdown-toggle');
+    if (!img) return;
+
+    const src = img.getAttribute('src');
+    const label = img.getAttribute('alt') || 'more';
+
+    const star = document.createElement('span');
+    star.className = 'nav-dropdown-toggle fourstar';
+    star.setAttribute('role', 'img');
+    star.setAttribute('aria-label', label);
+    star.style.setProperty('--star-src', `url("${src}")`);
+    star.style.setProperty('--star-aspect', '2.2419'); // fallback until natural size is known
+
+    for (let i = 0; i < 4; i++) {
+        const slice = document.createElement('span');
+        slice.className = 'nav-star';
+        slice.style.setProperty('--i', i);
+        star.appendChild(slice);
+    }
+
+    img.replaceWith(star);
+
+    // Refine the aspect ratio from the real asset so sizing survives a redraw.
+    const probe = new Image();
+    probe.onload = () => {
+        if (probe.naturalWidth && probe.naturalHeight) {
+            star.style.setProperty('--star-aspect', (probe.naturalWidth / probe.naturalHeight).toFixed(4));
+        }
+    };
+    probe.src = src;
+}
 
 function initCursorSprite() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
