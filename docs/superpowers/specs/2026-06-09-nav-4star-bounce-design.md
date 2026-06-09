@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-09
 **Branch:** `feat/nav-4star-bounce` (off `origin/main`)
-**Status:** Design — pending review
+**Status:** Implemented
 
 ## Problem
 
@@ -156,11 +156,15 @@ collapsed it — exactly when a nudge to reopen is useful.
 }
 ```
 
-**Suppress auto-play on restore:** when the page loads with the dropdown expanded-by-default, JS
-restores `.active` with transitions disabled (existing pattern, nav-dropdown.js ~lines 50–70). Extend
-that suppression to **animations** (e.g. add a transient `.no-anim` class that sets
-`animation: none !important` on `.nav-star`, removed after the same 10 ms tick) so the bounce does
-**not** fire on initial load — only on real user clicks.
+**Suppress auto-play on restore (gate, don't override):** the bounce must not fire when JS restores
+the expanded-by-default state on load. A transient `animation: none` override does **not** work — CSS
+replays a keyframe whenever the animation property is freshly applied, so removing the override just
+fires the bounce ~10 ms later. Instead, **gate** the bounce on a `.nav-anim-open` class that the click
+handler adds only on a user open (and removes on close) — never on restore. Selectors:
+`.dropdown-trigger.nav-anim-open .nav-star` and `.dropdown-content.nav-anim-open .dropdown-item`.
+Menu-item **visibility** is decoupled from the bounce: `.dropdown-content.active .dropdown-item {
+opacity: 1 }` shows the items whenever open (incl. restore and reduced-motion), while the bounce rides
+only on `.nav-anim-open`.
 
 **Remove:** the old `.dropdown-trigger.active .nav-dropdown-toggle { transform: rotate(180deg) scale(1.1) }`
 rule and its `transition`.
