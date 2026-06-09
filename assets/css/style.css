@@ -64,9 +64,9 @@
 
 html[data-theme="dark"] {
     /* Surfaces */
-    --paper: #16150F;
-    --paper-raised: #211F16;
-    --paper-raised-rgb: 33, 31, 22;
+    --paper: #100E0A;
+    --paper-raised: #1B1811;
+    --paper-raised-rgb: 27, 24, 17;
 
     /* Text */
     --ink: #F2F2E4;
@@ -75,7 +75,7 @@ html[data-theme="dark"] {
     --text-rgb: 216, 214, 200;
     --muted: #A8A596;
     --faint: #6F6D5F;
-    --backdrop: #211F16;
+    --backdrop: #1B1811;
     --accent: #C9C6B0;
     --redact: #C9C6B0;
 
