@@ -249,6 +249,16 @@ nav img:not([class*="size-"]) {
     transform: rotate(180deg) scale(1.1);
 }
 
+/* Sidebar attention glow — triggered by the homepage "explore the sidebar!" link */
+@keyframes navGlow {
+    0%, 100% { background-color: transparent; }
+    25%, 60% { background-color: color-mix(in srgb, var(--link) 14%, transparent); }
+}
+
+nav.nav-glow {
+    animation: navGlow 1.2s ease-in-out 2;
+}
+
 .dropdown-content {
     overflow: hidden;
     transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);

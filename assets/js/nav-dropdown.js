@@ -19,9 +19,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (openSidebarLink) {
         openSidebarLink.addEventListener('click', function(e) {
             e.preventDefault();
+            const nav = document.querySelector('nav');
             const navTrigger = document.querySelector('nav .dropdown-trigger');
-            if (navTrigger) {
+            const navContent = navTrigger ? navTrigger.nextElementSibling : null;
+            // Make sure the dropdown is open, then glow the sidebar to draw the eye.
+            if (navTrigger && navContent && navContent.classList.contains('dropdown-content')
+                && !navContent.classList.contains('active')) {
                 navTrigger.click();
+            }
+            if (nav) {
+                nav.classList.remove('nav-glow');
+                void nav.offsetWidth; // restart the animation if clicked again
+                nav.classList.add('nav-glow');
+                nav.addEventListener('animationend', () => nav.classList.remove('nav-glow'), { once: true });
             }
         });
     }
