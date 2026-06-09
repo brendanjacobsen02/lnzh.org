@@ -22,17 +22,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const nav = document.querySelector('nav');
             const navTrigger = document.querySelector('nav .dropdown-trigger');
             const navContent = navTrigger ? navTrigger.nextElementSibling : null;
-            // Make sure the dropdown is open, then glow the sidebar to draw the eye.
+            // Make sure the dropdown is open so every word is visible, then ripple a
+            // jiggle through the whole sidebar to draw the eye.
             if (navTrigger && navContent && navContent.classList.contains('dropdown-content')
                 && !navContent.classList.contains('active')) {
                 navTrigger.click();
             }
-            if (nav) {
-                nav.classList.remove('nav-glow');
-                void nav.offsetWidth; // restart the animation if clicked again
-                nav.classList.add('nav-glow');
-                nav.addEventListener('animationend', () => nav.classList.remove('nav-glow'), { once: true });
-            }
+            if (nav) jiggleSidebar(nav);
         });
     }
 
@@ -158,6 +154,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initCursorSprite();
 });
+
+// Ripple a playful wobble top→down through every sidebar element. CSS owns the
+// keyframes (.nav-jiggling); we own the ordering + per-element stagger so the
+// cascade follows DOM order across the nav's nested lists.
+function jiggleSidebar(nav) {
+    const logo = nav.querySelector('ul:first-of-type img');
+    const targets = [
+        logo,
+        ...nav.querySelectorAll('.nav-star'),       // the four stars, each on its own
+        ...nav.querySelectorAll('.dropdown-item')   // blog … archive
+    ].filter(Boolean);
+    if (!targets.length) return;
+
+    // A click-to-open just played the open bounce; clear it so the jiggle wins.
+    nav.querySelectorAll('.nav-anim-open').forEach(el => el.classList.remove('nav-anim-open'));
+
+    // Reset any in-flight jiggle so a repeat click restarts cleanly.
+    targets.forEach(el => {
+        el.classList.remove('nav-jiggling');
+        el.style.animationDelay = '';
+    });
+    void nav.offsetWidth; // force reflow → restart the animations
+
+    targets.forEach((el, i) => {
+        el.style.animationDelay = (i * 45) + 'ms';
+        el.classList.add('nav-jiggling');
+    });
+
+    // The last (most-delayed) element finishes last — clean up after it.
+    targets[targets.length - 1].addEventListener('animationend', () => {
+        targets.forEach(el => {
+            el.classList.remove('nav-jiggling');
+            el.style.animationDelay = '';
+        });
+    }, { once: true });
+}
 
 // Replace the single 4-star <img> toggle with four background-sliced <span>s so
 // each star can animate on its own. --star-src / --star-aspect are read from the
