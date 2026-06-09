@@ -685,11 +685,10 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 /* blackout / redaction — legible bars in BOTH themes via --redact */
-/* Blackout: a continuous redaction bar across sentences AND the spaces between
-   them (the .sentence-gap separators), so it reads as one solid censor strip. */
-.sentence-stream.is-blackout .sentence-fragment,
-.sentence-stream.is-blackout .sentence-gap,
-.sentence-stream.is-blackout .sentence-input-inline {
+/* Blackout: redact completed sentences only — the line you're currently writing
+   stays visible. Each fragment keeps its trailing whitespace, so the bar is
+   continuous across a line instead of broken into separate chunks. */
+.sentence-stream.is-blackout .sentence-fragment {
     color: transparent;
     background: var(--redact);
     box-decoration-break: clone;

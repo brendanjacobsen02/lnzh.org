@@ -23,16 +23,24 @@
         return value.match(/[.!?;:]+(?:["'”’)\]]+)?(?:\s|$)/);
     }
 
+    // Split off completed sentences, keeping each sentence's trailing whitespace
+    // verbatim (the space or line break the writer typed after it). Concatenating
+    // the pieces reproduces the original text exactly — no trimming, no injected
+    // separators — so spacing and line breaks survive sentence completion.
     function extractSentences(text) {
         const sentences = [];
         let rest = String(text == null ? '' : text);
         let match = matchSentenceEnd(rest);
 
         while (match) {
-            const endIndex = match.index + match[0].trimEnd().length;
-            const sentence = normalizeText(rest.slice(0, endIndex));
-            rest = rest.slice(endIndex).trimStart();
-            if (sentence) {
+            const punctEnd = match.index + match[0].trimEnd().length;
+            let end = punctEnd;
+            while (end < rest.length && /\s/.test(rest.charAt(end))) {
+                end += 1;
+            }
+            const sentence = rest.slice(0, end);
+            rest = rest.slice(end);
+            if (sentence.trim()) {
                 sentences.push(sentence);
             }
             match = matchSentenceEnd(rest);

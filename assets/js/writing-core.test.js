@@ -10,15 +10,21 @@ test('normalizeText trims and collapses spaces but keeps newlines', () => {
     assert.equal(core.normalizeText('a\n\n\n\nb'), 'a\n\nb');
 });
 
-test('extractSentences splits on terminal punctuation, keeps remainder', () => {
+test('extractSentences splits on punctuation, keeping trailing whitespace verbatim', () => {
     const r = core.extractSentences('One sentence. Two now! A third? leftover');
-    assert.deepEqual(r.sentences, ['One sentence.', 'Two now!', 'A third?']);
+    assert.deepEqual(r.sentences, ['One sentence. ', 'Two now! ', 'A third? ']);
     assert.equal(r.remainder, 'leftover');
+});
+
+test('extractSentences preserves a line break typed after a sentence', () => {
+    const r = core.extractSentences('First.\nSecond.');
+    assert.deepEqual(r.sentences, ['First.\n', 'Second.']);
+    assert.equal(r.remainder, '');
 });
 
 test('extractSentences keeps closing quotes/brackets with the sentence', () => {
     const r = core.extractSentences('He said "hi." Next');
-    assert.deepEqual(r.sentences, ['He said "hi."']);
+    assert.deepEqual(r.sentences, ['He said "hi." ']);
     assert.equal(r.remainder, 'Next');
 });
 

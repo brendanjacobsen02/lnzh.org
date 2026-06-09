@@ -92,12 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function completedText() {
-        return keptSentences().join(' ');
+        return keptSentences().join('');
     }
 
     function draftText() {
-        const currentText = core.normalizeText(input.textContent);
-        return [completedText(), currentText].filter(Boolean).join(' ');
+        return (completedText() + input.textContent).replace(/^\s+|\s+$/g, '');
     }
 
     // Restore the caret to the end of the editor after a re-render (which detaches/
@@ -313,11 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeSentenceIndex = index;
                 positionKeepPopover();
             });
-            const gap = document.createElement('span');
-            gap.className = 'sentence-gap';
-            gap.textContent = ' ';
             stream.append(fragment);
-            stream.append(gap);
         });
 
         stream.append(input);
@@ -569,8 +564,4 @@ document.addEventListener('DOMContentLoaded', () => {
     updateKbdHints();
     renderSentences();
     renderDrafts();
-
-    if (window.BlockCaret) {
-        window.BlockCaret.create(input, { className: 'block-caret' });
-    }
 });
