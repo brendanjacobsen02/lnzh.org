@@ -344,10 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    if (window.BlockCaret) {
-        window.BlockCaret.create({ textarea: textarea, className: 'block-caret' });
-    }
-
     updateControls();
     renderBackdrop();
     renderDrafts();
