@@ -1,5 +1,5 @@
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Archivo:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap');
 
 /* ==========================================================================
    Theme tokens
@@ -155,12 +155,17 @@ nav a:hover {
     opacity: 0.6;
 }
 
+/* Placeholder for the not-yet-hand-drawn "writing" wordmark: a handwriting face
+   so it reads like the other hand-drawn nav items instead of plain text.
+   Swap for a PNG (like blog0.png) when it's drawn. */
 .nav-temp-link {
+    font-family: 'Caveat', cursive;
     color: var(--text);
-    font-size: 1.35rem;
+    font-size: 2.1rem;
+    font-weight: 600;
     line-height: 1;
-    margin-top: 0.5rem;
-    margin-bottom: 1.375rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.95rem;
     text-decoration: none;
 }
 
@@ -698,49 +703,18 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     position: relative;
 }
 
-.writing-frame::before,
-.writing-frame::after {
-    content: "";
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    pointer-events: none;
-    border: 2px solid rgba(var(--text-rgb), 0.32);
-    transition: border-color 0.2s ease;
-}
-
-.writing-frame::before {
-    top: -5px;
-    left: -5px;
-    border-right: 0;
-    border-bottom: 0;
-    border-top-left-radius: 8px;
-}
-
-.writing-frame::after {
-    right: -5px;
-    bottom: -5px;
-    border-top: 0;
-    border-left: 0;
-    border-bottom-right-radius: 8px;
-}
-
-.writing-frame:focus-within::before,
-.writing-frame:focus-within::after {
-    border-color: var(--link);
-}
-
 /* ---- Textarea editor: the reliable foundation (native caret/newlines/typing).
    Box on .editor; the <textarea> is the input; .editor-backdrop renders blackout
    redaction aligned behind it. ---- */
 .editor {
     position: relative;
-    border: 1px solid rgba(var(--text-rgb), 0.28);
-    border-radius: 12px;
+    border: 1.5px solid rgba(var(--text-rgb), 0.16);
+    border-radius: 0;
     background:
-        radial-gradient(rgba(var(--text-rgb), 0.06) 1px, transparent 1.6px) 0 0 / 16px 16px,
+        radial-gradient(rgba(var(--text-rgb), 0.05) 1px, transparent 1.7px) 0 0 / 18px 18px,
         var(--paper-raised);
-    box-shadow: inset 0 1px 0 var(--inset-highlight);
+    box-shadow: inset 0 1px 0 var(--inset-highlight),
+        0 3px 16px rgba(var(--shadow-rgb), 0.06);
     overflow: hidden;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -748,6 +722,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 .editor:focus-within {
     border-color: var(--link);
     box-shadow: inset 0 1px 0 var(--inset-highlight),
+        0 3px 16px rgba(var(--shadow-rgb), 0.06),
         0 0 0 3px color-mix(in srgb, var(--link) 16%, transparent);
 }
 
@@ -1254,6 +1229,25 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .completed-drafts[hidden] {
     display: none;
+}
+
+.completed-drafts-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.completed-drafts-head h2 {
+    flex: 1;
+}
+
+#clear-drafts {
+    flex: none;
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    padding: 0.3rem 0.6rem;
 }
 
 .completed-drafts h2 {
@@ -2246,7 +2240,7 @@ footer a img {
     }
 
     .nav-temp-link {
-        font-size: 1.2rem;
+        font-size: 1.85rem;
         margin-top: 0;
         margin-bottom: 0;
     }
@@ -2399,7 +2393,7 @@ footer a img {
     }
 
     .nav-temp-link {
-        font-size: 1.1rem;
+        font-size: 1.75rem;
         margin-top: 0;
         margin-bottom: 0;
     }
@@ -2637,6 +2631,7 @@ footer a img {
 }
 
 .writing-actions .filter-btn.writing-clear:not(:disabled):hover,
+.writing-clear:not(:disabled):hover,
 .writing-clear.is-armed {
     background: var(--cat-coral);
     border-color: var(--cat-coral);
