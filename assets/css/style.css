@@ -602,7 +602,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 .editor {
     position: relative;
     border: 1.5px solid rgba(var(--text-rgb), 0.16);
-    border-radius: 16px;
+    border-radius: 0;
     background:
         radial-gradient(rgba(var(--text-rgb), 0.05) 1px, transparent 1.7px) 0 0 / 18px 18px,
         var(--paper-raised);
