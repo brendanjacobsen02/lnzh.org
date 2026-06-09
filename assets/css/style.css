@@ -581,26 +581,6 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     position: relative;
 }
 
-/* A little hand-drawn-ish star tucked at the corner of the paper (cozy accent),
-   instead of the techy brackets. Winks toward the accent on focus. */
-.writing-frame::after {
-    content: "✦";
-    position: absolute;
-    top: -10px;
-    right: 14px;
-    color: var(--cat-amber);
-    font-size: 1.05rem;
-    line-height: 1;
-    pointer-events: none;
-    text-shadow: 0 1px 0 var(--paper);
-    transition: color 0.2s ease, transform 0.3s ease;
-}
-
-.writing-frame:focus-within::after {
-    color: var(--link);
-    transform: rotate(12deg) scale(1.12);
-}
-
 /* ---- Textarea editor: the reliable foundation (native caret/newlines/typing).
    Box on .editor; the <textarea> is the input; .editor-backdrop renders blackout
    redaction aligned behind it. ---- */
@@ -1127,6 +1107,25 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 .completed-drafts[hidden] {
     display: none;
+}
+
+.completed-drafts-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.completed-drafts-head h2 {
+    flex: 1;
+}
+
+#clear-drafts {
+    flex: none;
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    padding: 0.3rem 0.6rem;
 }
 
 .completed-drafts h2 {
@@ -2510,6 +2509,7 @@ footer a img {
 }
 
 .writing-actions .filter-btn.writing-clear:not(:disabled):hover,
+.writing-clear:not(:disabled):hover,
 .writing-clear.is-armed {
     background: var(--cat-coral);
     border-color: var(--cat-coral);

@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyButton = document.getElementById('copy-writing');
     const downloadButton = document.getElementById('download-writing');
     const clearButton = document.getElementById('clear-writing');
+    const clearDraftsButton = document.getElementById('clear-drafts');
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsPanel = document.getElementById('settings-panel');
     const draftsSection = document.getElementById('completed-drafts');
@@ -34,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const required = [
         form, editor, textarea, highlights, blackoutToggle, confirmationToggle, keepPopover,
         acceptButton, rejectButton, kbdConfirmHint, copyButton, downloadButton, clearButton,
-        settingsToggle, settingsPanel, draftsSection, draftList, toast, hudWords, hudSentences,
+        clearDraftsButton, settingsToggle, settingsPanel, draftsSection, draftList, toast,
+        hudWords, hudSentences,
         hudRead, summary, summaryClose, sumWords, sumSentences, sumRead, sumPreview, sumSave,
         sumCopy, sumDownload, sumContinue,
     ];
@@ -48,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingDraft = '';
     let toastTimer;
     let clearArmTimer;
+    let clearDraftsArmTimer;
     let reviewedUpTo = 0;       // chars before this index are decided (kept)
     let awaiting = null;        // { start, end } of a sentence locked for review
 
@@ -529,6 +532,26 @@ document.addEventListener('DOMContentLoaded', () => {
         clearButton.classList.add('is-armed');
         clearButton.textContent = 'clear?';
         clearArmTimer = window.setTimeout(disarmClear, 3000);
+    });
+
+    function disarmClearDrafts() {
+        window.clearTimeout(clearDraftsArmTimer);
+        clearDraftsButton.classList.remove('is-armed');
+        clearDraftsButton.textContent = 'clear all';
+    }
+
+    clearDraftsButton.addEventListener('click', () => {
+        if (clearDraftsButton.classList.contains('is-armed')) {
+            disarmClearDrafts();
+            drafts.length = 0;
+            saveDrafts();
+            renderDrafts();
+            showToast('All drafts cleared.');
+            return;
+        }
+        clearDraftsButton.classList.add('is-armed');
+        clearDraftsButton.textContent = 'clear all?';
+        clearDraftsArmTimer = window.setTimeout(disarmClearDrafts, 3000);
     });
 
     sumSave.addEventListener('click', savePending);
