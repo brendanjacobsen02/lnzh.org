@@ -119,9 +119,16 @@ Each sub-project gets its own implementation plan → build → verify. Incremen
 - No regressions: existing pages, dark mode, accent picker, and the writing page still work; JS syntax check passes; pages serve `200`.
 - The intended contrast reads through: serious base, playful overlay.
 
-## 11. Open questions (resolve during review / first sub-project)
+## 11. Decisions & open questions
 
-- **IA:** which rooms to cut vs. finish? (`photographs`, `recipes`, `essays`, `time`, `coffee`, `thoughts`, `orders`, `tip`, `archive`)
-- **Pilot page:** which page do we apply the UI kit to first? (suggest a content-light one like `essays` or `about`.)
-- **Nav:** tweak the `✦` dropdown, or rethink navigation entirely?
-- **Frame edges:** linework should repeat/tile (default) or stretch?
+**Resolved — IA pass (implemented on `feat/handdrawn-redesign`):**
+
+- **Cut** `photographs`, `recipes`, `essays` — empty "coming soon" stubs; the one dead inbound link (a `recipes` mention in the archived *why* essay) was de-linked.
+- **Keep** `time` for now (still a stub).
+- **Archive is a real navbar destination.** `archive/index.html` indexes every off-nav page — *thoughts*, *why* (writing) and *coffee*, *orders log*, *tip*, *email updates* (the coffee project). `archive/coffee/confirmed` (a flow step) and `dev/theme-demo` (a dev tool) are intentionally excluded.
+- **Nav keeps the ✦ dropdown, now open by default.** First-visit blink box removed. The homepage "explore the sidebar!" link now glows the sidebar instead of toggling it. `archive`/`writing` share one standardized text-placeholder treatment (`.nav-temp-link`) until drawn word-images exist.
+
+**Open — for the UI-kit sub-project:**
+
+- **Pilot page:** which page gets the UI kit first? (suggest `about` — content-light, high-traffic; `essays` was cut.)
+- **Frame edges:** should linework repeat/tile (proposed default) or stretch?
