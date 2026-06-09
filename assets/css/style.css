@@ -1,5 +1,5 @@
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;600&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap');
 
 /* ==========================================================================
    Theme tokens
@@ -26,6 +26,11 @@
     /* UI chrome face (writing page labels, HUD, buttons). Proportional sans that
        pairs with Newsreader; tabular figures keep the scoreboard tidy. */
     --mono: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+
+    /* Reading typography. Newsreader sets headers/wordmarks; Spectral is the
+       secondary face doing the long-form work — body text, subtitles, prose. */
+    --header: 'Newsreader', Georgia, serif;
+    --body: 'Spectral', Georgia, serif;
 
     /* Lines */
     --line: #ccc;            /* default hairline */
@@ -111,7 +116,7 @@ html[data-theme="dark"] {
 }
 
 body {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     line-height: 1.6;
     color: var(--text);
     background-color: var(--paper);
@@ -542,6 +547,7 @@ main {
 
 /* Typography */
 h1, h2, h3, h4 {
+    font-family: var(--header);
     margin-bottom: 1rem;
 }
 
@@ -621,7 +627,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .filter-btn {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
     border: 1px solid var(--line-strong);
@@ -673,7 +679,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     text-decoration: none;
     color: inherit;
     padding: 1rem;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
 }
 
 #orders-panel table {
@@ -2002,7 +2008,7 @@ footer a img {
 .thoughts-controls input[type="text"],
 .thoughts-controls input[type="password"],
 .thoughts-controls input[type="email"] {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
     border: 1px solid var(--line-strong);
@@ -2036,7 +2042,7 @@ footer a img {
 }
 
 #coffee-comment-form textarea {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
     border: 1px solid var(--line-strong);
@@ -2158,7 +2164,7 @@ footer a img {
 }
 
 .thoughts-controls select {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
     border: 1px solid var(--line-strong);
