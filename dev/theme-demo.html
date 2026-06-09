@@ -254,24 +254,25 @@
   <div class="iris-tune">
     <strong>iris ▸</strong>
     <label>block size
-      <input type="range" id="iris-cell" min="12" max="44" step="2" value="22">
-      <output id="iris-cell-out">22px</output>
+      <input type="range" id="iris-cell" min="12" max="44" step="2" value="18">
+      <output id="iris-cell-out">18px</output>
     </label>
     <label>ring speed
-      <input type="range" id="iris-speed" min="8" max="60" step="2" value="26">
-      <output id="iris-speed-out">26ms/ring</output>
+      <input type="range" id="iris-speed" min="8" max="60" step="2" value="12">
+      <output id="iris-speed-out">12ms/ring</output>
     </label>
     <label>wildness
-      <input type="range" id="iris-wild" min="0" max="100" step="5" value="60">
-      <output id="iris-wild-out">60%</output>
+      <input type="range" id="iris-wild" min="0" max="100" step="5" value="100">
+      <output id="iris-wild-out">100%</output>
     </label>
     <label>glow bloom
-      <input type="range" id="iris-bloom" min="0" max="28" step="1" value="10">
-      <output id="iris-bloom-out">10px</output>
+      <input type="range" id="iris-bloom" min="0" max="48" step="1" value="36">
+      <output id="iris-bloom-out">36px</output>
     </label>
     <label>glow color
       <select id="iris-glow">
-        <option value="accent" selected>accent (link)</option>
+        <option value="random" selected>random (weighted)</option>
+        <option value="accent">accent (link)</option>
         <option value="ink">ink flash</option>
         <option value="paper-raised">paper flash</option>
         <option value="toxic">toxic green</option>
@@ -388,11 +389,19 @@
     var bloom     = +document.getElementById('iris-bloom').value;       // px
     var glowSrc   = document.getElementById('iris-glow').value;
     var outgoing  = readVar('--paper', '#f2f2e4');  // leading edge = old screen
-    var glow = glowSrc === 'ink' ? readVar('--ink', '#000')
-             : glowSrc === 'paper-raised' ? readVar('--paper-raised', '#fffdf4')
-             : glowSrc === 'toxic' ? '#9bff2e'
-             : glowSrc === 'blood' ? '#ff2424'
-             : readVar('--link', '#119c36');   // 'accent'
+    var ink       = readVar('--ink', '#000');
+    // The vivid palette: the 6 accent dots (read on both themes) + toxic + blood.
+    var WILD = ['#3fd06a', '#5a92a3', '#d29a52', '#c26c68', '#9a7eac', '#bbae4a',
+                '#9bff2e', '#ff2424'];
+    var glow;
+    if (glowSrc === 'random') {
+      // ~80% ink flash; ~20% a random color, spread evenly across all colors.
+      glow = Math.random() < 0.8 ? ink : WILD[Math.floor(Math.random() * WILD.length)];
+    } else if (glowSrc === 'ink') { glow = ink; }
+    else if (glowSrc === 'paper-raised') { glow = readVar('--paper-raised', '#fffdf4'); }
+    else if (glowSrc === 'toxic') { glow = '#9bff2e'; }
+    else if (glowSrc === 'blood') { glow = '#ff2424'; }
+    else { glow = readVar('--link', '#119c36'); }   // 'accent'
     var W = window.innerWidth, Hh = window.innerHeight;
     var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL);
     return {

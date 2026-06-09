@@ -1,5 +1,5 @@
 /*
- * theme-toggle.js — pixel-art light/dark toggle + pixel-dissolve transition.
+ * theme-toggle.js — pixel-art light/dark toggle + iris close-in transition.
  *
  * Loaded like nav-dropdown.js (runs on DOMContentLoaded). External file to
  * satisfy the page CSP `script-src 'self'` (NO inline scripts anywhere).
@@ -8,11 +8,13 @@
  * Responsibilities (see spec sections B/C/F):
  *   1. Inject a fixed top-right pixel/8-bit toggle <button> (accessible:
  *      real <button>, aria-label, aria-pressed, keyboard operable, focus ring).
- *   2. On activate: PIXEL-DISSOLVE — full-viewport overlay grid of ~24px cells
- *      filled with the OUTGOING --paper color; flip data-theme underneath (page
- *      restyles instantly, hidden by overlay); clear cells in randomized checker
- *      order with staggered delays totaling ~500ms; remove overlay when done.
- *      prefers-reduced-motion -> skip overlay, swap instantly.
+ *   2. On activate: IRIS CLOSE-IN — a full-viewport <canvas> tiled with chunky
+ *      blocks in the OUTGOING --paper color; flip data-theme underneath (page
+ *      restyles instantly, hidden by the canvas); clear blocks from the edges
+ *      inward along a noise-warped, tendrilled front (re-rolled each flip) so the
+ *      old theme is eaten down to a ragged dot at center, with a thin flickering
+ *      glow edge. Rendered on canvas (one fillRect/block) to hold 60fps even at
+ *      small blocks. prefers-reduced-motion -> skip canvas, swap instantly.
  *   3. Persist choice to localStorage.theme; keep aria-pressed correct.
  *   4. Swap themed <img>: on init + on theme change, for every <img> whose
  *      resolved src ends with a manifest source path, swap to its -dark.png
@@ -215,23 +217,13 @@
             '.theme-swatch[aria-pressed="true"]{outline:3px solid var(--ink,#000);outline-offset:2px;}',
             '.theme-swatch:focus-visible{outline:3px solid var(--link,#119c36);outline-offset:2px;}',
 
-            /* Full-viewport pixel-dissolve overlay grid. */
-            '.theme-dissolve-overlay{',
-            '  position:fixed;inset:0;z-index:2147483647;',
-            '  display:grid;pointer-events:none;',
-            '  image-rendering:pixelated;',
-            '}',
-            '.theme-dissolve-cell{',
-            '  width:100%;height:100%;opacity:1;',
-            '  transition:opacity 1s cubic-bezier(0.1,1,0.3,1);',
-            '}',
-            '.theme-dissolve-cell.is-clear{opacity:0;}',
-            /* reduced motion: never animate (overlay is skipped anyway) AND
-               kill the page-level color/background cross-fade so the swap is
-               truly instant (root cause lives in style.css body transitions). */
+            /* The iris transition is a <canvas> created + styled inline in
+               irisCloseIn (no CSS needed here). Reduced motion: skip the canvas
+               entirely (handled in applyTheme) AND kill the page-level
+               color/background cross-fade so the swap is truly instant (root
+               cause lives in style.css body transitions). */
             '@media (prefers-reduced-motion: reduce){',
             '  .theme-toggle-btn{transition:none;}',
-            '  .theme-dissolve-cell{transition:none;}',
             '  html,body{transition:none !important;}',
             '  *{transition-duration:0.01ms !important;transition-delay:0ms !important;}',
             '}'
@@ -239,71 +231,122 @@
         document.head.appendChild(style);
     }
 
-    /* ---- the pixel-dissolve transition ---- */
-    function pixelDissolve(outgoingPaper, onMidpoint) {
-        var CELL = 56;                       // chunky blocks (24px read as too-fine static)
-        var cols = Math.ceil(window.innerWidth / CELL);
-        var rows = Math.ceil(window.innerHeight / CELL);
+    /* ---- the iris close-in transition (canvas-rendered) ----
+       Chunky blocks on a single <canvas>, cleared from the edges inward along a
+       noise-warped, tendrilled front so the OLD theme is eaten down to a ragged
+       dot at center, with a thin flickering glow edge. One fillRect per block per
+       frame holds 60fps even at small blocks (a DOM grid of thousands of
+       box-shadow cells does not — that was the old jank). onMidpoint flips the
+       theme while the canvas fully covers the page; onDone fires when finished. */
+    var IRIS_WILD_COLORS = ['#3fd06a', '#5a92a3', '#d29a52', '#c26c68', '#9a7eac',
+                            '#bbae4a', '#9bff2e', '#ff2424'];
+    function pickIrisGlow(outgoingInk) {
+        // ~80% a sharp INK flash; ~20% a random vivid color (spread evenly).
+        return Math.random() < 0.8
+            ? outgoingInk
+            : IRIS_WILD_COLORS[Math.floor(Math.random() * IRIS_WILD_COLORS.length)];
+    }
+    function irisCloseIn(outgoingPaper, outgoingInk, onMidpoint, onDone) {
+        var CELL = 18, RING_DELAY = 12, BLOOM = 36, DUR = 320;   // locked-in feel
+        var W = window.innerWidth, Hh = window.innerHeight;
+        var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL);
         var total = cols * rows;
+        var cellW = W / cols, cellH = Hh / rows;
+        var cx = (cols - 1) / 2, cy = (rows - 1) / 2;
+        var grainMs = RING_DELAY * 2.4;            // crumble jitter (wildness = 100%)
+        var glow = pickIrisGlow(outgoingInk);
 
-        var overlay = document.createElement('div');
-        overlay.className = 'theme-dissolve-overlay';
-        overlay.setAttribute('aria-hidden', 'true');
-        overlay.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
-        overlay.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
-        // NB: the overlay container MUST stay transparent. The cells carry the
-        // outgoing color and fully tile the viewport (1fr tracks, no gap), so
-        // they alone hide the page. Giving the container its own background
-        // would sit BEHIND the cells, so cleared cells would expose that
-        // background (same outgoing color) instead of the re-themed page — the
-        // dissolve would be invisible and end in a hard cut. Do not re-add.
+        // ---- per-flip noise field: angular tendrils + blobby corrosion, so the
+        //      front is ragged and different every time (the "parasite"). ----
+        var H = [], nH = 4 + Math.floor(Math.random() * 3), ampSum = 0;
+        for (var hi = 0; hi < nH; hi++) {
+            var amp = 0.4 + Math.random();
+            ampSum += amp;
+            H.push({ f: 2 + Math.floor(Math.random() * 7), a: amp, ph: Math.random() * 6.2832 });
+        }
+        function tendril(theta) {                  // angular fingers -> ~[-1,1]
+            var s = 0;
+            for (var t = 0; t < H.length; t++) { s += H[t].a * Math.sin(H[t].f * theta + H[t].ph); }
+            return s / ampSum;
+        }
+        var sA = Math.random() * 6.2832, sB = Math.random() * 6.2832,
+            sC = Math.random() * 6.2832, bf = 0.16 + Math.random() * 0.18;
+        function blob(c, r) {                      // low-freq blotches -> ~[-1,1]
+            return (Math.sin(c * bf + sA) * Math.cos(r * bf + sB)
+                    + 0.6 * Math.sin((c + r) * bf * 0.7 + sC)) / 1.6;
+        }
 
-        var cells = new Array(total);
+        // Pass 1: noise-warped radius per cell + the outer ring.
+        var eff = new Float64Array(total), maxEff = 0, idx = 0;
+        for (var r1 = 0; r1 < rows; r1++) {
+            for (var c1 = 0; c1 < cols; c1++) {
+                var dx = c1 - cx, dy = r1 - cy;
+                var d = Math.hypot(dx, dy) + tendril(Math.atan2(dy, dx)) * 5 + blob(c1, r1) * 4;
+                if (d < 0) { d = 0; }
+                eff[idx++] = d;
+                if (d > maxEff) { maxEff = d; }
+            }
+        }
+        var maxRing = Math.round(maxEff);
+
+        // Pass 2: per-cell delay — outer ring fires first + grain jitter so the
+        // trailing old theme crumbles inward rather than wiping cleanly.
+        var delay = new Float64Array(total);
         for (var i = 0; i < total; i++) {
-            var cell = document.createElement('div');
-            cell.className = 'theme-dissolve-cell';
-            cell.style.backgroundColor = outgoingPaper;
-            overlay.appendChild(cell);
-            cells[i] = cell;
-        }
-        document.body.appendChild(overlay);
-
-        // Flip the theme underneath while the overlay fully hides the page.
-        if (typeof onMidpoint === 'function') { onMidpoint(); }
-
-        // Randomized checker order: build an index list, shuffle, then assign
-        // staggered delays so blocks clear in a scattered 8-bit pattern.
-        var order = [];
-        for (var k = 0; k < total; k++) { order.push(k); }
-        for (var s = order.length - 1; s > 0; s--) {
-            var r = Math.floor(Math.random() * (s + 1));
-            var tmp = order[s]; order[s] = order[r]; order[r] = tmp;
+            var dl = (maxRing - Math.round(eff[i])) * RING_DELAY + Math.random() * grainMs;
+            delay[i] = dl < 0 ? 0 : dl;
         }
 
-        var STAGGER_TOTAL = 1400; // ms window for staggered starts (slower)
-        var EXP_BASE = 6;         // >1: exponential deceleration of the clear order
-        // Force layout so the initial opaque state is committed before we clear.
-        // eslint-disable-next-line no-unused-expressions
-        overlay.offsetHeight;
+        var canvas = document.createElement('canvas');
+        canvas.width = W; canvas.height = Hh;
+        canvas.setAttribute('aria-hidden', 'true');
+        canvas.style.cssText = 'position:fixed;inset:0;z-index:2147483647;'
+            + 'pointer-events:none;width:100vw;height:100vh;image-rendering:pixelated;';
+        var ctx = canvas.getContext('2d');
+        var cw = Math.ceil(cellW) + 1, ch = Math.ceil(cellH) + 1;
 
-        requestAnimationFrame(function () {
-            for (var n = 0; n < order.length; n++) {
-                var idx = order[n];
-                // Exponential stagger: cells clear fast at first, then with
-                // ever-larger gaps — the dissolve "becomes exponentially slower".
-                var x = total > 1 ? n / (total - 1) : 0;
-                var delay = STAGGER_TOTAL * (Math.pow(EXP_BASE, x) - 1) / (EXP_BASE - 1);
-                cells[idx].style.transitionDelay = delay + 'ms';
-                cells[idx].classList.add('is-clear');
+        function draw(t) {
+            ctx.clearRect(0, 0, W, Hh);
+            for (var j = 0; j < total; j++) {
+                var local = t - delay[j];
+                if (local >= DUR) { continue; }                 // cleared -> page shows
+                var x = ((j % cols) * cellW) | 0, y = (((j / cols) | 0) * cellH) | 0;
+                if (local < 0) {                                // not started -> covered
+                    ctx.globalAlpha = 1; ctx.fillStyle = outgoingPaper; ctx.fillRect(x, y, cw, ch);
+                    continue;
+                }
+                var ph = local / DUR;
+                var cover = ph < 0.52 ? 1 : 1 - (ph - 0.52) / 0.48;  // fade old away
+                var spike = (ph >= 0.10 && ph < 0.22) || (ph >= 0.34 && ph < 0.46); // 2 flickers
+                if (spike) {
+                    ctx.globalAlpha = 0.28 * cover; ctx.fillStyle = glow;   // chunky halo (no blur)
+                    ctx.fillRect(x - BLOOM, y - BLOOM, cw + 2 * BLOOM, ch + 2 * BLOOM);
+                    ctx.globalAlpha = cover; ctx.fillStyle = glow; ctx.fillRect(x, y, cw, ch);
+                } else {
+                    ctx.globalAlpha = cover; ctx.fillStyle = outgoingPaper; ctx.fillRect(x, y, cw, ch);
+                }
             }
-        });
+            ctx.globalAlpha = 1;
+        }
 
-        var cleanupAfter = STAGGER_TOTAL + 1100; // last start + 1s fade tail + buffer
-        window.setTimeout(function () {
-            if (overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
+        draw(0);                          // cover the page before the flip
+        document.body.appendChild(canvas);
+        if (typeof onMidpoint === 'function') { onMidpoint(); }   // restyle, hidden
+
+        var endT = maxRing * RING_DELAY + grainMs + DUR + 80;
+        var t0 = null;
+        function loop(now) {
+            if (t0 === null) { t0 = now; }
+            var t = now - t0;
+            draw(t);
+            if (t < endT) {
+                requestAnimationFrame(loop);
+            } else {
+                if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); }
+                if (typeof onDone === 'function') { onDone(); }
             }
-        }, cleanupAfter);
+        }
+        requestAnimationFrame(loop);
     }
 
     /* ---- apply a theme (with or without animation) ---- */
@@ -319,18 +362,21 @@
             return;
         }
 
-        // Capture the OUTGOING paper color before flipping.
-        var outgoingPaper = getComputedStyle(document.documentElement)
-            .getPropertyValue('--paper').trim() || '#f2f2e4';
+        // Capture the OUTGOING colors before flipping (the leading edge belongs
+        // to the old screen): paper tiles the canvas, ink is the common glow.
+        var cs = getComputedStyle(document.documentElement);
+        var outgoingPaper = cs.getPropertyValue('--paper').trim() || '#f2f2e4';
+        var outgoingInk = cs.getPropertyValue('--ink').trim() || '#000';
 
         animating = true;
-        pixelDissolve(outgoingPaper, function midpoint() {
+        irisCloseIn(outgoingPaper, outgoingInk, function midpoint() {
             document.documentElement.setAttribute('data-theme', next);
             persist(next);
             swapImages(next);
             updateThemeControl(next);
+        }, function done() {
+            animating = false;   // clears exactly when the animation ends
         });
-        window.setTimeout(function () { animating = false; }, 2600);
     }
 
     /* ---- accent state ---- */
