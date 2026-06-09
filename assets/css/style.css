@@ -577,7 +577,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     white-space: normal;
     cursor: text;
     box-shadow: inset 0 1px 0 var(--inset-highlight);
-    caret-color: var(--link);
+    caret-color: transparent;
 }
 
 .sentence-stream:focus-within {
@@ -590,8 +590,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     outline: none;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    caret-color: var(--link);
-    caret-shape: block;
+    caret-color: transparent;
 }
 
 .sentence-input-inline:empty::before {
@@ -604,12 +603,26 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     content: "";
 }
 
-/* Arcade caret: a native block caret in the accent color. caret-shape is a
-   progressive enhancement (falls back to a thin accent caret where unsupported)
-   — always visible and correctly placed, including across newlines and mid-text.
-   Hide the placeholder once the field is focused. */
+/* Arcade caret: the native caret is hidden (caret-color: transparent) and a
+   real block element (.writing-caret) is positioned at the measured caret rect
+   by JS — so the cursor is a consistent block everywhere, including the empty
+   field. Hide the placeholder once the field is focused. */
 .sentence-input-inline:focus:empty::before {
     content: "";
+}
+
+.writing-caret {
+    position: fixed;
+    z-index: 5;
+    background: var(--link);
+    border-radius: 1px;
+    pointer-events: none;
+    display: none;
+    animation: writingCaretBlink 1.05s steps(1) infinite;
+}
+
+@keyframes writingCaretBlink {
+    50% { opacity: 0; }
 }
 
 .sentence-fragment {

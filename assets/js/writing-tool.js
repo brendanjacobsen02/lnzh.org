@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sumCopy = document.getElementById('sum-copy');
     const sumDownload = document.getElementById('sum-download');
     const sumContinue = document.getElementById('sum-continue');
+    const caret = document.getElementById('writing-caret');
 
     const required = [
         form, input, stream, keepPopover, acceptSentenceButton, rejectSentenceButton,
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsToggle, settingsPanel, completeButton, completeKbd, kbdHint, kbdConfirmHint,
         draftsSection, draftList, toast, hudWords, hudSentences, hudKept, summary,
         summaryClose, sumWords, sumSentences, sumKept, sumRead, sumPreview, sumSave,
-        sumCopy, sumDownload, sumContinue,
+        sumCopy, sumDownload, sumContinue, caret,
     ];
     if (required.some((el) => !el)) {
         return;
@@ -132,6 +133,50 @@ document.addEventListener('DOMContentLoaded', () => {
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
+    }
+
+    /* ---------- block caret ----------
+       Native caret is hidden (CSS); we draw a block at the measured caret rect
+       so the cursor is a consistent block everywhere, including the empty box. */
+    function caretRect() {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0).cloneRange();
+            range.collapse(true);
+            const bounding = range.getBoundingClientRect();
+            if (bounding && bounding.height > 0) {
+                return bounding;
+            }
+            const rects = range.getClientRects();
+            if (rects.length > 0 && rects[0].height > 0) {
+                return rects[0];
+            }
+        }
+        // empty field / unmeasurable position: sit at the input's start
+        const box = input.getBoundingClientRect();
+        const lineHeight = parseFloat(window.getComputedStyle(input).lineHeight);
+        return { left: box.left, top: box.top, height: Number.isFinite(lineHeight) ? lineHeight : 28 };
+    }
+
+    function updateCaret() {
+        const selection = window.getSelection();
+        const collapsed = !selection || selection.isCollapsed;
+        if (document.activeElement !== input || !collapsed) {
+            caret.style.display = 'none';
+            return;
+        }
+        const rect = caretRect();
+        const fontSize = parseFloat(window.getComputedStyle(input).fontSize) || 16;
+        const height = Math.min(rect.height, fontSize * 1.15);
+        caret.style.display = 'block';
+        caret.style.left = rect.left + 'px';
+        caret.style.top = (rect.top + (rect.height - height) / 2) + 'px';
+        caret.style.width = (fontSize * 0.5) + 'px';
+        caret.style.height = height + 'px';
+    }
+
+    function queueCaret() {
+        window.requestAnimationFrame(updateCaret);
     }
 
     /* ---------- export ---------- */
@@ -416,22 +461,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     input.addEventListener('input', () => {
         collectCompletedSentences();
+        queueCaret();
     });
 
     input.addEventListener('keydown', (event) => {
-        const decisionPending = confirmationToggle.checked
-            && shortcutsToggle.checked
-            && activeSentenceIndex !== -1
-            && !keepPopover.hidden;
+        // In confirm mode, a finished sentence must be kept or cut before you can
+        // keep writing — the prompt gates input.
+        const awaitingDecision = confirmationToggle.checked && activeSentenceIndex !== -1;
 
-        if (decisionPending && (event.key === 'y' || event.key === 'Y')) {
-            event.preventDefault();
-            acceptActive();
-            return;
-        }
-        if (decisionPending && (event.key === 'n' || event.key === 'N')) {
-            event.preventDefault();
-            rejectActive();
+        if (awaitingDecision) {
+            // Let real system shortcuts (copy, select-all, …) through.
+            if (event.metaKey || event.ctrlKey || event.altKey) {
+                return;
+            }
+            if (shortcutsToggle.checked && (event.key === 'y' || event.key === 'Y')) {
+                event.preventDefault();
+                acceptActive();
+                return;
+            }
+            if (shortcutsToggle.checked && (event.key === 'n' || event.key === 'N')) {
+                event.preventDefault();
+                rejectActive();
+                return;
+            }
+            // Block anything that edits text; navigation keys still pass through.
+            if (event.key.length === 1 || event.key === 'Enter'
+                || event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Tab') {
+                event.preventDefault();
+            }
             return;
         }
 
@@ -448,9 +505,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     input.addEventListener('paste', (event) => {
         event.preventDefault();
+        if (confirmationToggle.checked && activeSentenceIndex !== -1) {
+            return;
+        }
         const pastedText = event.clipboardData.getData('text/plain');
         document.execCommand('insertText', false, pastedText);
         collectCompletedSentences();
+        queueCaret();
     });
 
     stream.addEventListener('click', () => {
@@ -523,6 +584,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('resize', queuePopoverPosition);
     window.addEventListener('scroll', queuePopoverPosition, true);
+
+    document.addEventListener('selectionchange', queueCaret);
+    input.addEventListener('focus', queueCaret);
+    input.addEventListener('blur', () => { caret.style.display = 'none'; });
+    window.addEventListener('resize', queueCaret);
+    window.addEventListener('scroll', queueCaret, true);
 
     updateKbdHints();
     renderSentences();
