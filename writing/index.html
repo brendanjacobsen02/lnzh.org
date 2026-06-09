@@ -75,11 +75,17 @@
                             <div class="settings-panel" id="settings-panel" role="dialog" aria-label="Writing settings" hidden>
                                 <h4>settings</h4>
                                 <label class="writing-switch">
+                                    <span class="ws-text"><span class="ws-lab">confirm each sentence</span><span class="ws-sub">lock until you keep or cut</span></span>
+                                    <input type="checkbox" id="confirmation-toggle" checked>
+                                    <span class="ws-track" aria-hidden="true"></span>
+                                </label>
+                                <label class="writing-switch">
                                     <span class="ws-text"><span class="ws-lab">blackout</span><span class="ws-sub">redact finished sentences</span></span>
                                     <input type="checkbox" id="blackout-toggle">
                                     <span class="ws-track" aria-hidden="true"></span>
                                 </label>
                                 <div class="writing-shortcuts">
+                                    <div class="sc"><span>keep / cut</span><span class="keys"><kbd class="kc">Y</kbd><kbd class="kc">N</kbd></span></div>
                                     <div class="sc"><span>complete draft</span><span class="keys"><kbd class="kc">⌘</kbd><kbd class="kc">↵</kbd></span></div>
                                     <div class="sc"><span>new line</span><span class="keys"><kbd class="kc">↵</kbd></span></div>
                                 </div>
@@ -90,6 +96,7 @@
                     <p class="writing-kbd-hint" id="writing-kbd-hint">
                         <span><kbd class="kc">↵</kbd> new line</span>
                         <span><kbd class="kc">⌘</kbd><kbd class="kc">↵</kbd> complete</span>
+                        <span id="writing-kbd-confirm"><kbd class="kc">Y</kbd>/<kbd class="kc">N</kbd> keep · cut</span>
                     </p>
                 </form>
 
@@ -97,6 +104,12 @@
                     <h2>completed drafts</h2>
                     <div id="draft-list"></div>
                 </section>
+            </div>
+
+            <div class="sentence-keep-popover" id="sentence-keep-popover" hidden>
+                <span class="skp-q">keep this sentence?</span>
+                <button type="button" class="skp-opt skp-keep" id="sentence-accept" aria-label="Keep sentence"><span class="kc">Y</span> keep ✓</button>
+                <button type="button" class="skp-opt skp-cut" id="sentence-reject" aria-label="Cut sentence"><span class="kc">N</span> cut ✗</button>
             </div>
 
             <div class="writing-summary" id="writing-summary" role="dialog" aria-modal="true" aria-label="Draft complete" hidden>
