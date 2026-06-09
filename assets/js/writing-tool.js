@@ -498,6 +498,12 @@ document.addEventListener('DOMContentLoaded', () => {
     acceptSentenceButton.addEventListener('click', acceptActive);
     rejectSentenceButton.addEventListener('click', rejectActive);
 
+    // Keep the caret in the editor when clicking keep/cut (don't let the button
+    // steal focus, which would hide the caret).
+    [acceptSentenceButton, rejectSentenceButton].forEach((button) => {
+        button.addEventListener('mousedown', (event) => event.preventDefault());
+    });
+
     settingsToggle.addEventListener('click', (event) => {
         event.stopPropagation();
         const willOpen = settingsPanel.hidden;

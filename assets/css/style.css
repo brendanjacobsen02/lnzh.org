@@ -1,5 +1,5 @@
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* ==========================================================================
    Theme tokens
@@ -23,8 +23,9 @@
     --accent: #111;       /* form control accent (checkbox tick) */
     --redact: #111;       /* blackout redaction bar — legible in both themes */
 
-    /* Mono chrome face (writing page UI labels, HUD, buttons) */
-    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    /* UI chrome face (writing page labels, HUD, buttons). Proportional sans that
+       pairs with Newsreader; tabular figures keep the scoreboard tidy. */
+    --mono: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 
     /* Lines */
     --line: #ccc;            /* default hairline */
@@ -635,6 +636,13 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     caret-color: var(--link);
 }
 
+/* Give the empty editor a caret target so the native caret stays visible
+   between sentences (an empty inline box collapses and hides it otherwise). */
+.sentence-input-inline:empty {
+    display: inline-block;
+    min-width: 0.4em;
+}
+
 .sentence-input-inline:empty::before {
     content: attr(data-placeholder);
     color: rgba(var(--text-rgb), 0.38);
@@ -708,6 +716,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    font-variant-numeric: tabular-nums;
 }
 
 .writing-hud b {
@@ -1190,6 +1199,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     font-weight: 600;
     line-height: 1;
     color: var(--link);
+    font-variant-numeric: tabular-nums;
 }
 
 .writing-summary-stats .l {
