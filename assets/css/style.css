@@ -115,7 +115,8 @@ body {
     line-height: 1.6;
     color: var(--text);
     background-color: var(--paper);
-    display: block;
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
     transition: color 0.2s ease, background-color 0.2s ease;
 }
@@ -481,6 +482,9 @@ main {
     margin-left: 20%;
     margin-right: 7.5%;
     padding: 60px 20px 60px 20px;
+    /* Grow to fill leftover height so a short page pushes the footer to the
+       bottom of the viewport; tall content keeps footer below it naturally. */
+    flex: 1 0 auto;
 }
 
 /* Typography */
@@ -1819,6 +1823,7 @@ footer {
     gap: 20px;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .footer-icons {
