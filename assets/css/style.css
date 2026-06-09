@@ -265,6 +265,20 @@ nav img:not([class*="size-"]) {
     transform-origin: bottom center;
 }
 
+/* Open: a springy squash-and-stretch hop rippling left→right across the stars. */
+@keyframes navStarBounce {
+    0%   { transform: translateY(0)     scaleY(1); }
+    28%  { transform: translateY(-10px) scaleY(1.18); }
+    52%  { transform: translateY(0)     scaleY(0.8); }
+    72%  { transform: translateY(-3px)  scaleY(1.07); }
+    100% { transform: translateY(0)     scaleY(1); }
+}
+
+.dropdown-trigger.active .nav-star {
+    animation: navStarBounce 0.56s cubic-bezier(0.3, 1.2, 0.5, 1) backwards;
+    animation-delay: calc(var(--i) * 70ms);
+}
+
 /* Sidebar attention glow — triggered by the homepage "explore the sidebar!" link */
 @keyframes navGlow {
     0%, 100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }
