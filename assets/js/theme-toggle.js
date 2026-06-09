@@ -197,6 +197,15 @@
             '.theme-toggle-btn:focus-visible{',
             '  outline:3px solid var(--link,#119c36);outline-offset:3px;}',
             '.theme-toggle-btn .tt-icon{pointer-events:none;display:block;}',
+            /* One-shot pulse to send the eye to the gear when the panel is
+               opened from elsewhere on the page (e.g. the homepage link). */
+            '@keyframes tt-pulse{',
+            '  0%{transform:translate(0,0);}',
+            '  30%{transform:translate(-2px,-2px) scale(1.06);}',
+            '  60%{transform:translate(1px,1px) scale(0.98);}',
+            '  100%{transform:translate(0,0);}',
+            '}',
+            '.theme-toggle-btn.tt-pulse{animation:tt-pulse .5s steps(4) 2;}',
             '@media (max-width:600px){',
             '  .theme-toggle-btn{width:44px;height:44px;font-size:18px;top:10px;right:10px;}',
             '}',
@@ -243,6 +252,7 @@
                cause lives in style.css body transitions). */
             '@media (prefers-reduced-motion: reduce){',
             '  .theme-toggle-btn{transition:none;}',
+            '  .theme-toggle-btn.tt-pulse{animation:none;}',
             '  html,body{transition:none !important;}',
             '  *{transition-duration:0.01ms !important;transition-delay:0ms !important;}',
             '}'
@@ -571,10 +581,33 @@
         updateSwatches(currentAccent());
     }
 
+    /* ---- in-content trigger (homepage "customize your experience" link) ---- */
+    function wireSettingsLink() {
+        var link = document.getElementById('open-settings');
+        if (!link) { return; }
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (panelOpen) { closePanel(); return; }
+            openPanel();
+            // The panel appears at the gear (top-right), away from the link —
+            // pulse the gear once so the eye follows. Reduced-motion: no-op.
+            if (!gear) { return; }
+            gear.classList.remove('tt-pulse');
+            // Force reflow so re-adding the class restarts the animation.
+            void gear.offsetWidth;
+            gear.classList.add('tt-pulse');
+            gear.addEventListener('animationend', function handler() {
+                gear.classList.remove('tt-pulse');
+                gear.removeEventListener('animationend', handler);
+            });
+        });
+    }
+
     /* ---- init ---- */
     function init() {
         injectStyles();
         buildUI();
+        wireSettingsLink();
         preloadDarkVariants();
         // Ensure images match the theme already set by theme-init.js.
         swapImages(currentTheme());
