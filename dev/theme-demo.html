@@ -438,7 +438,7 @@
     // Rare SUPERNOVA: slower, much bigger + brighter (additive) bloom.
     var nova = document.getElementById('iris-nova-force').checked
             || Math.random() < (+document.getElementById('iris-nova-rate').value / 100);
-    if (nova) { ringDelay = Math.round(ringDelay * 1.7); bloom = Math.max(bloom * 3, 96); }
+    if (nova) { ringDelay = Math.round(ringDelay * 1.7); bloom = 14; }  // big bloom was the white-out
     var W = window.innerWidth, Hh = window.innerHeight;
     var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL);
     return {
@@ -560,8 +560,8 @@
           var gc = cellGlow[i];                          // per-cell noised/vivid color
           if (bloom > 0) {                               // chunky halo (no blur)
             if (nova) {                                  // additive -> white-hot bloom
-              ctx.globalCompositeOperation = 'lighter';
-              ctx.globalAlpha = 0.32 * cover; ctx.fillStyle = gc;
+              ctx.globalCompositeOperation = 'screen';  // can't exceed source -> no white-out
+              ctx.globalAlpha = 0.22 * cover; ctx.fillStyle = gc;
               ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
               ctx.globalCompositeOperation = 'source-over';
             } else {
