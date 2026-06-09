@@ -586,11 +586,10 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .sentence-input-inline {
-    display: inline-block;
-    min-width: 1rem;
+    display: inline;
     outline: none;
     white-space: pre-wrap;
-    vertical-align: baseline;
+    overflow-wrap: anywhere;
 }
 
 .sentence-input-inline:empty::before {
@@ -2329,4 +2328,38 @@ footer a img {
     }
 }
 
-/* (Writing-page styles consolidated above, in the main writing-page block.) */
+/* ---- Writing page: accent-colored hover (shadow + outline in --link) ---- */
+.writing-actions .filter-btn:not(:disabled):hover,
+.settings-toggle:hover,
+.writing-summary-actions .filter-btn:hover {
+    opacity: 1;
+    border-color: var(--link);
+    color: var(--link);
+    box-shadow: 2px 2px 0 color-mix(in srgb, var(--link) 55%, transparent);
+}
+
+.draft-actions button:hover {
+    opacity: 1;
+    border-color: var(--link);
+    color: var(--link);
+    box-shadow: 1px 1px 0 color-mix(in srgb, var(--link) 50%, transparent);
+}
+
+.skp-opt:hover {
+    opacity: 1;
+    color: var(--link);
+}
+
+.skp-cut:hover {
+    color: var(--cat-coral);
+}
+
+/* Summary buttons: "back" (keep writing) far left, save far right. */
+.writing-summary-actions {
+    justify-content: flex-start;
+}
+
+.writing-back {
+    color: var(--muted);
+    box-shadow: none;
+}

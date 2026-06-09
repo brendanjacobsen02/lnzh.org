@@ -114,6 +114,26 @@ document.addEventListener('DOMContentLoaded', () => {
         selection.addRange(range);
     }
 
+    // Insert a real newline character at the caret (reliable across browsers,
+    // unlike execCommand). The editor flows inline + white-space:pre-wrap, so
+    // the break lands at the left margin like normal text.
+    function insertNewline() {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0 || !input.contains(selection.anchorNode)) {
+            input.append(document.createTextNode('\n'));
+            placeCaretAtEnd();
+            return;
+        }
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const newline = document.createTextNode('\n');
+        range.insertNode(newline);
+        range.setStartAfter(newline);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
     /* ---------- export ---------- */
     function downloadText(filename, text) {
         const blob = new Blob([text], { type: 'text/plain' });
@@ -420,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (event.metaKey || event.ctrlKey) {
                 completeDraft();
             } else {
-                document.execCommand('insertText', false, '\n');
+                insertNewline();
                 collectCompletedSentences();
             }
         }
