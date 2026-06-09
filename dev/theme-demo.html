@@ -173,6 +173,17 @@
     border: 2px solid var(--line-strong); padding: 3px 6px;
   }
 
+  /* frame-time meter (demo-only) — the before/after evidence. */
+  .iris-meter {
+    position: fixed; left: 14px; bottom: 14px; z-index: 10000;
+    font-family: 'Courier New', monospace; font-size: 12px;
+    color: var(--ink); background: var(--paper-raised);
+    border: 2px solid var(--line-strong); padding: 6px 10px;
+    box-shadow: 3px 3px 0 0 var(--line-strong);
+  }
+  .iris-meter[hidden] { display: none; }
+  .iris-meter b { color: var(--link); }
+
   /* ---- CRT power-cycle overlay (runner-up) ---- */
   .crt-overlay {
     position: fixed; inset: 0; z-index: 9999; pointer-events: none;
@@ -265,6 +276,12 @@
         <option value="paper-raised">paper flash</option>
         <option value="toxic">toxic green</option>
         <option value="blood">blood red</option>
+      </select>
+    </label>
+    <label>renderer
+      <select id="iris-renderer">
+        <option value="canvas" selected>canvas (fast)</option>
+        <option value="dom">DOM (old, slow)</option>
       </select>
     </label>
   </div>
@@ -363,54 +380,41 @@
     return getComputedStyle(document.documentElement)
       .getPropertyValue(name).trim() || fallback;
   }
-  function irisCloseIn() {
-    if (busy) { return; }
-    var next = nextTheme();
-    if (reduced()) { flip(next); return; }
-    busy = true;
-
-    // Tunables (live from the demo sliders).
+  /* Shared: read params + geometry from the sliders (no DOM built here). */
+  function irisParams() {
     var CELL      = +document.getElementById('iris-cell').value;        // px
     var ringDelay = +document.getElementById('iris-speed').value;       // ms/ring
     var wild      = +document.getElementById('iris-wild').value / 100;  // 0..1
     var bloom     = +document.getElementById('iris-bloom').value;       // px
     var glowSrc   = document.getElementById('iris-glow').value;
-
-    // Outgoing-theme colors (the leading edge belongs to the old screen).
-    var outgoing = readVar('--paper', '#f2f2e4');
+    var outgoing  = readVar('--paper', '#f2f2e4');  // leading edge = old screen
     var glow = glowSrc === 'ink' ? readVar('--ink', '#000')
              : glowSrc === 'paper-raised' ? readVar('--paper-raised', '#fffdf4')
              : glowSrc === 'toxic' ? '#9bff2e'
              : glowSrc === 'blood' ? '#ff2424'
              : readVar('--link', '#119c36');   // 'accent'
+    var W = window.innerWidth, Hh = window.innerHeight;
+    var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL);
+    return {
+      CELL: CELL, ringDelay: ringDelay, wild: wild, bloom: bloom,
+      outgoing: outgoing, glow: glow, W: W, Hh: Hh, cols: cols, rows: rows,
+      cellW: W / cols, cellH: Hh / rows, cx: (cols - 1) / 2, cy: (rows - 1) / 2,
+      grainMs: ringDelay * (0.6 + wild * 1.8)
+    };
+  }
 
-    var cols = Math.ceil(window.innerWidth / CELL);
-    var rows = Math.ceil(window.innerHeight / CELL);
-
-    var overlay = document.createElement('div');
-    overlay.className = 'iris-overlay';
-    overlay.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
-    overlay.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
-    overlay.style.setProperty('--iris-fill', outgoing);
-    overlay.style.setProperty('--iris-glow', glow);
-    overlay.style.setProperty('--iris-bloom', bloom + 'px');
-
-    var cx = (cols - 1) / 2;
-    var cy = (rows - 1) / 2;
-
-    // ---- per-replay noise field: angular tendrils + blobby corrosion. Random
-    //      every flip, so the parasite closes in differently each time. The
-    //      tendrils warp the circle into reaching fingers; the blobs eat
-    //      irregular bites out of the front. ----
+  /* Shared: noise-warped per-cell delays (the corroded, tendrilled front).
+     Identical math for both renderers, so canvas and DOM look the same. */
+  function buildDelays(p) {
     var H = [], nH = 4 + Math.floor(Math.random() * 3), ampSum = 0;
     for (var k = 0; k < nH; k++) {
       var a = 0.4 + Math.random();
       ampSum += a;
-      H.push({ f: 2 + Math.floor(Math.random() * 7), a: a, p: Math.random() * 6.2832 });
+      H.push({ f: 2 + Math.floor(Math.random() * 7), a: a, ph: Math.random() * 6.2832 });
     }
     function tendril(theta) {           // angular fingers -> ~[-1,1]
       var s = 0;
-      for (var t = 0; t < H.length; t++) { s += H[t].a * Math.sin(H[t].f * theta + H[t].p); }
+      for (var t = 0; t < H.length; t++) { s += H[t].a * Math.sin(H[t].f * theta + H[t].ph); }
       return s / ampSum;
     }
     var sA = Math.random() * 6.2832, sB = Math.random() * 6.2832,
@@ -419,58 +423,149 @@
       return (Math.sin(c * bf + sA) * Math.cos(r * bf + sB)
               + 0.6 * Math.sin((c + r) * bf * 0.7 + sC)) / 1.6;
     }
-
-    var tendrilAmp = wild * 5;          // up to ~5 cells of angular warp
-    var blobAmp    = wild * 4;          // up to ~4 cells of blotch warp
-    var grainMs    = ringDelay * (0.6 + wild * 1.8); // crumble jitter (ms)
-
-    // Pass 1: effective (noise-warped) radius per cell; track the outer ring.
-    var total = cols * rows;
-    var eff = new Float64Array(total);
-    var maxEff = 0, idx = 0;
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        var dx = c - cx, dy = r - cy;
-        var d = Math.hypot(dx, dy)
-              + tendril(Math.atan2(dy, dx)) * tendrilAmp
-              + blob(c, r) * blobAmp;
+    var tendrilAmp = p.wild * 5, blobAmp = p.wild * 4;
+    var total = p.cols * p.rows, eff = new Float64Array(total), maxEff = 0, idx = 0;
+    for (var r = 0; r < p.rows; r++) {
+      for (var c = 0; c < p.cols; c++) {
+        var dx = c - p.cx, dy = r - p.cy;
+        var d = Math.hypot(dx, dy) + tendril(Math.atan2(dy, dx)) * tendrilAmp + blob(c, r) * blobAmp;
         if (d < 0) { d = 0; }
         eff[idx++] = d;
         if (d > maxEff) { maxEff = d; }
       }
     }
     var maxRing = Math.round(maxEff);
+    var delay = new Float64Array(total);
+    for (var i = 0; i < total; i++) {
+      var dl = (maxRing - Math.round(eff[i])) * p.ringDelay + Math.random() * p.grainMs;
+      delay[i] = dl < 0 ? 0 : dl;
+    }
+    return { delay: delay, maxRing: maxRing };
+  }
 
-    // Pass 2: build cells; delay by descending warped ring + grain jitter, so
-    // the outer ragged front fires first and crumbles inward to the center.
-    var cells = [];
-    idx = 0;
-    for (var r2 = 0; r2 < rows; r2++) {
-      for (var c2 = 0; c2 < cols; c2++) {
-        var cell = document.createElement('div');
-        cell.className = 'iris-cell';
-        var ring = Math.round(eff[idx++]);
-        var delay = (maxRing - ring) * ringDelay + Math.random() * grainMs;
-        if (delay < 0) { delay = 0; }
-        cell.style.setProperty('--iris-delay', delay.toFixed(0) + 'ms');
-        overlay.appendChild(cell);
-        cells.push(cell);
+  /* Shared: rAF sampler — runs for endT ms, records frame pacing, calls
+     perFrame(t) each frame, then reports fps/worst-frame + cleans up. Long
+     frames here == visible jank, so this IS the before/after instrument. */
+  function meteredRun(renderer, endT, perFrame, cleanup) {
+    var t0 = null, last = null, worst = 0, frames = 0, sum = 0;
+    function loop(now) {
+      if (t0 === null) { t0 = now; last = now; }
+      var dt = now - last; last = now;
+      if (frames > 0) { if (dt > worst) { worst = dt; } sum += dt; }
+      frames++;
+      var t = now - t0;
+      if (perFrame) { perFrame(t); }
+      if (t < endT) { requestAnimationFrame(loop); }
+      else {
+        var avg = sum / Math.max(1, frames - 1);
+        showMeter(renderer, Math.round(1000 / avg), Math.round(worst));
+        if (cleanup) { cleanup(); }
+        busy = false;
       }
     }
+    requestAnimationFrame(loop);
+  }
+
+  function showMeter(renderer, fps, worst) {
+    var m = document.getElementById('iris-meter');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'iris-meter'; m.className = 'iris-meter';
+      document.body.appendChild(m);
+    }
+    m.hidden = false;
+    m.innerHTML = 'iris ' + renderer + ': <b>' + fps + ' fps</b> · worst frame <b>'
+      + worst + ' ms</b>';
+  }
+
+  /* THE FIX: render every block on ONE canvas. fillRect never touches per-node
+     layout/paint/layers, so it holds 60fps even at 12px blocks. */
+  function irisRenderCanvas(p, d, DUR, endT, next) {
+    var canvas = document.createElement('canvas');
+    canvas.width = p.W; canvas.height = p.Hh;
+    canvas.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;'
+      + 'width:100vw;height:100vh;image-rendering:pixelated;';
+    var ctx = canvas.getContext('2d');
+    var cols = p.cols, total = p.cols * p.rows;
+    var cw = Math.ceil(p.cellW) + 1, ch = Math.ceil(p.cellH) + 1, bloom = p.bloom;
+
+    function draw(t) {
+      ctx.clearRect(0, 0, p.W, p.Hh);
+      for (var i = 0; i < total; i++) {
+        var local = t - d.delay[i];
+        if (local >= DUR) { continue; }                  // cleared -> page shows
+        var x = ((i % cols) * p.cellW) | 0, y = (((i / cols) | 0) * p.cellH) | 0;
+        if (local < 0) {                                 // not started -> covered
+          ctx.globalAlpha = 1; ctx.fillStyle = p.outgoing; ctx.fillRect(x, y, cw, ch);
+          continue;
+        }
+        var ph = local / DUR;
+        var cover = ph < 0.52 ? 1 : 1 - (ph - 0.52) / 0.48;  // fade old away
+        var spike = (ph >= 0.10 && ph < 0.22) || (ph >= 0.34 && ph < 0.46); // 2 flickers
+        if (spike) {
+          if (bloom > 0) {                               // cheap chunky halo (no blur)
+            ctx.globalAlpha = 0.28 * cover; ctx.fillStyle = p.glow;
+            ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
+          }
+          ctx.globalAlpha = cover; ctx.fillStyle = p.glow; ctx.fillRect(x, y, cw, ch);
+        } else {
+          ctx.globalAlpha = cover; ctx.fillStyle = p.outgoing; ctx.fillRect(x, y, cw, ch);
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    draw(0);                       // cover the page before the flip
+    document.body.appendChild(canvas);
+    flip(next);
+    meteredRun('canvas', endT, draw, function () {
+      if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); }
+    });
+  }
+
+  /* The OLD (slow) renderer, kept for A/B: thousands of DOM cells each running a
+     box-shadow + background keyframe. Watch the meter tank vs canvas. */
+  function irisRenderDOM(p, d, DUR, endT, next) {
+    var overlay = document.createElement('div');
+    overlay.className = 'iris-overlay';
+    overlay.style.gridTemplateColumns = 'repeat(' + p.cols + ', 1fr)';
+    overlay.style.gridTemplateRows = 'repeat(' + p.rows + ', 1fr)';
+    overlay.style.setProperty('--iris-fill', p.outgoing);
+    overlay.style.setProperty('--iris-glow', p.glow);
+    overlay.style.setProperty('--iris-bloom', p.bloom + 'px');
+    var total = p.cols * p.rows, cells = new Array(total);
+    for (var i = 0; i < total; i++) {
+      var cell = document.createElement('div');
+      cell.className = 'iris-cell';
+      cell.style.setProperty('--iris-delay', d.delay[i].toFixed(0) + 'ms');
+      overlay.appendChild(cell);
+      cells[i] = cell;
+    }
     document.body.appendChild(overlay);
-
-    flip(next); // page restyles instantly, hidden by the opaque cells
-
+    flip(next);
     overlay.offsetHeight; // force reflow so the opaque state is committed
     requestAnimationFrame(function () {
-      for (var i = 0; i < cells.length; i++) { cells[i].classList.add('is-go'); }
+      for (var j = 0; j < total; j++) { cells[j].classList.add('is-go'); }
     });
-
-    var DUR = 320; // matches --iris-dur default
-    setTimeout(function () {
+    meteredRun('DOM', endT, null, function () {
       if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
-      busy = false;
-    }, maxRing * ringDelay + grainMs + DUR + 200);
+    });
+  }
+
+  function irisCloseIn() {
+    if (busy) { return; }
+    var next = nextTheme();
+    if (reduced()) { flip(next); return; }
+    busy = true;
+    var p = irisParams();
+    var d = buildDelays(p);
+    var DUR = 320; // matches --iris-dur default
+    var endT = d.maxRing * p.ringDelay + p.grainMs + DUR + 80;
+    if (document.getElementById('iris-renderer').value === 'dom') {
+      irisRenderDOM(p, d, DUR, endT, next);
+    } else {
+      irisRenderCanvas(p, d, DUR, endT, next);
+    }
   }
 
   /* ---- pixel-dissolve (same algorithm as theme-toggle.js) ---- */
