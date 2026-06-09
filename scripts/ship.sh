@@ -29,9 +29,13 @@ gh pr create --base main --head "$branch" --fill >/dev/null 2>&1 \
   || echo "ship: a PR already exists for ${branch}; reusing it."
 
 echo "ship: squash-merging to main..."
-gh pr merge "$branch" --squash --delete-branch   # aborts here (set -e) if not mergeable
+# Merge purely via the API (run from /tmp with GH_REPO) so gh never tries to switch
+# THIS clone's checkout over to main -- that fails when main is checked out in another
+# worktree. The subshell's non-zero exit still trips set -e if the PR isn't mergeable.
+repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+( cd /tmp && GH_REPO="$repo" gh pr merge "$branch" --squash --delete-branch )
 
-# Success — the change is live. Tidy up the worktree from the primary checkout.
+# Success: the change is live. Tidy up this worktree from the primary checkout.
 cd "$main_wt"
 git worktree remove --force "$wt" 2>/dev/null || true
 git branch -D "$branch" 2>/dev/null || true
