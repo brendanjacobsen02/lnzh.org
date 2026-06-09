@@ -1,8 +1,48 @@
 # CLAUDE.md — working in this repo
 
 General conventions (structure, coding style, the JS syntax check, local serving)
-live in [AGENTS.md](AGENTS.md). This file is specifically about how concurrent
-Claude sessions stay out of each other's way and ship changes here.
+live in [AGENTS.md](AGENTS.md). This file is **how to work with me** — what I care
+about — and how concurrent Claude sessions stay out of each other's way and ship here.
+
+## How to work with me (read first)
+
+**Default to action — just go.** Be as autonomous as possible: make the call, do the
+work, merge it, tell me after. I'd rather react to real work than approve plans. Everything
+below is context so your own calls land where I'd want them — fuel for judgment, not a
+rulebook. The better you hold this, the fewer rules either of us needs.
+
+**What this is.** lnzh.org is *my* personal site — my writing and ideas, first. Not a
+portfolio, not for anyone's approval. A home.
+
+**The taste is the whole point.** Every visual is hand-made and being hand-redrawn — the
+nav, the 8-bit theme toggle, the bespoke iris transition. The feel is warm, imperfect,
+idiosyncratic, a little playful, unmistakably human. The single failure state is *looks
+like AI made it*: generic components, default type, safe spacing, stock polish. When you
+touch anything visual, extend **this**, in my voice — never homogenize it.
+
+**The live site is the source of truth — not this file.** When you're unsure how something
+should look or behave, match what's already shipped and the hand-drawn assets; they're the
+real spec. This doc is the *why*. If they ever disagree, the site wins.
+
+**The bar, when I'm not watching:**
+
+- **Unmistakably mine** — never generic.
+- **Genuinely right** — the craft holds up; considered, not just working.
+- **Creative calls that are *aligned*.** I *want* you making design decisions — the thing I
+  can't stand is one that's misaligned with where I'd have gone. Alignment comes from
+  knowing my taste (this doc + the living site), not from asking permission.
+- **Lean** — does the thing and stops. No bloat, no unrequested features.
+- **No babysitting** — ships clean; I don't tidy up after you.
+
+**See the whole board.** Several branches/worktrees are usually live at once. Before
+changing something, know what *else* is touching it; a nav or style edit can collide with
+another branch's in-progress work. Factor the other work in. (Mechanics below.)
+
+**One genuine exception to "just go":** if you can't tell *what* I'm asking — which task,
+which direction — ask. For *how* to execute a clear ask, don't check in: just nail it.
+
+**Hold onto decisions.** When we settle a preference or direction, keep it (here or in
+memory) so I never have to say it twice.
 
 ## Isolation: one worktree per session
 
@@ -21,6 +61,16 @@ and uncommitted edits bleed across branches. So:
   fetch first; `worktree-up.sh` does). They live as siblings: `../lnzh-<name>`.
 - Never run a tree-moving git op (`checkout` / `switch` / `reset` / `stash` /
   `clean` / `rebase`) in a tree that holds changes you didn't author. Stop and ask.
+
+### Working across branches
+
+Several worktrees run at once. **Commit your own scoped work promptly, in small commits on
+your own branch — don't wait to be asked;** uncommitted work is what another session
+clobbers. Never commit a mixed tree or another session's files, never `git add -A` / `.`
+blindly (stage what *you* authored), and before any commit confirm `git branch
+--show-current` and that `git status` shows only your files. The per-page nav,
+`assets/css/style.css`, and the theme JS are what branches collide on — check what else is
+in flight and pick a merge order.
 
 ## Shipping
 
@@ -48,31 +98,24 @@ copied into every page and each page sits at a different path depth:
 > the homepage break went live. The tell-tale "works at depth 2, breaks elsewhere" is the
 > signature of the gotcha below.
 
-### Small, self-contained change → ship it without asking
+### Merge straight to main — no PR
 
-If the change is one concern, the user asked for it, and **no other active session
-is editing those files**, land it in one command — no approval needed:
+Finished, verified work goes **directly to `main`** — no PR, no waiting for review. From
+your worktree branch:
 
 ```bash
-scripts/ship.sh        # push → open PR → squash-merge → delete branch → remove worktree
+git push origin HEAD:main      # main auto-deploys to lnzh.org; no PR ceremony
+# then, from the primary checkout, tidy up:
+git worktree remove ../lnzh-<name> && git branch -D <branch>
 ```
 
-A PR still lands in history (audit trail + one-click rollback); there are just no
-manual steps. `ship.sh` aborts and keeps your worktree if the merge can't apply
-cleanly (e.g. `main` moved and now conflicts) — resolve and re-run.
+If the push is rejected because `main` moved, rebase your branch on the new `origin/main`
+and push again. (`scripts/ship.sh` still exists but opens a PR first — skip it; direct push
+is the default now.) Always **report what you merged** afterward — the commit + what changed.
 
-Always **report what you shipped** afterward (the PR link + what changed), even
-though it merged automatically.
-
-### Large / in-progress branch → open a PR and let the user review
-
-Do **not** auto-merge when the branch is a big or unfinished feature, or touches
-files another session is actively editing. Open the PR and present it for review
-before it goes live. The writing-page redesign is the canonical example: merging it
-wholesale would deploy half-finished work, and its nav can conflict with the
-hand-drawn redesign already on `main`.
-
-When unsure whether a change counts as "small," lean toward presenting it.
+The one judgment call left to you: **don't push half-finished work to the live site.** If
+something genuinely isn't ready, leave it on its branch and tell me — that's about
+readiness, not permission.
 
 ## Gotchas that have bitten us — don't repeat
 
