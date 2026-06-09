@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Recipes and culinary explorations by Leon Zhou">
+    <meta name="description" content="Archive — every page on Leon Zhou's site that isn't in the navbar">
     <meta name="author" content="Leon Zhou">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self';">
     <meta name="referrer" content="no-referrer-when-downgrade">
-    <title>lnzhRecipes</title>
+    <title>lnzhArchive</title>
+    <script src="../assets/js/theme-init.js"></script>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="icon" type="image/png" href="../assets/images/content/favicon.png">
     <script src="../assets/js/nav-dropdown.js"></script>
+    <script src="../assets/js/theme-toggle.js"></script>
 </head>
 <body>
     <nav>
@@ -31,6 +33,7 @@
                     <li class="dropdown-item"><a href="../list/"><img src="../assets/images/content/list.png" alt="list" class="size-3"></a></li>
                     <li class="dropdown-item"><a href="../about/"><img src="../assets/images/content/about.png" alt="about" class="size-1"></a></li>
                     <li class="dropdown-item"><a href="../time/"><img src="../assets/images/content/time.svg" alt="time" class="size-2"></a></li>
+                    <li class="dropdown-item"><a href="../archive/" class="nav-temp-link">archive</a></li>
                 </ul>
             </li>
         </ul>
@@ -38,14 +41,27 @@
 
     <main>
         <header class="intro">
-            <h1>Recipes</h1>
+            <h1>archive</h1>
         </header>
 
         <a href="../"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
 
         <section class="content">
-            <p>coming soon !</p>
-            <!-- Recipes will be listed here -->
+            <p>the back rooms — everything on the site that isn't in the navbar.</p>
+
+            <h2>writing</h2>
+            <ul style="list-style: disc; padding-left: 1.5rem; margin: 0 0 1.5rem;">
+                <li><a href="thoughts/">thoughts</a> — tweet-length aphorisms, tagged</li>
+                <li><a href="why/">why</a> — a reader's guide to this site</li>
+            </ul>
+
+            <h2>the coffee project</h2>
+            <ul style="list-style: disc; padding-left: 1.5rem; margin: 0 0 1.5rem;">
+                <li><a href="coffee/">coffee</a> — order a coffee</li>
+                <li><a href="../orders/">orders log</a> — public view of submitted orders</li>
+                <li><a href="../tip/">tip</a> — keep the coffee project alive</li>
+                <li><a href="../form/">email updates</a> — sign up for coffee updates</li>
+            </ul>
         </section>
     </main>
 

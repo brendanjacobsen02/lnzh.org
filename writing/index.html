@@ -10,9 +10,13 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self';">
     <meta name="referrer" content="no-referrer-when-downgrade">
     <title>lnzhWriting</title>
+    <script src="../assets/js/theme-init.js"></script>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="icon" type="image/png" href="../assets/images/content/favicon.png">
     <script src="../assets/js/nav-dropdown.js"></script>
+    <script src="../assets/js/theme-toggle.js"></script>
+    <script src="../assets/js/writing-core.js" defer></script>
+    <script src="../assets/js/block-caret.js" defer></script>
     <script src="../assets/js/writing-tool.js" defer></script>
 </head>
 <body>
@@ -32,6 +36,7 @@
                     <li class="dropdown-item"><a href="../list/"><img src="../assets/images/content/list.png" alt="list" class="size-3"></a></li>
                     <li class="dropdown-item"><a href="../about/"><img src="../assets/images/content/about.png" alt="about" class="size-1"></a></li>
                     <li class="dropdown-item"><a href="../time/"><img src="../assets/images/content/time.svg" alt="time" class="size-2"></a></li>
+                    <li class="dropdown-item"><a href="../archive/" class="nav-temp-link">archive</a></li>
                 </ul>
             </li>
         </ul>
@@ -40,6 +45,7 @@
     <main>
         <header class="intro">
             <h1>Writing</h1>
+            <p class="writing-tag">sentence by sentence</p>
         </header>
 
         <a href="../"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
@@ -47,37 +53,96 @@
         <section class="content writing-tool" aria-live="polite">
             <div class="writing-page">
                 <form class="writing-editor" id="writing-editor">
-                    <div class="sentence-stream" id="sentence-stream" aria-label="Sentence editor">
-                        <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" data-placeholder="Write. End a sentence with punctuation."></span>
-                    </div>
-                    <div class="writing-settings">
-                        <button class="filter-btn settings-toggle" type="button" id="settings-toggle" aria-expanded="false" aria-controls="settings-panel">settings</button>
-                        <div class="settings-panel" id="settings-panel" hidden>
-                            <label class="writing-switch">
-                                <input type="checkbox" id="blackout-toggle">
-                                <span>blackout</span>
-                            </label>
-                            <label class="writing-switch">
-                                <input type="checkbox" id="confirmation-toggle" checked>
-                                <span>confirm sentence</span>
-                            </label>
+                    <div class="writing-frame">
+                        <div class="sentence-stream" id="sentence-stream" aria-label="Sentence editor">
+                            <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" aria-multiline="true" data-placeholder="Write. End a sentence with punctuation."></span>
                         </div>
                     </div>
-                    <div class="sentence-keep-popover" id="sentence-keep-popover" hidden>
-                        <span>accept?</span>
-                        <button type="button" id="sentence-accept" aria-label="Accept sentence">✓</button>
-                        <button type="button" id="sentence-reject" aria-label="Reject sentence">×</button>
+
+                    <div class="writing-hud" id="writing-hud" aria-live="off">
+                        <span>words <b id="hud-words">00</b></span>
+                        <span>sentences <b id="hud-sentences">00</b></span>
+                        <span>kept <b id="hud-kept">00</b></span>
                     </div>
+
                     <div class="writing-actions">
-                        <button class="filter-btn" type="submit">complete draft</button>
+                        <button class="filter-btn writing-primary" type="submit" id="complete-draft">complete<span class="kbd" id="complete-kbd">⌘↵</span></button>
                         <button class="filter-btn" type="button" id="copy-writing" disabled>copy</button>
+                        <button class="filter-btn" type="button" id="download-writing" disabled>download</button>
+                        <button class="filter-btn writing-clear" type="button" id="clear-writing" disabled>clear</button>
+                        <span class="writing-actions-spacer"></span>
+                        <div class="writing-settings">
+                            <button class="filter-btn settings-toggle" type="button" id="settings-toggle" aria-expanded="false" aria-controls="settings-panel">⚙ settings</button>
+                            <div class="settings-panel" id="settings-panel" role="dialog" aria-label="Writing settings" hidden>
+                                <h4>settings</h4>
+                                <label class="writing-switch">
+                                    <span class="ws-text"><span class="ws-lab">confirm each sentence</span><span class="ws-sub">keep or cut before it sticks</span></span>
+                                    <input type="checkbox" id="confirmation-toggle" checked>
+                                    <span class="ws-track" aria-hidden="true"></span>
+                                </label>
+                                <label class="writing-switch">
+                                    <span class="ws-text"><span class="ws-lab">blackout</span><span class="ws-sub">redact while you write</span></span>
+                                    <input type="checkbox" id="blackout-toggle">
+                                    <span class="ws-track" aria-hidden="true"></span>
+                                </label>
+                                <label class="writing-switch">
+                                    <span class="ws-text"><span class="ws-lab">keyboard commands</span><span class="ws-sub">Y / N, ⌘↵, and more</span></span>
+                                    <input type="checkbox" id="shortcuts-toggle" checked>
+                                    <span class="ws-track" aria-hidden="true"></span>
+                                </label>
+                                <div class="writing-shortcuts">
+                                    <div class="sc"><span>keep / cut</span><span class="keys"><kbd class="kc">Y</kbd><kbd class="kc">N</kbd></span></div>
+                                    <div class="sc"><span>complete draft</span><span class="keys"><kbd class="kc">⌘</kbd><kbd class="kc">↵</kbd></span></div>
+                                    <div class="sc"><span>new line</span><span class="keys"><kbd class="kc">↵</kbd></span></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <p class="writing-kbd-hint" id="writing-kbd-hint">
+                        <span><kbd class="kc">↵</kbd> new line</span>
+                        <span><kbd class="kc">⌘</kbd><kbd class="kc">↵</kbd> complete</span>
+                        <span id="writing-kbd-confirm"><kbd class="kc">Y</kbd>/<kbd class="kc">N</kbd> keep · cut</span>
+                    </p>
                 </form>
+
                 <section class="completed-drafts" id="completed-drafts" aria-live="polite" hidden>
                     <h2>completed drafts</h2>
                     <div id="draft-list"></div>
                 </section>
             </div>
+
+            <div class="sentence-keep-popover" id="sentence-keep-popover" hidden>
+                <span class="skp-q">keep this sentence?</span>
+                <button type="button" class="skp-opt skp-keep" id="sentence-accept" aria-label="Keep sentence"><span class="kc">Y</span> keep ✓</button>
+                <button type="button" class="skp-opt skp-cut" id="sentence-reject" aria-label="Cut sentence"><span class="kc">N</span> cut ✗</button>
+            </div>
+
+            <div class="writing-summary" id="writing-summary" role="dialog" aria-modal="true" aria-label="Draft complete" hidden>
+                <div class="writing-summary-card">
+                    <span class="ws-spark" aria-hidden="true" style="left:18px;top:16px">✦</span>
+                    <span class="ws-spark" aria-hidden="true" style="right:24px;top:28px;opacity:.35">✧</span>
+                    <span class="ws-spark" aria-hidden="true" style="right:44px;bottom:34px">✦</span>
+                    <button type="button" class="writing-summary-close" id="summary-close" aria-label="Close">×</button>
+                    <h3>draft complete ✦</h3>
+                    <p class="writing-summary-sub">nicely done</p>
+                    <div class="writing-summary-stats">
+                        <div class="stat"><span class="n" id="sum-words">00</span><span class="l">words</span></div>
+                        <div class="stat"><span class="n" id="sum-sentences">00</span><span class="l">sentences</span></div>
+                        <div class="stat"><span class="n" id="sum-kept">00</span><span class="l">kept</span></div>
+                        <div class="stat"><span class="n" id="sum-read">~1</span><span class="l">min read</span></div>
+                    </div>
+                    <p class="writing-summary-preview" id="sum-preview"></p>
+                    <div class="writing-summary-actions">
+                        <button class="filter-btn writing-back" type="button" id="sum-continue">← keep writing</button>
+                        <span class="writing-actions-spacer"></span>
+                        <button class="filter-btn" type="button" id="sum-copy">copy</button>
+                        <button class="filter-btn" type="button" id="sum-download">download</button>
+                        <button class="filter-btn writing-primary" type="button" id="sum-save">save ✓</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="writing-toast" id="writing-toast" role="status" aria-live="polite"></div>
         </section>
     </main>

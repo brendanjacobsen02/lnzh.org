@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dark Mode — Transition Demo (pixel-dissolve vs CRT power-cycle)</title>
+<!--
+  Standalone, self-contained demo for the lnzh.org dark-mode work.
+  NOT under the site CSP, NOT linked from the site, no site-CSS dependency.
+  Purpose: feel-check the pixel-dissolve transition (the chosen effect) and
+  compare it against the CRT power-cycle runner-up on color swatches + a few
+  sample 8-bit icons, with independent "replay" buttons for each.
+-->
+<style>
+  :root {
+    --paper: #f2f2e4;
+    --paper-raised: #fffdf4;
+    --ink: #000;
+    --text: #333;
+    --muted: #666;
+    --line: #ccc;
+    --line-strong: #000;
+    --link: #119c36;
+    --cat-amber: #c7873a;
+    --cat-coral: #b5524d;
+    --cat-olive: #a69a38;
+    --cat-violet: #7a5c8c;
+    --cat-teal: #4a7c8c;
+    --cat-green: #3d8c57;
+  }
+  html[data-theme="dark"] {
+    --paper: #16150F;
+    --paper-raised: #211F16;
+    --ink: #F2F2E4;
+    --text: #D8D6C8;
+    --muted: #A8A596;
+    --line: #3A382E;
+    --line-strong: #C9C6B0;
+    --link: #3FD06A;
+    --cat-amber: #D29A52;
+    --cat-coral: #C26C68;
+    --cat-olive: #BBAE4A;
+    --cat-violet: #9A7EAC;
+    --cat-teal: #5A92A3;
+    --cat-green: #4FA06B;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Courier New', monospace;
+    background: var(--paper);
+    color: var(--text);
+    transition: background-color .2s ease, color .2s ease;
+    min-height: 100vh;
+    padding: 28px 20px 80px;
+  }
+  h1 { color: var(--ink); font-size: 22px; margin: 0 0 4px; }
+  p.sub { color: var(--muted); margin: 0 0 24px; max-width: 60ch; }
+
+  .controls { display: flex; gap: 12px; flex-wrap: wrap; margin: 0 0 28px; }
+  button.pixel {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper-raised);
+    border: 3px solid var(--line-strong);
+    box-shadow: 4px 4px 0 0 var(--line-strong);
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: transform .08s steps(2), box-shadow .08s steps(2);
+  }
+  button.pixel:hover { transform: translate(1px,1px); box-shadow: 3px 3px 0 0 var(--line-strong); }
+  button.pixel:active { transform: translate(4px,4px); box-shadow: 0 0 0 0 var(--line-strong); }
+  button.pixel:focus-visible { outline: 3px solid var(--link); outline-offset: 3px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 14px;
+    max-width: 760px;
+    margin: 0 0 28px;
+  }
+  .swatch {
+    border: 3px solid var(--line-strong);
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink);
+    background: var(--paper-raised);
+  }
+  .chip {
+    width: 100%; height: 40px; margin-bottom: 8px;
+    border: 2px solid var(--line-strong);
+  }
+  .icons { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; max-width: 760px; }
+  .icon {
+    width: 64px; height: 64px;
+    display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+    border: 2px solid var(--line-strong);
+    image-rendering: pixelated;
+  }
+  .icon i { background: var(--ink); }
+  .icon i.off { background: transparent; }
+  .note { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  /* ---- pixel-dissolve overlay (mirrors theme-toggle.js) ---- */
+  .dissolve-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    display: grid; pointer-events: none; image-rendering: pixelated;
+  }
+  .dissolve-cell {
+    width: 100%; height: 100%; opacity: 1;
+    transition: opacity 1s cubic-bezier(0.1, 1, 0.3, 1);
+  }
+  .dissolve-cell.is-clear { opacity: 0; }
+
+  /* ---- CRT power-cycle overlay (runner-up) ---- */
+  .crt-overlay {
+    position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+    background: #000;
+  }
+  .crt-overlay .crt-line {
+    position: absolute; left: 0; right: 0; top: 50%;
+    height: 100vh; background: var(--crt-flash, #f2f2e4);
+    transform: translateY(-50%) scaleY(1);
+    transform-origin: center;
+  }
+  .crt-collapse { animation: crtCollapse .26s steps(8) forwards; }
+  .crt-expand { animation: crtExpand .30s steps(10) forwards; }
+  @keyframes crtCollapse {
+    0%   { transform: translateY(-50%) scaleY(1);    opacity: 1; }
+    70%  { transform: translateY(-50%) scaleY(.02);  opacity: 1; }
+    100% { transform: translateY(-50%) scaleY(.004); opacity: 1; }
+  }
+  @keyframes crtExpand {
+    0%   { transform: translateY(-50%) scaleY(.004); opacity: 1; }
+    18%  { transform: translateY(-50%) scaleY(.02);  opacity: 1; }
+    100% { transform: translateY(-50%) scaleY(1);    opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dissolve-cell, .crt-overlay .crt-line { transition: none; animation: none; }
+  }
+
+  /* Links follow the accent (mirrors the site). */
+  a { color: var(--link); transition: color .2s ease; }
+  a:hover { color: var(--link-hover); }
+
+  /* Accent overrides — same AA-verified values as style.css (green = default). */
+  html[data-accent="teal"]   { --link: #3a6270; --link-hover: #264049; }
+  html[data-theme="dark"][data-accent="teal"]   { --link: #5a92a3; --link-hover: #94b8c3; }
+  html[data-accent="amber"]  { --link: #94622a; --link-hover: #60401b; }
+  html[data-theme="dark"][data-accent="amber"]  { --link: #d29a52; --link-hover: #e2bd8f; }
+  html[data-accent="coral"]  { --link: #8a3f3b; --link-hover: #5a2926; }
+  html[data-theme="dark"][data-accent="coral"]  { --link: #c26c68; --link-hover: #d79f9d; }
+  html[data-accent="violet"] { --link: #5f4770; --link-hover: #3e2e49; }
+  html[data-theme="dark"][data-accent="violet"] { --link: #9a7eac; --link-hover: #bdabc9; }
+  html[data-accent="olive"]  { --link: #766d28; --link-hover: #4d471a; }
+  html[data-theme="dark"][data-accent="olive"]  { --link: #bbae4a; --link-hover: #d3ca89; }
+</style>
+</head>
+<body>
+  <h1>Dark Mode transition demo</h1>
+  <p class="sub">
+    Compare the two candidate theme transitions on color swatches and sample
+    8-bit icons. <strong>Pixel-dissolve</strong> is the chosen effect (blocky
+    ~24px checker redraw, ~500ms). <strong>CRT power-cycle</strong> is the
+    runner-up (collapse-to-line, then bloom open). Each replay button flips the
+    theme; click again to flip back. Self-contained — no site assets required.
+  </p>
+
+  <div class="controls">
+    <button class="pixel" id="btn-dissolve" type="button">▦ Replay pixel-dissolve</button>
+    <button class="pixel" id="btn-crt" type="button">▭ Replay CRT power-cycle</button>
+    <button class="pixel" id="btn-instant" type="button">⇄ Instant swap (reduced-motion)</button>
+  </div>
+
+  <div class="grid" id="swatches"></div>
+
+  <div class="icons" id="icons"></div>
+  <p class="note">Icons are CSS-grid pixel glyphs colored with <code>var(--ink)</code>; in dark mode they re-tint to beige, mirroring the PNG <code>-dark</code> swap on the real site.</p>
+
+  <p class="note" style="margin-top:22px">Accent — recolors links and the <code>--link</code> swatch (green = default). Pick one, then flip the theme to check both modes:</p>
+  <div class="controls" id="accent-row"></div>
+  <p style="margin:12px 0 0"><a href="#">Sample hyperlink</a> follows the chosen accent.</p>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---- build color swatches from the token set ---- */
+  var TOKENS = [
+    '--paper', '--paper-raised', '--ink', '--text', '--muted',
+    '--line', '--line-strong', '--link',
+    '--cat-amber', '--cat-coral', '--cat-olive',
+    '--cat-violet', '--cat-teal', '--cat-green'
+  ];
+  var swatchHost = document.getElementById('swatches');
+  TOKENS.forEach(function (tok) {
+    var el = document.createElement('div');
+    el.className = 'swatch';
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.style.background = 'var(' + tok + ')';
+    var label = document.createElement('div');
+    label.textContent = tok;
+    el.appendChild(chip);
+    el.appendChild(label);
+    swatchHost.appendChild(el);
+  });
+
+  /* ---- build a couple of 8x8 pixel icons (sun + moon) ---- */
+  var SUN = [
+    '00010000',
+    '01010100',
+    '00111000',
+    '11111110',
+    '00111000',
+    '01010100',
+    '00010000',
+    '00000000'
+  ];
+  var MOON = [
+    '00111000',
+    '01110000',
+    '11100000',
+    '11100000',
+    '11100000',
+    '01110000',
+    '00111000',
+    '00000000'
+  ];
+  function buildIcon(pattern) {
+    var icon = document.createElement('div');
+    icon.className = 'icon';
+    pattern.forEach(function (row) {
+      for (var c = 0; c < row.length; c++) {
+        var px = document.createElement('i');
+        if (row[c] === '0') { px.className = 'off'; }
+        icon.appendChild(px);
+      }
+    });
+    return icon;
+  }
+  var iconHost = document.getElementById('icons');
+  iconHost.appendChild(buildIcon(SUN));
+  iconHost.appendChild(buildIcon(MOON));
+
+  /* ---- theme helpers ---- */
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+  function nextTheme() {
+    return currentTheme() === 'dark' ? 'light' : 'dark';
+  }
+  function flip(next) {
+    document.documentElement.setAttribute('data-theme', next);
+  }
+  function reduced() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  var busy = false;
+
+  /* ---- pixel-dissolve (same algorithm as theme-toggle.js) ---- */
+  function pixelDissolve() {
+    if (busy) { return; }
+    var next = nextTheme();
+    if (reduced()) { flip(next); return; }
+    busy = true;
+
+    var outgoing = getComputedStyle(document.documentElement)
+      .getPropertyValue('--paper').trim() || '#f2f2e4';
+
+    var CELL = 56;
+    var cols = Math.ceil(window.innerWidth / CELL);
+    var rows = Math.ceil(window.innerHeight / CELL);
+    var total = cols * rows;
+
+    var overlay = document.createElement('div');
+    overlay.className = 'dissolve-overlay';
+    overlay.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+    overlay.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
+    // Overlay container stays transparent — cells carry the outgoing color and
+    // fully tile the viewport. A container background would occlude the page so
+    // cleared cells reveal nothing (see theme-toggle.js note). Do not re-add.
+
+    var cells = [];
+    for (var i = 0; i < total; i++) {
+      var cell = document.createElement('div');
+      cell.className = 'dissolve-cell';
+      cell.style.backgroundColor = outgoing;
+      overlay.appendChild(cell);
+      cells.push(cell);
+    }
+    document.body.appendChild(overlay);
+
+    flip(next); // page restyles instantly, hidden by overlay
+
+    var order = [];
+    for (var k = 0; k < total; k++) { order.push(k); }
+    for (var s = order.length - 1; s > 0; s--) {
+      var r = Math.floor(Math.random() * (s + 1));
+      var t = order[s]; order[s] = order[r]; order[r] = t;
+    }
+
+    var STAGGER = 1400;
+    var EXP_BASE = 6;
+    overlay.offsetHeight; // force reflow
+    requestAnimationFrame(function () {
+      for (var n = 0; n < order.length; n++) {
+        var x = total > 1 ? n / (total - 1) : 0;
+        var delay = STAGGER * (Math.pow(EXP_BASE, x) - 1) / (EXP_BASE - 1);
+        cells[order[n]].style.transitionDelay = delay + 'ms';
+        cells[order[n]].classList.add('is-clear');
+      }
+    });
+
+    setTimeout(function () {
+      if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
+      busy = false;
+    }, STAGGER + 1100);
+  }
+
+  /* ---- CRT power-cycle (runner-up) ---- */
+  function crtPowerCycle() {
+    if (busy) { return; }
+    var next = nextTheme();
+    if (reduced()) { flip(next); return; }
+    busy = true;
+
+    var outgoing = getComputedStyle(document.documentElement)
+      .getPropertyValue('--paper').trim() || '#f2f2e4';
+
+    var overlay = document.createElement('div');
+    overlay.className = 'crt-overlay';
+    var line = document.createElement('div');
+    line.className = 'crt-line crt-collapse';
+    line.style.setProperty('--crt-flash', outgoing);
+    overlay.appendChild(line);
+    document.body.appendChild(overlay);
+
+    // After the collapse to a line, flip theme + bloom back open in new color.
+    line.addEventListener('animationend', function onCollapse() {
+      line.removeEventListener('animationend', onCollapse);
+      flip(next);
+      var incoming = getComputedStyle(document.documentElement)
+        .getPropertyValue('--paper').trim() || '#16150F';
+      line.style.setProperty('--crt-flash', incoming);
+      line.classList.remove('crt-collapse');
+      // force reflow so the next animation class applies cleanly
+      line.offsetHeight;
+      line.classList.add('crt-expand');
+      line.addEventListener('animationend', function onExpand() {
+        line.removeEventListener('animationend', onExpand);
+        if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
+        busy = false;
+      });
+    });
+  }
+
+  /* ---- accent picker (mirrors the site's settings panel) ---- */
+  var ACCENTS = ['green', 'teal', 'amber', 'coral', 'violet', 'olive'];
+  var ACCENT_DOT = { green:'#3fd06a', teal:'#5a92a3', amber:'#d29a52', coral:'#c26c68', violet:'#9a7eac', olive:'#bbae4a' };
+  var accentRow = document.getElementById('accent-row');
+  ACCENTS.forEach(function (name) {
+    var b = document.createElement('button');
+    b.className = 'pixel'; b.type = 'button';
+    b.style.display = 'inline-flex'; b.style.alignItems = 'center'; b.style.gap = '8px';
+    var dot = document.createElement('span');
+    dot.style.cssText = 'display:inline-block;width:16px;height:16px;border:2px solid var(--line-strong);background:' + ACCENT_DOT[name];
+    var lab = document.createElement('span'); lab.textContent = name;
+    b.appendChild(dot); b.appendChild(lab);
+    b.addEventListener('click', function () {
+      if (name === 'green') { document.documentElement.removeAttribute('data-accent'); }
+      else { document.documentElement.setAttribute('data-accent', name); }
+    });
+    accentRow.appendChild(b);
+  });
+
+  document.getElementById('btn-dissolve').addEventListener('click', pixelDissolve);
+  document.getElementById('btn-crt').addEventListener('click', crtPowerCycle);
+  document.getElementById('btn-instant').addEventListener('click', function () {
+    flip(nextTheme());
+  });
+})();
+</script>
+</body>
+</html>

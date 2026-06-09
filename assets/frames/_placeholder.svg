@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none"
+     stroke="#6b6b5e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Placeholder frame (stand-in art): a rough rounded rectangle border.
+       9-sliced at ~30px the corners stay put while the straighter edges repeat.
+       Replace with your own border-only drawing. -->
+  <path d="M12 16 Q13 10 20 10 L100 12 Q110 12 109 20 L108 100 Q108 110 100 109 L20 108 Q11 108 11 100 Z"/>
+  <path d="M16 19 L103 20" stroke-width="1.5" opacity="0.45"/>
+  <path d="M16 101 L103 100" stroke-width="1.5" opacity="0.45"/>
+</svg>
