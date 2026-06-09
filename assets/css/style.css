@@ -339,6 +339,54 @@ body.draw-guide .drawn-slot:not(.has-art)::before {
     color: var(--cat-coral);
 }
 
+/* ==========================================================================
+   Critter engine — little hand-drawn creatures (background / edge / cursor).
+   Placement + motion + calm only; the art per critter is swappable (placeholder
+   sprites until drawn). Press 'c' or add ?calm to settle them.
+   ========================================================================== */
+.critter-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+.critter-layer--back { z-index: -1; }   /* behind the content */
+.critter-layer--front { z-index: 60; }  /* perchers + cursor, above content */
+
+.critter {
+    pointer-events: none;
+    will-change: transform;
+}
+.critter img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+.critter--cursor {
+    opacity: 0;
+    transition: opacity 0.18s ease;
+}
+.critter--cursor.is-visible { opacity: 1; }
+
+@keyframes critterBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+}
+@keyframes critterSway {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+.critter-motion--bob { animation: critterBob 1.7s ease-in-out infinite; }
+.critter-motion--sway {
+    animation: critterSway 2.6s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+body.critters-calm .critter-motion--bob,
+body.critters-calm .critter-motion--sway {
+    animation-play-state: paused;
+}
+
 .dropdown-content {
     overflow: hidden;
     transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);

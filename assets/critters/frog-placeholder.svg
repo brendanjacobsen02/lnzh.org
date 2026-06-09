@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none"
+     stroke="#3d8c57" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+  <!-- PLACEHOLDER frog (stand-in art) — replace with your own sprite. -->
+  <circle cx="35" cy="31" r="12"/>
+  <circle cx="65" cy="31" r="12"/>
+  <circle cx="35" cy="31" r="3" fill="#3d8c57" stroke="none"/>
+  <circle cx="65" cy="31" r="3" fill="#3d8c57" stroke="none"/>
+  <path d="M21 46 Q50 74 79 46 Q81 62 65 68 L35 68 Q19 62 21 46 Z"/>
+  <path d="M31 68 L24 82 M69 68 L76 82"/>
+</svg>

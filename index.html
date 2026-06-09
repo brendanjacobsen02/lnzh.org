@@ -70,5 +70,18 @@
             <a href="https://www.yelp.com/user_details?userid=VF0qY_FihoZUKrObEiy__g" target="_blank" rel="noopener noreferrer"><img src="assets/images/icons/yelp.png" alt="Yelp"></a>
         </div>
     </footer>
+
+    <script>
+        // Placeholder critters on the pilot home page — swap the sprites once drawn.
+        window.CRITTERS = [
+            { id: 'cat', anchor: 'background', motion: 'sway', size: 88,
+              at: { right: '4vw', bottom: '5vh' },
+              frames: ['../critters/cat-placeholder.svg'] },
+            { id: 'frog', anchor: 'edge', target: '.drawn-frame', corner: 'top-right',
+              motion: 'bob', size: 42,
+              frames: ['../critters/frog-placeholder.svg'] }
+        ];
+    </script>
+    <script src="assets/js/critters.js"></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none"
+     stroke="#6b6b5e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+  <!-- PLACEHOLDER cat (stand-in art) — replace with your own sprite. -->
+  <path d="M30 86 Q26 50 34 40 L27 21 L43 34 Q50 31 57 34 L73 21 L66 40 Q74 50 70 86 Z"/>
+  <circle cx="44" cy="52" r="2.4" fill="#6b6b5e" stroke="none"/>
+  <circle cx="57" cy="52" r="2.4" fill="#6b6b5e" stroke="none"/>
+  <path d="M48 58 q2.5 2 5 0"/>
+  <path d="M70 82 Q92 80 86 58"/>
+</svg>
