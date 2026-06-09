@@ -146,6 +146,25 @@
                 }
             }
         }
+        // The 4-star dropdown toggle is a <span> painted via the --star-src
+        // custom property (nav-dropdown.js replaces the <img> with it), so it is
+        // not caught by the <img> walk above. Swap its --star-src the same way:
+        // match the absolute URL inside url("...") against the manifest.
+        var stars = document.querySelectorAll('.fourstar.nav-dropdown-toggle');
+        for (var s = 0; s < stars.length; s++) {
+            var el = stars[s];
+            var raw = el.style.getPropertyValue('--star-src');   // url("...abs...")
+            var m = raw && raw.match(/url\(\s*["']?([^"')]+)["']?\s*\)/);
+            if (!m) { continue; }
+            var cur;
+            try { cur = new URL(m[1], document.baseURI).href; } catch (e) { continue; }
+            for (var k = 0; k < sourceTails.length; k++) {
+                var lUrl = new URL(sourceTails[k], assetsRoot).href;
+                var dUrl = new URL(darkVariant(sourceTails[k]), assetsRoot).href;
+                if (cur === lUrl && theme === 'dark') { el.style.setProperty('--star-src', 'url("' + dUrl + '")'); break; }
+                if (cur === dUrl && theme === 'light') { el.style.setProperty('--star-src', 'url("' + lUrl + '")'); break; }
+            }
+        }
     }
 
     /* ---- inject button + panel styles (single <style> element) ---- */
