@@ -313,8 +313,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeSentenceIndex = index;
                 positionKeepPopover();
             });
+            const gap = document.createElement('span');
+            gap.className = 'sentence-gap';
+            gap.textContent = ' ';
             stream.append(fragment);
-            stream.append(' ');
+            stream.append(gap);
         });
 
         stream.append(input);
@@ -566,4 +569,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateKbdHints();
     renderSentences();
     renderDrafts();
+
+    if (window.BlockCaret) {
+        window.BlockCaret.create(input, { className: 'block-caret' });
+    }
 });

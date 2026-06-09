@@ -16,6 +16,7 @@
     <script src="../assets/js/nav-dropdown.js"></script>
     <script src="../assets/js/theme-toggle.js"></script>
     <script src="../assets/js/writing-core.js" defer></script>
+    <script src="../assets/js/block-caret.js" defer></script>
     <script src="../assets/js/writing-tool.js" defer></script>
 </head>
 <body>
@@ -51,8 +52,10 @@
         <section class="content writing-tool" aria-live="polite">
             <div class="writing-page">
                 <form class="writing-editor" id="writing-editor">
-                    <div class="sentence-stream" id="sentence-stream" aria-label="Sentence editor">
-                        <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" aria-multiline="true" data-placeholder="Write. End a sentence with punctuation."></span>
+                    <div class="writing-frame">
+                        <div class="sentence-stream" id="sentence-stream" aria-label="Sentence editor">
+                            <span id="sentence-input" class="sentence-input-inline" contenteditable="true" role="textbox" aria-label="Sentence textbox" aria-multiline="true" data-placeholder="Write. End a sentence with punctuation."></span>
+                        </div>
                     </div>
 
                     <div class="writing-hud" id="writing-hud" aria-live="off">

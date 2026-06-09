@@ -565,26 +565,66 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 /* editor surface + faint pixel grid */
+/* Framed editor with terminal-style corner brackets (the brackets live on the
+   frame, outside the scroll area, so they don't scroll with the text). */
+.writing-frame {
+    position: relative;
+}
+
+.writing-frame::before,
+.writing-frame::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+    border: 2px solid rgba(var(--text-rgb), 0.32);
+    transition: border-color 0.2s ease;
+}
+
+.writing-frame::before {
+    top: -5px;
+    left: -5px;
+    border-right: 0;
+    border-bottom: 0;
+    border-top-left-radius: 8px;
+}
+
+.writing-frame::after {
+    right: -5px;
+    bottom: -5px;
+    border-top: 0;
+    border-left: 0;
+    border-bottom-right-radius: 8px;
+}
+
+.writing-frame:focus-within::before,
+.writing-frame:focus-within::after {
+    border-color: var(--link);
+}
+
 .sentence-stream {
     min-height: 13rem;
-    padding: 1.25rem 1.35rem;
-    border: 1px solid rgba(var(--text-rgb), 0.22);
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 1.4rem 1.5rem;
+    border: 1px solid rgba(var(--text-rgb), 0.28);
+    border-radius: 12px;
     background:
-        linear-gradient(var(--paper-raised), var(--paper-raised)) padding-box,
-        repeating-linear-gradient(0deg, rgba(var(--text-rgb), 0.04) 0 1px, transparent 1px 9px),
-        repeating-linear-gradient(90deg, rgba(var(--text-rgb), 0.04) 0 1px, transparent 1px 9px);
-    line-height: 1.85;
+        radial-gradient(rgba(var(--text-rgb), 0.06) 1px, transparent 1.6px) 0 0 / 16px 16px,
+        var(--paper-raised);
+    line-height: 1.7;
     white-space: normal;
     cursor: text;
     box-shadow: inset 0 1px 0 var(--inset-highlight);
     caret-color: var(--link);
-    max-height: 60vh;
-    overflow-y: auto;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .sentence-stream:focus-within {
-    border-color: rgba(var(--text-rgb), 0.5);
-    box-shadow: inset 0 1px 0 var(--inset-highlight), 0 0 0 3px rgba(var(--text-rgb), 0.07);
+    border-color: var(--link);
+    box-shadow: inset 0 1px 0 var(--inset-highlight),
+        0 0 0 3px color-mix(in srgb, var(--link) 16%, transparent);
 }
 
 .sentence-input-inline {
@@ -605,10 +645,30 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     content: "";
 }
 
-/* Native caret, accent-colored via caret-color on the editor — always exactly
-   where text lands. Hide the placeholder once the field is focused. */
+/* Native accent caret is the fallback; block-caret.js hides it (.has-block-caret)
+   and overlays a terminal block. Hide the placeholder once the field is focused. */
 .sentence-input-inline:focus:empty::before {
     content: "";
+}
+
+.sentence-input-inline.has-block-caret {
+    caret-color: transparent;
+}
+
+/* Terminal block cursor — inverts what's behind it so the character stays
+   readable, in both light and dark themes. */
+.block-caret {
+    position: fixed;
+    z-index: 6;
+    background: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    display: none;
+    animation: blockCaretBlink 1.1s steps(1) infinite;
+}
+
+@keyframes blockCaretBlink {
+    50% { opacity: 0; }
 }
 
 .sentence-fragment {
@@ -625,11 +685,13 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 /* blackout / redaction — legible bars in BOTH themes via --redact */
+/* Blackout: a continuous redaction bar across sentences AND the spaces between
+   them (the .sentence-gap separators), so it reads as one solid censor strip. */
 .sentence-stream.is-blackout .sentence-fragment,
+.sentence-stream.is-blackout .sentence-gap,
 .sentence-stream.is-blackout .sentence-input-inline {
     color: transparent;
     background: var(--redact);
-    border-radius: 2px;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 }
