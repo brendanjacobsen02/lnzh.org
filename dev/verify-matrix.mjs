@@ -61,12 +61,7 @@ const slug = (p) => p.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'h
 
 // Known-benign console noise that must not redden the gate. Keep this SHORT and
 // specific — every entry is a bug we've consciously decided not to fix.
-const CONSOLE_IGNORE = [
-    // The X-Frame-Options <meta> on every page: browsers ignore XFO in meta form
-    // (header-only per spec), so the tag is inert and Chrome logs this warning.
-    // GitHub Pages can't send response headers, so there's no header to move it to.
-    /X-Frame-Options may only be set via an HTTP header/,
-];
+const CONSOLE_IGNORE = [];
 const failures = [];
 const warnings = [];
 const a11yFindings = [];
@@ -82,14 +77,19 @@ mkdirSync(SHOTS, { recursive: true });
 const SYSTEM_CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const chromeBin = existsSync(SYSTEM_CHROME) ? SYSTEM_CHROME : chromium.executablePath();
 const profileDir = mkdtempSync(join(tmpdir(), 'lnzh-verify-'));
-const chrome = spawn(chromeBin, [
-    '--headless=new', `--remote-debugging-port=${CDP_PORT}`,
-    `--user-data-dir=${profileDir}`, '--no-first-run', '--no-default-browser-check',
-    '--window-size=1280,900', '--force-device-scale-factor=2', '--hide-scrollbars',
-    'about:blank',
-], { stdio: 'ignore' });
 const cdpUrl = `http://127.0.0.1:${CDP_PORT}`;
-{
+// Headless Chrome occasionally dies under rapid page cycling, so everything
+// that talks to it goes through launchChrome()/attach(): a crash costs one
+// retried page, not the whole gate. The profile dir is reused across respawns
+// so the seeded theme survives.
+let chrome = null;
+async function launchChrome() {
+    chrome = spawn(chromeBin, [
+        '--headless=new', `--remote-debugging-port=${CDP_PORT}`,
+        `--user-data-dir=${profileDir}`, '--no-first-run', '--no-default-browser-check',
+        '--window-size=1280,900', '--force-device-scale-factor=2', '--hide-scrollbars',
+        'about:blank',
+    ], { stdio: 'ignore' });
     let up = false;
     for (let i = 0; i < 60 && !up; i++) {
         try { await fetch(`${cdpUrl}/json/version`); up = true; } catch { await new Promise((r) => setTimeout(r, 250)); }
@@ -100,6 +100,7 @@ const cdpUrl = `http://127.0.0.1:${CDP_PORT}`;
         process.exit(1);
     }
 }
+await launchChrome();
 
 try {
     // Make sure the server is actually up before blaming pages.
@@ -112,38 +113,42 @@ try {
 
     for (const theme of THEMES) {
         // Playwright rides along over CDP for the matrix half of this theme…
-        const browser = await chromium.connectOverCDP(cdpUrl);
-        const context = browser.contexts()[0] ?? (await browser.newContext());
-        const page = await context.newPage();
+        let browser, context, page;
 
         // Buffers the listeners write into; reset per page visit.
         let consoleErrors = [];
         let badResponses = [];
         let failedRequests = [];
-        page.on('console', (m) => {
-            if (m.type() === 'error' && !CONSOLE_IGNORE.some((re) => re.test(m.text()))) consoleErrors.push(m.text());
-        });
-        page.on('pageerror', (e) => consoleErrors.push(String(e)));
-        page.on('response', (r) => { if (r.status() >= 400) badResponses.push(`${r.status()} ${r.url()}`); });
-        page.on('requestfailed', (r) => failedRequests.push(`${r.failure()?.errorText ?? 'failed'} ${r.url()}`));
 
-        // Seed the theme for this origin, then visit every page with it.
-        await page.goto(BASE + '/', { waitUntil: 'domcontentloaded' });
-        await page.evaluate((t) => localStorage.setItem('theme', t), theme);
+        const attach = async () => {
+            browser = await chromium.connectOverCDP(cdpUrl);
+            context = browser.contexts()[0] ?? (await browser.newContext());
+            page = await context.newPage();
+            page.on('console', (m) => {
+                if (m.type() === 'error' && !CONSOLE_IGNORE.some((re) => re.test(m.text()))) consoleErrors.push(m.text());
+            });
+            page.on('pageerror', (e) => consoleErrors.push(String(e)));
+            page.on('response', (r) => { if (r.status() >= 400) badResponses.push(`${r.status()} ${r.url()}`); });
+            page.on('requestfailed', (r) => failedRequests.push(`${r.failure()?.errorText ?? 'failed'} ${r.url()}`));
+            // Seed the theme for this origin, then visit every page with it.
+            await page.goto(BASE + '/', { waitUntil: 'domcontentloaded' });
+            await page.evaluate((t) => localStorage.setItem('theme', t), theme);
+        };
+        const recover = async () => {
+            try { await browser.close(); } catch { /* already gone */ }
+            try { await fetch(`${cdpUrl}/json/version`); } catch {
+                try { chrome.kill(); } catch { /* already dead */ }
+                await launchChrome();
+            }
+            await attach();
+        };
+        await attach();
 
-        for (const path of PAGES) {
+        const checkPage = async (path) => {
             const url = BASE + path;
             const label = `${path} [${theme}]`;
-            consoleErrors = [];
-            badResponses = [];
-            failedRequests = [];
 
-            try {
-                await page.goto(url, { waitUntil: 'load', timeout: 20000 });
-            } catch (e) {
-                failures.push(`${label} — page did not load: ${e.message}`);
-                continue;
-            }
+            await page.goto(url, { waitUntil: 'load', timeout: 20000 });
             await page.waitForTimeout(1200); // let JS-applied assets paint
 
             const actualTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
@@ -227,8 +232,30 @@ try {
 
             await page.screenshot({ path: `${SHOTS}/${slug(path)}-${theme}.png` });
             console.log(`checked ${label} — ${sameOrigin.length} swept assets`);
+        };
+
+        for (const path of PAGES) {
+            const label = `${path} [${theme}]`;
+            consoleErrors = []; badResponses = []; failedRequests = [];
+            try {
+                await checkPage(path);
+            } catch (e) {
+                const msg = String(e?.message ?? e).split('\n')[0];
+                if (/closed|disconnected|crashed/i.test(msg)) {
+                    console.log(`! browser died on ${label} (${msg}) — relaunching to retry`);
+                    await recover();
+                    consoleErrors = []; badResponses = []; failedRequests = [];
+                    try {
+                        await checkPage(path);
+                    } catch (e2) {
+                        failures.push(`${label} — failed even after browser relaunch: ${String(e2?.message ?? e2).split('\n')[0]}`);
+                    }
+                } else {
+                    failures.push(`${label} — page did not load: ${msg}`);
+                }
+            }
         }
-        await page.close();
+        await page.close().catch(() => {});
         // …then disconnects so Lighthouse can own the browser without Playwright
         // closing the targets it creates. The spawned Chrome (and the theme in its
         // localStorage) stays up.
