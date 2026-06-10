@@ -52,9 +52,9 @@
     --cat-green: #3d8c57;   /* forest green */
 
     /* Category / accent palette (deeper link tones) */
-    --cat-amber-deep: #a16a2e;   /* darker amber */
+    --cat-amber-deep: #94622a;   /* darker amber (AA on paper; = the amber accent) */
     --cat-coral-deep: #8a3f3b;   /* darker coral */
-    --cat-olive-deep: #857b2d;   /* darker olive */
+    --cat-olive-deep: #756c28;   /* darker olive (AA on paper) */
     --cat-violet-deep: #5f4770;  /* darker violet */
     --cat-teal-deep: #3a6270;    /* darker teal */
     --cat-green-deep: #2d6940;   /* darker green */
@@ -1710,13 +1710,14 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     margin-left: 1.5rem;
 }
 
-/* Rainbow colors for dropdown headers */
-.list-dropdown-trigger:nth-of-type(1) { color: var(--cat-coral); }  /* muted coral */
-.list-dropdown-trigger:nth-of-type(2) { color: var(--cat-amber); }  /* warm amber */
-.list-dropdown-trigger:nth-of-type(3) { color: var(--cat-olive); }  /* olive gold */
-.list-dropdown-trigger:nth-of-type(4) { color: var(--cat-green); }  /* forest green */
-.list-dropdown-trigger:nth-of-type(5) { color: var(--cat-teal); }  /* dusty teal */
-.list-dropdown-trigger:nth-of-type(6) { color: var(--cat-violet); }  /* muted violet */
+/* Rainbow colors for dropdown headers — the -deep rainbow, so every hue reads
+   AA on paper (the base cat-* values sit at 2.6–4.4:1 for body-size text) */
+.list-dropdown-trigger:nth-of-type(1) { color: var(--cat-coral-deep); }  /* muted coral */
+.list-dropdown-trigger:nth-of-type(2) { color: var(--cat-amber-deep); }  /* warm amber */
+.list-dropdown-trigger:nth-of-type(3) { color: var(--cat-olive-deep); }  /* olive gold */
+.list-dropdown-trigger:nth-of-type(4) { color: var(--cat-green-deep); }  /* forest green */
+.list-dropdown-trigger:nth-of-type(5) { color: var(--cat-teal-deep); }  /* dusty teal */
+.list-dropdown-trigger:nth-of-type(6) { color: var(--cat-violet-deep); }  /* muted violet */
 
 /* Darker link colors matching parent headers */
 .list-dropdown-content:nth-of-type(1) a { color: var(--cat-coral-deep); }  /* darker coral */
@@ -2034,6 +2035,7 @@ footer a img {
     font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
+    color: var(--text);          /* UA default is black — invisible on dark paper */
     border: 1px solid var(--line-strong);
     background: transparent;
     width: 140px;
@@ -2069,12 +2071,17 @@ footer a img {
     font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
+    color: var(--text);          /* UA default is black — invisible on dark paper */
     border: 1px solid var(--line-strong);
     background: transparent;
     width: 100%;
     min-height: 160px;
     resize: vertical;
     box-sizing: border-box;
+}
+
+#coffee-comment-form textarea::placeholder {
+    color: var(--muted);
 }
 
 #coffee-comment-form textarea:focus {
