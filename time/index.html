@@ -11,6 +11,7 @@
     <title>lnzhTime</title>
     <script src="../assets/js/theme-init.js"></script>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/time.css">
     <link rel="icon" type="image/png" href="../assets/images/content/favicon.png">
     <script src="../assets/js/nav-dropdown.js"></script>
     <script src="../assets/js/theme-toggle.js"></script>
@@ -38,16 +39,55 @@
         </ul>
     </nav>
 
-    <main>
-        <header class="intro">
-            <h1>time</h1>
-        </header>
+    <main class="museum" id="museum">
+        <h1 class="sr-only">time</h1>
 
-        <a href="../" aria-label="home"><img src="../assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
+        <a class="museum-exit" href="../">&larr; back home</a>
+        <p class="museum-era" aria-live="polite"></p>
 
-        <section class="content">
-            <p>coming soon.</p>
-        </section>
+        <div class="stage">
+            <div class="world"></div>
+        </div>
+
+        <canvas class="dust" aria-hidden="true"></canvas>
+        <div class="museum-rail" aria-hidden="true"><span class="museum-rail-fill"></span></div>
+        <p class="museum-hint">scroll to walk &middot; tab visits each piece</p>
+
+        <div class="museum-curtain" aria-hidden="true">
+            <div>
+                <p class="curtain-title">time</p>
+                <p class="curtain-line">come in &mdash; i hung some things.</p>
+                <p class="curtain-hint">scroll, swipe, or arrow your way in</p>
+            </div>
+        </div>
+
+        <!-- the whole collection, as a quiet list (no-JS and reader path;
+             hidden once the hall is built by time-museum.js) -->
+        <nav class="museum-list" aria-label="all exhibits, in order">
+            <ol>
+                <li><span class="list-year">&approx;2012</span> <span class="list-title">hong kong</span> &mdash; <span class="list-blurb">my cup of tea, and the smithfield road mcdonald&rsquo;s.</span></li>
+                <li><span class="list-year">&approx;2017</span> <span class="list-title">palo alto</span> &mdash; <span class="list-blurb">the bayland preserve, and the waverley street 7-eleven.</span></li>
+                <li><span class="list-year">&approx;2020</span> <span class="list-title"><a href="../blog/gossip/">the new kid, again</a></span> &mdash; <span class="list-blurb">a rather inconspicuous role, each time.</span></li>
+                <li><span class="list-year">2024</span> <span class="list-title">arriving at stevenson</span> &mdash; <span class="list-blurb">a boarding school by the sea.</span></li>
+                <li><span class="list-year">2025</span> <span class="list-title"><a href="../list/">the philosophers</a></span> &mdash; <span class="list-blurb">camus, schopenhauer, wittgenstein &mdash; a shelf.</span></li>
+                <li><span class="list-year">2025</span> <span class="list-title">tending the ferments</span> &mdash; <span class="list-blurb">fermented beans, in any form.</span></li>
+                <li><span class="list-year">2025</span> <span class="list-title"><a href="https://www.chess.com/member/leonzhou7" target="_blank" rel="noopener noreferrer">leonzhou7</a></span> &mdash; <span class="list-blurb">white to play, somehow worse.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title"><a href="../blog/existence/">on existence</a></span> &mdash; <span class="list-blurb">the first essay. the rest followed.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title"><a href="../blog/times-i-cried/">times i cried with you</a></span> &mdash; <span class="list-blurb">the tender register.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title"><a href="../blog/tomato/">my tomato sandwich</a></span> &mdash; <span class="list-blurb">a sandwich, unreasonably considered.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title">first photographs</span> &mdash; <span class="list-blurb">a newer way of fixing things in place.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title">graduation</span> &mdash; <span class="list-blurb">defeated by college applications; graduated anyway.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title"><a href="../">lnzh.org</a></span> &mdash; <span class="list-blurb">hand-drawn, square-cornered. a home, not a portfolio.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title"><a href="../coffee/">the coffee project</a></span> &mdash; <span class="list-blurb">espresso, americano, latte &mdash; real orders, no storefront.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title"><a href="../writing/">the writing tool</a></span> &mdash; <span class="list-blurb">one sentence at a time. no going back.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title">the instagram worker</span> &mdash; <span class="list-blurb">a little machine that fetches my photographs.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title">the one-stroke puzzle</span> &mdash; <span class="list-blurb">one stroke unlocks the cosmos.</span></li>
+                <li><span class="list-year">2026</span> <span class="list-title">the empty frame</span> &mdash; <span class="list-blurb">reserved.</span></li>
+                <li><span class="list-year">someday</span> <span class="list-title">chef &middot; philosopher &middot; writer</span> &mdash; <span class="list-blurb">still becoming.</span></li>
+                <li><span class="list-year">someday</span> <span class="list-title">ai / ml research</span> &mdash; <span class="list-blurb">a thread, being pulled.</span></li>
+                <li><span class="list-year">someday</span> <span class="list-title">getxd.app</span> &mdash; <span class="list-blurb">under construction.</span></li>
+            </ol>
+        </nav>
     </main>
 
     <footer>
@@ -60,5 +100,8 @@
             <a href="https://www.yelp.com/user_details?userid=VF0qY_FihoZUKrObEiy__g" target="_blank" rel="noopener noreferrer"><img src="../assets/images/icons/yelp.png" alt="Yelp"></a>
         </div>
     </footer>
+
+    <script src="../assets/js/drawn-kit.js"></script>
+    <script src="../assets/js/time-museum.js"></script>
 </body>
 </html>

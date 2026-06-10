@@ -1,0 +1,691 @@
+/* ==========================================================================
+   /time/ — the long gallery.
+   A CSS-3D museum corridor: life on the walls, era-tinted air, a dashed fork
+   of futures at the end. Loaded ONLY by time/index.html, after style.css;
+   reads the site tokens, defines nothing global. Without JS the page stays a
+   plain readable list (body.museum-on gates every immersive rule).
+   ========================================================================== */
+
+/* ---- scene knobs ---- */
+.museum {
+    --hw: min(42vw, 560px);        /* corridor half-width */
+    --floor-drop: 34vh;            /* eye height above the parquet */
+    --lift: 0%;                    /* how much the night lifts surfaces off the dark */
+    --lamp: 20%;                   /* picture-light strength */
+    /* daylight: distance dissolves into paper haze */
+    --fog: radial-gradient(34% 30% at 50% 45%,
+        color-mix(in srgb, var(--paper) 88%, transparent), transparent 72%);
+    --vignette-a: 0.07;
+}
+
+html[data-theme="dark"] .museum {
+    --lift: 7%;
+    --lamp: 32%;
+    /* night: dusk pools at the vanishing point */
+    --fog: radial-gradient(32% 28% at 50% 45%,
+        rgba(var(--shadow-rgb), 0.42), transparent 72%);
+    --vignette-a: 0.22;
+}
+
+/* ==========================================================================
+   No-JS / fallback shell: a quiet list of everything in the collection.
+   ========================================================================== */
+.museum-list {
+    max-width: 640px;
+    margin: 0 0 3rem;
+}
+
+.museum-list ol {
+    list-style: none;
+    display: grid;
+    gap: 1.1rem;
+    padding: 0;
+}
+
+.museum-list .list-year {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    font-variant-numeric: tabular-nums;
+    color: var(--link);
+    display: block;
+}
+
+.museum-list .list-title {
+    font-family: var(--header);
+    font-size: 1.05rem;
+    color: var(--ink);
+}
+
+.museum-list .list-blurb {
+    font-family: var(--body);
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+/* immersive chrome stays out of the way until JS builds the hall */
+.museum .stage,
+.museum .dust,
+.museum .museum-rail,
+.museum .museum-era,
+.museum .museum-hint,
+.museum .museum-curtain,
+.museum .museum-exit {
+    display: none;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ==========================================================================
+   Museum mode (JS on): the page becomes the building.
+   ========================================================================== */
+body.museum-on {
+    overflow: hidden;
+}
+
+/* the rest of the site waits outside */
+body.museum-on nav,
+body.museum-on footer {
+    display: none;
+}
+
+body.museum-on .museum-list {
+    display: none;
+}
+
+body.museum-on .museum {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--paper);
+}
+
+/* in cosmic mode the corridor floats in the nebula (glint shows through) */
+html[data-palette="cosmic"] body.museum-on .museum {
+    background: transparent;
+}
+
+/* fog at the vanishing point + a soft edge vignette */
+body.museum-on .museum::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 6;
+    background:
+        var(--fog),
+        radial-gradient(120% 100% at 50% 50%, transparent 62%, rgba(var(--shadow-rgb), var(--vignette-a)) 100%);
+    transition: opacity 1.2s ease;
+}
+
+/* the fog lifts as you reach the stars */
+body.museum-on .museum.is-deep::after {
+    opacity: 0.3;
+}
+
+/* ---- the 3D scene ---- */
+body.museum-on .stage {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    perspective: 1200px;
+    perspective-origin: 50% 45%;
+    touch-action: none;
+}
+
+.world {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.plane {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+/* walls: one segment per era (JS sets --seg-c); plaster dot-grid, baseboard,
+   picture rail, tops dissolving into the sky. Square, hand-set — a gallery. */
+.wall {
+    height: 68vh;
+    background-color: color-mix(in srgb, var(--seg-c, var(--link)) 7%,
+        color-mix(in srgb, var(--ink) var(--lift), var(--paper)));
+    background-image:
+        radial-gradient(rgba(var(--text-rgb), 0.05) 1px, transparent 1.7px);
+    background-size: 18px 18px;
+    border-bottom: 3px solid rgba(var(--text-rgb), 0.16);
+    -webkit-mask-image: linear-gradient(to top, black 82%, transparent 100%);
+    mask-image: linear-gradient(to top, black 82%, transparent 100%);
+}
+
+.floor {
+    width: calc(2 * var(--hw));
+    background-color: color-mix(in srgb, var(--text) 6%,
+        color-mix(in srgb, var(--ink) var(--lift), var(--paper)));
+    background-image:
+        repeating-linear-gradient(90deg,
+            rgba(var(--text-rgb), 0.08) 0 1px, transparent 1px 130px);
+}
+
+.floor-line {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.floor-line .line-past {
+    stroke: rgba(var(--text-rgb), 0.62);
+}
+
+.floor-line .line-future {
+    stroke: var(--link);
+    opacity: 0.85;
+}
+
+/* the far end: a luminous violet haze full of small square stars */
+.endcap {
+    width: 150vw;
+    height: 130vh;
+    background: radial-gradient(38% 34% at 50% 48%,
+        color-mix(in srgb, var(--cat-violet) 24%, var(--paper)),
+        color-mix(in srgb, var(--cat-violet) 7%, var(--paper)) 58%,
+        var(--paper) 78%);
+}
+
+.endcap-stars {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: 4px;
+    height: 4px;
+    color: var(--ink);
+    background: currentColor;
+    box-shadow:
+        -340px -150px 0 0, -210px 60px 0 -1px, -130px -210px 0 0,
+        -60px 90px 0 -1px, 40px -120px 0 0, 130px 40px 0 -1px,
+        230px -190px 0 0, 320px -40px 0 -1px, 390px 120px 0 0,
+        -390px -10px 0 -1px, -280px 190px 0 0, 90px 210px 0 -1px,
+        180px 160px 0 0, -160px -60px 0 -1px, 280px 220px 0 0,
+        0px -260px 0 -1px;
+    animation: endcapTwinkle 3.4s steps(2) infinite;
+}
+
+@keyframes endcapTwinkle {
+    0%, 100% { opacity: 0.9; }
+    50% { opacity: 0.55; }
+}
+
+/* ==========================================================================
+   Exhibits — hung on the walls, angled politely toward the visitor.
+   ========================================================================== */
+.exhibit {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: clamp(190px, 17vw, 320px);
+    transform:
+        translate(-50%, -50%)
+        translateX(var(--ex-x))
+        translateZ(var(--ex-z))
+        rotateY(var(--ex-yaw))
+        translateZ(var(--ex-lift, 0px));
+    transition: transform 0.35s cubic-bezier(0.3, 1.1, 0.4, 1);
+    cursor: default;
+}
+
+.exhibit[data-wall="left"] {
+    --ex-x: calc(-1 * var(--hw) + 36px);
+    --ex-yaw: 62deg;
+}
+
+.exhibit[data-wall="right"] {
+    --ex-x: calc(var(--hw) - 36px);
+    --ex-yaw: -62deg;
+}
+
+/* step closer: the piece lifts off the wall and turns to meet you */
+.exhibit:hover,
+.exhibit:focus-within {
+    --ex-lift: 26px;
+}
+
+.exhibit[data-wall="left"]:hover,
+.exhibit[data-wall="left"]:focus-within {
+    --ex-yaw: 47deg;
+}
+
+.exhibit[data-wall="right"]:hover,
+.exhibit[data-wall="right"]:focus-within {
+    --ex-yaw: -47deg;
+}
+
+.exhibit:focus-visible {
+    outline: none;
+}
+
+.exhibit:focus-visible .exhibit-frame {
+    outline: 3px solid var(--link);
+    outline-offset: 4px;
+}
+
+/* per-era lamp color (each room keeps its own light) */
+.exhibit[data-era="0"] { --era-c: var(--cat-olive); }
+.exhibit[data-era="1"] { --era-c: var(--cat-amber); }
+.exhibit[data-era="2"] { --era-c: var(--cat-green); }
+.exhibit[data-era="3"] { --era-c: var(--cat-violet); }
+
+/* picture light: a soft pool from above, in the era's color */
+.exhibit::before {
+    content: '';
+    position: absolute;
+    inset: -16% -6% 34% -6%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(56% 72% at 50% 8%,
+        color-mix(in srgb, var(--era-c, var(--link)) var(--lamp), transparent),
+        transparent 70%);
+}
+
+/* the frame: raised-paper mat + double hairline molding, square corners */
+.exhibit-frame {
+    position: relative;
+    background: color-mix(in srgb, var(--ink) var(--lift), var(--paper-raised));
+    padding: 7%;
+    border: 1px solid rgba(var(--text-rgb), 0.5);
+    box-shadow:
+        0 0 0 5px color-mix(in srgb, var(--ink) var(--lift), var(--paper-raised)),
+        0 0 0 6px rgba(var(--text-rgb), 0.28);
+}
+
+/* hanging wire up to the picture rail */
+.exhibit-frame::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 1px;
+    height: 46px;
+    margin-bottom: 6px;
+    background: rgba(var(--text-rgb), 0.32);
+}
+
+/* one piece hangs crooked; visiting it straightens it (you fixed it) */
+.exhibit.is-crooked .exhibit-frame {
+    transform: rotateZ(-2.4deg);
+    transition: transform 0.45s cubic-bezier(0.3, 1.25, 0.5, 1);
+}
+
+.exhibit.is-crooked:hover .exhibit-frame,
+.exhibit.is-crooked:focus-within .exhibit-frame {
+    transform: rotateZ(0deg);
+}
+
+/* the art itself — drawn-kit slot; placeholders must look intentional */
+.museum .drawn-slot {
+    display: block;            /* drawn-kit collapses empty slots; a gallery hangs them */
+}
+
+.exhibit-frame.is-placeholder .drawn-slot {
+    position: relative;
+    background:
+        radial-gradient(rgba(var(--text-rgb), 0.055) 1px, transparent 1.7px) 0 0 / 18px 18px,
+        linear-gradient(180deg, rgba(var(--text-rgb), 0.04), transparent 3.2rem),
+        color-mix(in srgb, var(--ink) 4%, var(--paper-raised));
+    box-shadow: inset 0 0 36px rgba(var(--shadow-rgb), 0.1);
+}
+
+.exhibit-frame.is-placeholder .drawn-slot::after {
+    content: attr(data-cap);
+    position: absolute;
+    inset: auto 8% 8% 8%;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--muted);
+    text-align: center;
+}
+
+/* ---- the plaque ---- */
+.plaque {
+    margin: 0.85rem auto 0;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--paper-raised);
+    border: 1px solid rgba(var(--text-rgb), 0.2);
+    box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+    text-align: center;
+}
+
+.plaque-year {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    font-variant-numeric: tabular-nums;
+    color: var(--link);
+}
+
+.plaque-title {
+    font-family: var(--header);
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.25;
+    color: var(--ink);
+}
+
+.plaque-blurb {
+    font-family: var(--body);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--text);
+}
+
+.plaque-read {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: lowercase;
+    color: var(--link);
+    text-decoration: none;
+    background: none;
+    border: 0;
+    padding: 0.15rem 0 0;
+    cursor: pointer;
+    align-self: center;
+}
+
+.plaque-read:hover,
+.plaque-read:focus-visible {
+    text-decoration: underline;
+    color: var(--link-hover);
+}
+
+.plaque-read:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
+   The fork — dashed ghosts of futures, hung in open air.
+   ========================================================================== */
+.ghost {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: clamp(170px, 14vw, 260px);
+    transform:
+        translate(-50%, -50%)
+        translateX(var(--gx, 0px))
+        translateZ(var(--ex-z))
+        rotateY(var(--gyaw, 0deg));
+}
+
+.ghost[data-lane="left"]  { --gx: calc(-0.6 * var(--hw)); --gyaw: 18deg; }
+.ghost[data-lane="right"] { --gx: calc(0.6 * var(--hw));  --gyaw: -18deg; }
+.ghost[data-lane="mid"]   { top: 42%; }
+
+/* the footnote ghost: a small note, hung low (no frame — it isn't a plan,
+   it's a disclaimer) */
+.ghost--small {
+    width: clamp(120px, 10vw, 185px);
+    top: 60%;
+}
+
+.ghost--small .ghost-frame {
+    display: none;
+}
+
+.ghost-frame {
+    aspect-ratio: 4 / 5;
+    border: 1px dashed color-mix(in srgb, var(--cat-violet) 75%, transparent);
+    background: radial-gradient(70% 60% at 50% 40%,
+        color-mix(in srgb, var(--cat-violet) 9%, transparent), transparent 75%);
+}
+
+.ghost .plaque {
+    border-style: dashed;
+    background: color-mix(in srgb, var(--paper-raised) 88%, transparent);
+}
+
+.ghost .plaque-title {
+    font-style: italic;
+    font-weight: 400;
+}
+
+.ghost .plaque-year {
+    color: var(--cat-violet-deep);
+}
+
+.ghost:focus-visible {
+    outline: none;
+}
+
+.ghost:focus-visible .ghost-frame {
+    outline: 3px solid var(--link);
+    outline-offset: 4px;
+}
+
+/* ==========================================================================
+   Chrome: exit, era label, rail, hint, dust.
+   ========================================================================== */
+body.museum-on .museum-exit {
+    display: inline-flex;
+    align-items: center;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 40;
+    height: 2.1rem;
+    padding: 0 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: lowercase;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--paper-raised);
+    border: 1px solid rgba(var(--text-rgb), 0.2);
+}
+
+body.museum-on .museum-exit:hover {
+    border-color: rgba(var(--text-rgb), 0.5);
+    color: var(--ink);
+}
+
+body.museum-on .museum-exit:focus-visible {
+    outline: 3px solid var(--link);
+    outline-offset: 3px;
+}
+
+body.museum-on .museum-era {
+    display: block;
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 40;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: lowercase;
+    color: var(--muted);
+    transition: opacity 0.26s ease, transform 0.26s ease;
+}
+
+body.museum-on .museum-era.is-swapping {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-3px);
+}
+
+body.museum-on .museum-rail {
+    display: block;
+    position: fixed;
+    top: 14vh;
+    bottom: 14vh;
+    right: 14px;
+    width: 3px;
+    z-index: 20;
+    background: rgba(var(--text-rgb), 0.12);
+}
+
+body.museum-on .museum-rail-fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--link);
+    transform: scaleY(0);
+    transform-origin: top;
+}
+
+body.museum-on .museum-hint {
+    display: block;
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 40;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--muted);
+    transition: opacity 1s ease;
+}
+
+body.museum-on .museum-hint.is-done {
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.museum-on .dust {
+    display: block;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 4;
+    pointer-events: none;
+    image-rendering: pixelated;
+}
+
+/* ==========================================================================
+   The curtain — "come in"
+   ========================================================================== */
+body.museum-on .museum-curtain {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: var(--paper);
+    text-align: center;
+    cursor: pointer;
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 0.72s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.museum-on .museum-curtain.is-lifting {
+    clip-path: inset(50% 50% 50% 50%);
+}
+
+/* the hidden attribute must win over the display:grid above (reduced motion
+   skips the lift entirely — without this the curtain never leaves) */
+body.museum-on .museum-curtain[hidden] {
+    display: none;
+}
+
+.curtain-title {
+    font-family: var(--header);
+    font-weight: 300;
+    font-size: clamp(3.2rem, 9vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    margin: 0 0 1.1rem;
+    animation: fadeIn 0.9s ease-out both;
+}
+
+.curtain-line {
+    font-family: var(--body);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin: 0 0 2.4rem;
+    animation: fadeIn 0.9s ease-out 0.25s both;
+}
+
+.curtain-hint {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    color: var(--muted);
+    margin: 0;
+    animation: fadeIn 0.9s ease-out 0.6s both;
+}
+
+/* ==========================================================================
+   Small screens: pieces step off the walls and meet you in the middle.
+   ========================================================================== */
+@media (max-width: 600px) {
+    .museum {
+        --hw: 46vw;
+    }
+
+    body.museum-on .stage {
+        perspective: 850px;
+    }
+
+    .exhibit,
+    .exhibit[data-wall="left"],
+    .exhibit[data-wall="right"] {
+        width: clamp(180px, 54vw, 280px);
+        top: 45%;
+    }
+
+    .exhibit[data-wall="left"] {
+        --ex-x: -11vw;
+        --ex-yaw: 12deg;
+    }
+
+    .exhibit[data-wall="right"] {
+        --ex-x: 11vw;
+        --ex-yaw: -12deg;
+    }
+
+    .exhibit[data-wall="left"]:hover,
+    .exhibit[data-wall="left"]:focus-within,
+    .exhibit[data-wall="right"]:hover,
+    .exhibit[data-wall="right"]:focus-within {
+        --ex-yaw: 0deg;
+    }
+
+    .ghost[data-lane="left"]  { --gx: calc(-0.5 * var(--hw)); }
+    .ghost[data-lane="right"] { --gx: calc(0.5 * var(--hw)); }
+
+    body.museum-on .museum-era {
+        top: 70px;
+    }
+}
