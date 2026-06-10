@@ -221,11 +221,13 @@
     /* ---- ignition (shared with the cosmic look) ---- */
     function solve() {
         solved = true;
-        progEl.classList.add('np-win'); progEl.textContent = 'solved — nebula unlocked';
+        persistUnlock();                                  // mark unlocked before teardown
         var box = skyEl.getBoundingClientRect();
-        igniteBurst(box.left + box.width / 2, box.top + box.height / 2, function () {
-            persistUnlock(); applyNebula();   // persist first so the gear reads "unlocked"
-            document.dispatchEvent(new CustomEvent('nebula-unlocked'));
+        var ox = box.left + box.width / 2, oy = box.top + box.height / 2;
+        close();                                          // close the puzzle, reveal the page
+        igniteBurst(ox, oy, function () {                 // supernova plays over the page
+            applyNebula();                                // cosmic palette on
+            document.dispatchEvent(new CustomEvent('nebula-unlocked'));  // morphs the game icon
         });
     }
 
