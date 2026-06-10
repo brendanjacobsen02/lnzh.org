@@ -81,7 +81,9 @@
     if (!doc || !doc.documentElement) return;
     if (!doc.getElementById('palette-css')) {
       var l = doc.createElement('link');
-      l.id = 'palette-css'; l.rel = 'stylesheet'; l.href = '/assets/css/palettes.css';
+      // cosmic ships in style.css (already loaded by the page); this file holds
+      // only the four runner-up palettes for side-by-side comparison.
+      l.id = 'palette-css'; l.rel = 'stylesheet'; l.href = '/dev/css/palettes.css';
       doc.head.appendChild(l);
     }
     // lingering-supernova glint (self-gates on data-palette="cosmic")

@@ -360,6 +360,7 @@
         if (animating) { return; }
 
         if (!animate || prefersReducedMotion()) {
+            clearPaletteAttrs();   // a plain theme choice exits the special palette
             document.documentElement.setAttribute('data-theme', next);
             persist(next);
             swapImages(next);
@@ -374,6 +375,7 @@
         var outgoingInk = cs.getPropertyValue('--ink').trim() || '#000';
 
         function applySwap() {
+            clearPaletteAttrs();   // a plain theme choice exits the special palette
             document.documentElement.setAttribute('data-theme', next);
             persist(next);
             swapImages(next);
@@ -416,6 +418,85 @@
         }
         try { localStorage.setItem('accent', accent); } catch (e) { /* ignore */ }
         updateSwatches(accent);
+    }
+
+    /* ---- special palette ("cosmic" nebula mode) ----
+       A full-site dark palette (tokens in style.css, html[data-palette="cosmic"])
+       layered over the dark theme. It pins a dark backdrop, so turning it on
+       forces data-theme=dark and swaps the hand-drawn PNGs to their -dark variants
+       (the SAME hook the theme toggle uses — otherwise light-variant art sits on
+       the dark field, invisible: that was the preview "broken elements" bug). The
+       accent attribute is dropped while active (a compound dark+accent rule would
+       out-specify the palette's --link) and restored on exit. The ambient glint
+       (nebula-glint.js) self-gates on data-palette and is lazy-loaded the first
+       time the palette turns on; its own MutationObserver handles every on/off
+       after that. The puzzle/"game" unlocks this via window.lnzhPalette. */
+    var PALETTES = ['cosmic'];
+    function currentPalette() {
+        var p = document.documentElement.getAttribute('data-palette');
+        return PALETTES.indexOf(p) >= 0 ? p : null;
+    }
+    function persistPalette(pal) {
+        try {
+            if (pal) { localStorage.setItem('palette', pal); }
+            else { localStorage.removeItem('palette'); }
+        } catch (e) { /* ignore */ }
+    }
+    // The theme to fall back to when the special palette is turned off — the
+    // user's real preference, NOT the cosmic-forced dark attribute. Mirrors
+    // theme-init.js: explicit choice, else OS preference, else light.
+    function baseTheme() {
+        var t = null;
+        try { t = localStorage.getItem('theme'); } catch (e) { /* ignore */ }
+        if (t === 'light' || t === 'dark') { return t; }
+        return (window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    var glintLoaded = false;
+    function loadGlintOnce() {
+        if (glintLoaded || document.getElementById('nebula-glint-js')) { return; }
+        glintLoaded = true;
+        var sc = document.createElement('script');
+        sc.id = 'nebula-glint-js';
+        sc.src = new URL('js/nebula-glint.js', assetsRoot).href;  // depth-independent
+        (document.body || document.documentElement).appendChild(sc);
+    }
+    function restoreAccent() {
+        var a = null;
+        try { a = localStorage.getItem('accent'); } catch (e) { /* ignore */ }
+        if (a && ACCENTS.indexOf(a) >= 0 && a !== 'green') {
+            document.documentElement.setAttribute('data-accent', a);
+        } else {
+            document.documentElement.removeAttribute('data-accent');
+        }
+    }
+    // Clear the special palette WITHOUT touching the theme (callers set the theme
+    // themselves). Used when a normal theme toggle should drop you out of cosmic.
+    function clearPaletteAttrs() {
+        if (!currentPalette()) { return; }
+        document.documentElement.removeAttribute('data-palette');
+        persistPalette(null);
+        restoreAccent();
+    }
+    function applyPalette(pal) {
+        var html = document.documentElement;
+        if (PALETTES.indexOf(pal) >= 0) {
+            html.removeAttribute('data-accent');     // palette owns --link (see note)
+            html.setAttribute('data-palette', pal);
+            html.setAttribute('data-theme', 'dark'); // dark backdrop (base theme pref kept)
+            persistPalette(pal);
+            swapImages('dark');
+            updateThemeControl('dark');
+            loadGlintOnce();                         // glint self-starts via its observer
+        } else {
+            html.removeAttribute('data-palette');
+            persistPalette(null);
+            restoreAccent();
+            var base = baseTheme();
+            html.setAttribute('data-theme', base);
+            swapImages(base);
+            updateThemeControl(base);
+        }
     }
 
     /* ---- UI elements ---- */
@@ -559,6 +640,20 @@
         preloadDarkVariants();
         // Ensure images match the theme already set by theme-init.js.
         swapImages(currentTheme());
+        // If theme-init.js booted us into the special palette, the glint script
+        // isn't on the page yet — load it (it self-starts from its observer).
+        if (currentPalette()) { loadGlintOnce(); }
+        // Programmatic entry point for the puzzle/"game" (and for testing live:
+        // lnzhPalette.set('cosmic') / lnzhPalette.clear()). No visible control —
+        // the special mode is unlocked, not offered.
+        window.lnzhPalette = {
+            set: function (pal) {
+                applyPalette(PALETTES.indexOf(pal) >= 0 ? pal : null);
+            },
+            clear: function () { applyPalette(null); },
+            current: currentPalette,
+            available: PALETTES.slice()
+        };
     }
 
     if (document.readyState === 'loading') {
