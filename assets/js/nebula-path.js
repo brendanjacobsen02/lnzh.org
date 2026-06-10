@@ -77,7 +77,16 @@
     /* ---- persistence + the cosmic contract ---- */
     function isUnlocked() { try { return localStorage.getItem(STORE_KEY) === '1'; } catch (e) { return false; } }
     function persistUnlock() { try { localStorage.setItem(STORE_KEY, '1'); } catch (e) {} }
-    function applyNebula() { document.documentElement.setAttribute('data-palette', 'cosmic'); ensureGlint(); }
+    function applyNebula() {
+        // On real pages, go through theme-toggle's palette system (persists 'palette',
+        // swaps PNGs, loads the glint, updates the gear). Standalone (demo) falls back.
+        if (window.lnzhPalette && typeof window.lnzhPalette.set === 'function') {
+            window.lnzhPalette.set('cosmic');
+        } else {
+            document.documentElement.setAttribute('data-palette', 'cosmic');
+            ensureGlint();
+        }
+    }
     function clearNebula() { document.documentElement.removeAttribute('data-palette'); }
 
     function svg(tag, attrs) { var el = document.createElementNS(SVGNS, tag); if (attrs) { for (var k in attrs) { if (attrs.hasOwnProperty(k)) el.setAttribute(k, attrs[k]); } } return el; }
@@ -215,7 +224,7 @@
         progEl.classList.add('np-win'); progEl.textContent = 'solved — nebula unlocked';
         var box = skyEl.getBoundingClientRect();
         igniteBurst(box.left + box.width / 2, box.top + box.height / 2, function () {
-            applyNebula(); persistUnlock();
+            persistUnlock(); applyNebula();   // persist first so the gear reads "unlocked"
             document.dispatchEvent(new CustomEvent('nebula-unlocked'));
         });
     }

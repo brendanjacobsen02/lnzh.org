@@ -216,6 +216,8 @@
             '  box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
             '.theme-swatch[aria-pressed="true"]{outline:3px solid var(--ink,#000);outline-offset:2px;}',
             '.theme-swatch:focus-visible{outline:3px solid var(--link,#119c36);outline-offset:2px;}',
+            '.theme-theme-btn.tt-nebula.tt-locked{opacity:.5;}',
+            '.theme-theme-btn.tt-nebula[aria-pressed="true"]{background:var(--ink,#000);color:var(--paper,#f2f2e4);}',
 
             /* The iris transition is a <canvas> created + styled inline in
                irisCloseIn (no CSS needed here). Reduced motion: skip the canvas
@@ -500,7 +502,7 @@
     }
 
     /* ---- UI elements ---- */
-    var gear, panel, themeBtn, swatches = [];
+    var gear, panel, themeBtn, swatches = [], nebulaBtn, nebulaText;
 
     function themeIcon(theme) { return theme === 'dark' ? '☀' : '☽'; }
     function updateThemeControl(theme) {
@@ -514,11 +516,58 @@
         if (ic) { ic.textContent = themeIcon(theme); }
         var tx = themeBtn.querySelector('.tt-text');
         if (tx) { tx.textContent = isDark ? 'Dark' : 'Light'; }
+        updateNebulaControl();   // theme/palette changes also flip the nebula control
     }
     function updateSwatches(accent) {
         for (var i = 0; i < swatches.length; i++) {
             swatches[i].setAttribute('aria-pressed',
                 swatches[i].getAttribute('data-accent') === accent ? 'true' : 'false');
+        }
+    }
+
+    /* ---- nebula control: locked until the one-stroke puzzle is solved. Locked →
+            click opens the puzzle (nebula-path.js, lazy-loaded). Unlocked → toggles
+            the cosmic palette like any other appearance control. The puzzle persists
+            'nebula-unlocked' and fires a 'nebula-unlocked' event on solve. ---- */
+    function nebulaUnlocked() {
+        try { return localStorage.getItem('nebula-unlocked') === '1'; } catch (e) { return false; }
+    }
+    var puzzleLoading = false, puzzleQueue = [];
+    function loadPuzzleOnce(cb) {
+        if (window.NebulaPath) { if (cb) { cb(); } return; }
+        if (cb) { puzzleQueue.push(cb); }
+        if (puzzleLoading) { return; }
+        puzzleLoading = true;
+        var sc = document.createElement('script');
+        sc.id = 'nebula-path-js';
+        sc.src = new URL('js/nebula-path.js', assetsRoot).href;   // depth-independent
+        sc.onload = function () {
+            puzzleLoading = false;
+            var q = puzzleQueue; puzzleQueue = [];
+            q.forEach(function (f) { f(); });
+        };
+        (document.body || document.documentElement).appendChild(sc);
+    }
+    function updateNebulaControl() {
+        if (!nebulaBtn) { return; }
+        var unlocked = nebulaUnlocked();
+        var active = currentPalette() === 'cosmic';
+        nebulaBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        if (unlocked) {
+            nebulaBtn.classList.remove('tt-locked');
+            nebulaBtn.setAttribute('aria-label', active ? 'Turn off nebula mode' : 'Turn on nebula mode');
+            if (nebulaText) { nebulaText.textContent = 'Nebula'; }
+        } else {
+            nebulaBtn.classList.add('tt-locked');
+            nebulaBtn.setAttribute('aria-label', 'Locked — solve the puzzle to unlock nebula mode');
+            if (nebulaText) { nebulaText.textContent = 'Locked'; }
+        }
+    }
+    function onNebulaClick() {
+        if (nebulaUnlocked()) {
+            applyPalette(currentPalette() === 'cosmic' ? null : 'cosmic');
+        } else {
+            loadPuzzleOnce(function () { if (window.NebulaPath) { window.NebulaPath.open(); } });
         }
     }
 
@@ -624,8 +673,25 @@
         accentSec.appendChild(accentLbl);
         accentSec.appendChild(row);
 
+        // Nebula section (the puzzle gate)
+        var nebulaSec = document.createElement('div');
+        nebulaSec.className = 'tt-section';
+        var nebulaLbl = document.createElement('p');
+        nebulaLbl.className = 'tt-label';
+        nebulaLbl.textContent = 'Nebula';
+        nebulaBtn = document.createElement('button');
+        nebulaBtn.type = 'button';
+        nebulaBtn.className = 'theme-theme-btn tt-nebula';
+        nebulaText = document.createElement('span');
+        nebulaText.className = 'tt-text';
+        nebulaBtn.appendChild(nebulaText);
+        nebulaBtn.addEventListener('click', onNebulaClick);
+        nebulaSec.appendChild(nebulaLbl);
+        nebulaSec.appendChild(nebulaBtn);
+
         panel.appendChild(themeSec);
         panel.appendChild(accentSec);
+        panel.appendChild(nebulaSec);
         document.body.appendChild(gear);
         document.body.appendChild(panel);
 
@@ -643,6 +709,8 @@
         // If theme-init.js booted us into the special palette, the glint script
         // isn't on the page yet — load it (it self-starts from its observer).
         if (currentPalette()) { loadGlintOnce(); }
+        // The puzzle fires this on solve → flip the nebula control to unlocked/on.
+        document.addEventListener('nebula-unlocked', updateNebulaControl);
         // Programmatic entry point for the puzzle/"game" (and for testing live:
         // lnzhPalette.set('cosmic') / lnzhPalette.clear()). No visible control —
         // the special mode is unlocked, not offered.

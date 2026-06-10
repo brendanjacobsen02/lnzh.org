@@ -3,77 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>nebula one-stroke puzzle — dev (real look)</title>
+    <title>nebula puzzle — gear integration (dev)</title>
     <script src="../assets/js/theme-init.js"></script>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- ?reset relocks for testing: clears the unlock + palette + board rotation -->
+    <script>
+        if (location.search.indexOf('reset') >= 0) {
+            try {
+                localStorage.removeItem('nebula-unlocked');
+                localStorage.removeItem('palette');
+                localStorage.removeItem('nebula-path-i');
+            } catch (e) {}
+            document.documentElement.removeAttribute('data-palette');
+        }
+    </script>
     <style>
-        /* dev-page layout only — the cosmic palette + glint are the REAL ones from
-           this branch (style.css html[data-palette="cosmic"] + nebula-glint.js). */
         body { max-width: 640px; margin: 0 auto; padding: 4rem 1.5rem; }
         h1 { font-family: var(--header); font-weight: 500; }
         p { font-family: var(--body); color: var(--text); line-height: 1.6; }
-        .demo-card { margin-top: 2rem; padding: 1rem 1.1rem; background: var(--paper-raised); border: 1px solid rgba(var(--text-rgb), 0.16); }
-        .demo-card .lbl { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin: 0 0 0.7rem; }
-        .demo-row { display: flex; gap: 0.5rem; align-items: center; }
-        .demo-btn { font-family: var(--mono); font-size: 0.66rem; text-transform: lowercase; letter-spacing: 0.05em; height: 2.1rem; padding: 0 0.85rem; cursor: pointer; border: 1px solid rgba(var(--text-rgb), 0.2); background: var(--paper-raised); color: var(--text); }
-        .demo-btn:hover { border-color: rgba(var(--text-rgb), 0.5); color: var(--ink); }
-        .demo-btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-        .demo-btn.locked::after { content: " 🔒"; }
-        .demo-note { font-family: var(--mono); font-size: 0.58rem; color: var(--faint); margin-top: 0.8rem; }
     </style>
 </head>
 <body>
     <h1>one stroke to the stars</h1>
-    <p>Stand-in for the appearance panel — but the nebula look here is the <em>real</em> one from
-        this branch (the cosmic palette + supernova glint), not a placeholder. Hit <em>nebula</em>:
-        it's locked until you fill <em>every</em> square in one unbroken path (drag or arrow keys).
-        <em>new</em> gives a different board anytime.</p>
+    <p>Open the <strong>appearance gear</strong> (top-right ⚙). Alongside Theme and Accent there's
+        now a <strong>Nebula</strong> control — <em>locked</em> until you solve the one-stroke puzzle.
+        Click it, fill every square in one path, and the real cosmic palette turns on. Once unlocked,
+        the Nebula control just toggles the palette like any other appearance setting.</p>
+    <p style="margin-top:2rem">Body copy so you can see the real cosmic palette flood the page — and
+        the ambient supernova flares drift in — when nebula mode turns on.</p>
 
-    <div class="demo-card">
-        <p class="lbl">appearance</p>
-        <div class="demo-row">
-            <button class="demo-btn" type="button" data-theme-btn="light" aria-pressed="false">light</button>
-            <button class="demo-btn" type="button" data-theme-btn="dark" aria-pressed="false">dark</button>
-            <button class="demo-btn locked" type="button" id="nebula-btn" aria-pressed="false">nebula</button>
-        </div>
-        <p class="demo-note" id="state">— locked · solve a puzzle to unlock —</p>
-    </div>
-
-    <p style="margin-top:2rem">Body copy so you can see the real cosmic palette flood the whole page
-        — and the ambient supernova flares drift in — when nebula mode turns on.</p>
-
-    <script src="../assets/js/nebula-path.js"></script>
-    <script>
-        var stateEl = document.getElementById('state');
-        var nebulaBtn = document.getElementById('nebula-btn');
-        function refresh() {
-            var on = document.documentElement.getAttribute('data-palette') === 'cosmic';
-            var unlocked = window.NebulaPath.isUnlocked();
-            nebulaBtn.classList.toggle('locked', !unlocked);
-            nebulaBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-            stateEl.textContent = unlocked ? (on ? '✦ nebula mode is ON' : '— unlocked · click nebula to wear it —') : '— locked · solve a puzzle to unlock —';
-        }
-        nebulaBtn.addEventListener('click', function () {
-            if (window.NebulaPath.isUnlocked()) {
-                if (document.documentElement.getAttribute('data-palette') === 'cosmic') { document.documentElement.removeAttribute('data-palette'); }
-                else { window.NebulaPath.applyNebula(); }
-                refresh();
-            } else { window.NebulaPath.open(); }
-        });
-        document.addEventListener('nebula-unlocked', refresh);
-        document.querySelectorAll('[data-theme-btn]').forEach(function (b) {
-            b.addEventListener('click', function () {
-                document.documentElement.removeAttribute('data-palette');
-                document.documentElement.setAttribute('data-theme', b.getAttribute('data-theme-btn'));
-                try { localStorage.setItem('theme', b.getAttribute('data-theme-btn')); } catch (e) {}
-                refresh();
-            });
-        });
-        if (location.search.indexOf('reset') >= 0) {
-            window.NebulaPath.clear();
-            try { localStorage.removeItem('nebula-path-i'); localStorage.removeItem('palette'); } catch (e) {}
-        }
-        refresh();
-    </script>
+    <!-- The real gear. It lazy-loads nebula-path.js when the locked Nebula control is clicked. -->
+    <script src="../assets/js/theme-toggle.js"></script>
 </body>
 </html>
