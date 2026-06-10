@@ -227,7 +227,7 @@
             '.theme-theme-btn{',
             '  display:inline-flex;align-items:center;gap:8px;',
             '  font-family:monospace;font-size:13px;cursor:pointer;padding:6px 10px;',
-            '  color:var(--ink,#000);background:var(--paper,#f2f2e4);',
+            '  color:var(--ink,#000);background:var(--paper,#f4f1e1);',
             '  border:2px solid var(--line-strong,#000);',
             '  box-shadow:2px 2px 0 0 var(--line-strong,#000);',
             '}',
@@ -437,7 +437,7 @@
         // Capture the OUTGOING colors before flipping (the leading edge belongs
         // to the old screen): paper tiles the canvas, ink is the common glow.
         var cs = getComputedStyle(document.documentElement);
-        var outgoingPaper = cs.getPropertyValue('--paper').trim() || '#f2f2e4';
+        var outgoingPaper = cs.getPropertyValue('--paper').trim() || '#f4f1e1';
         var outgoingInk = cs.getPropertyValue('--ink').trim() || '#000';
 
         function applySwap() {

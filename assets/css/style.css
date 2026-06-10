@@ -3,12 +3,11 @@
 
 /* ==========================================================================
    Theme tokens
-   Light mode values are the exact pre-existing literals (pixel-identical).
    Dark mode overrides live in html[data-theme="dark"] below.
    ========================================================================== */
 :root {
     /* Surfaces */
-    --paper: #f2f2e4;
+    --paper: #f4f1e1;   /* warm ivory — same hue axis as --paper-raised (was #f2f2e4, which leaned green) */
     --paper-raised: #fffdf4;
     --paper-raised-rgb: 255, 253, 244;   /* base channels for translucent raised surfaces */
 
@@ -68,8 +67,8 @@ html[data-theme="dark"] {
     --paper-raised-rgb: 27, 24, 17;
 
     /* Text */
-    --ink: #F2F2E4;
-    --ink-soft: #F2F2E4;
+    --ink: #F4F1E1;   /* mirrors light --paper */
+    --ink-soft: #F4F1E1;
     --text: #D8D6C8;
     --text-rgb: 216, 214, 200;
     --muted: #A8A596;

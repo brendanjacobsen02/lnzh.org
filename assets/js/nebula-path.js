@@ -121,7 +121,7 @@
             '.np-head{display:flex;align-items:center;justify-content:flex-end;padding:5px 6px 0;}',
             '.np-x{font-family:var(--mono,monospace);font-size:13px;line-height:1;width:20px;height:20px;padding:0;',
             '  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink,#000);',
-            '  background:var(--paper,#f2f2e4);border:2px solid var(--line-strong,#000);box-shadow:2px 2px 0 0 var(--line-strong,#000);}',
+            '  background:var(--paper,#f4f1e1);border:2px solid var(--line-strong,#000);box-shadow:2px 2px 0 0 var(--line-strong,#000);}',
             '.np-x:hover{transform:translate(1px,1px);box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
             // deep-space board window (dark in BOTH themes — it is space)
             '.np-sky{position:relative;margin:6px 8px;padding:7px;outline:none;border:2px solid var(--line-strong,#000);',
@@ -141,7 +141,7 @@
             '.np-hint .np-or{opacity:.6;}',
             '.np-btns{display:flex;gap:5px;}',
             '.np-btn{font-family:var(--mono,monospace);font-size:10px;text-transform:lowercase;letter-spacing:.04em;',
-            '  height:22px;padding:0 8px;cursor:pointer;color:var(--ink,#000);background:var(--paper,#f2f2e4);',
+            '  height:22px;padding:0 8px;cursor:pointer;color:var(--ink,#000);background:var(--paper,#f4f1e1);',
             '  border:2px solid var(--line-strong,#000);box-shadow:2px 2px 0 0 var(--line-strong,#000);}',
             '.np-btn:hover{transform:translate(1px,1px);box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
             '.np-burst{position:fixed;inset:0;z-index:2147483646;pointer-events:none;}'
