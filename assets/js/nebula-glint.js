@@ -90,7 +90,8 @@
                  c: FLECKS[(Math.random() * FLECKS.length) | 0] });
     }
     flares.push({ cx: cx, cy: cy, R: R, cells: cells, flecks: flk, born: t,
-                  life: 1400 + Math.random() * 1000,
+                  life: 700 + Math.random() * 400,             // fast: ~0.7-1.1s
+                  pulses: 4 + (Math.random() * 3 | 0),         // fast strobe: 4-6 beats
                   flash: FLARE_GAS[(Math.random() * FLARE_GAS.length) | 0] });
   }
 
@@ -122,34 +123,33 @@
     ctx.globalCompositeOperation = 'source-over';
 
     // occasional supernova FLARES — a patch igniting + dissolving, here and there
-    if (t > nextFlare && flares.length < 2) {
+    if (t > nextFlare && flares.length < 3) {
       spawnFlare(t);
-      nextFlare = t + 2000 + Math.random() * 3000;
+      nextFlare = t + 1000 + Math.random() * 2000;          // more often: every ~1-3s
     }
     for (var q = flares.length - 1; q >= 0; q--) {
       var fl = flares[q];
       var e = (t - fl.born) / fl.life;
       if (e >= 1) { flares.splice(q, 1); continue; }
-      var env = e < 0.12 ? e / 0.12 : 1 - (e - 0.12) / 0.88;          // fast ignite, slow fade
-      if (env < 0) env = 0;
-      // three hard flickers — the supernova's strobing detonation
-      var spike = ((e > 0.05 && e < 0.12) || (e > 0.20 && e < 0.28) || (e > 0.40 && e < 0.47)) ? 1.7 : 1;
+      // Sharp fast STROBE: pow() narrows each beat to a bright spike with a near-dark
+      // trough between, riding a smooth appear→disappear envelope.
+      var env = Math.sin(e * Math.PI);
+      var pulse = Math.pow(Math.abs(Math.sin(e * Math.PI * fl.pulses)), 3);
+      var amp = env * pulse;
+      if (amp < 0.012) continue;                              // dark between beats
 
-      // bright ignition FLASH — an additive bloom that pops then drops fast
-      var flash = e < 0.20 ? (1 - e / 0.20) : 0; flash *= flash;
-      if (flash > 0.01) {
-        ctx.globalCompositeOperation = 'lighter';
-        var fg = ctx.createRadialGradient(fl.cx, fl.cy, 0, fl.cx, fl.cy, fl.R * 1.15);
-        fg.addColorStop(0, '#fff4d6'); fg.addColorStop(0.35, fl.flash); fg.addColorStop(1, 'transparent');
-        ctx.globalAlpha = flash * 0.55; ctx.fillStyle = fg;
-        ctx.fillRect(fl.cx - fl.R * 1.15, fl.cy - fl.R * 1.15, fl.R * 2.3, fl.R * 2.3);
-      }
+      // bright bloom — pops on every beat
+      ctx.globalCompositeOperation = 'lighter';
+      var fg = ctx.createRadialGradient(fl.cx, fl.cy, 0, fl.cx, fl.cy, fl.R * 1.2);
+      fg.addColorStop(0, '#fff4d6'); fg.addColorStop(0.35, fl.flash); fg.addColorStop(1, 'transparent');
+      ctx.globalAlpha = amp * 0.55; ctx.fillStyle = fg;
+      ctx.fillRect(fl.cx - fl.R * 1.2, fl.cy - fl.R * 1.2, fl.R * 2.4, fl.R * 2.4);
 
-      // nebula gas blocks (screen) + a luminous core pass (lighter) for punch
+      // nebula gas blocks (screen) + a luminous core pass (lighter), brighter at peak
       ctx.globalCompositeOperation = 'screen';
       for (var ci = 0; ci < fl.cells.length; ci++) {
         var cc = fl.cells[ci];
-        ctx.globalAlpha = env * spike * (0.22 + (1 - cc.ring) * 0.5);
+        ctx.globalAlpha = amp * (0.25 + (1 - cc.ring) * 0.6);
         ctx.fillStyle = cc.c;
         ctx.fillRect(cc.x, cc.y, cc.s, cc.s);
       }
@@ -157,21 +157,18 @@
       for (var ck = 0; ck < fl.cells.length; ck++) {
         var c2 = fl.cells[ck];
         if (c2.ring > 0.45) continue;
-        ctx.globalAlpha = env * spike * 0.16 * (1 - c2.ring);
+        ctx.globalAlpha = amp * 0.22 * (1 - c2.ring);
         ctx.fillStyle = c2.c;
         ctx.fillRect(c2.x, c2.y, c2.s, c2.s);
       }
 
-      // bright flecks — twinkling hard, with a fat star cross
+      // bright flecks + fat star cross, strobing with the beat
       for (var fj = 0; fj < fl.flecks.length; fj++) {
         var ff = fl.flecks[fj];
-        var tw = 0.55 + 0.45 * Math.sin(t * 0.02 + ff.ph);
-        var fa = env * spike * tw;
-        if (fa < 0.02) continue;
-        ctx.globalAlpha = fa > 1 ? 1 : fa;
+        ctx.globalAlpha = amp > 1 ? 1 : amp;
         ctx.fillStyle = ff.c;
         ctx.fillRect(ff.x, ff.y, ff.s, ff.s);
-        ctx.globalAlpha = (fa * 0.55) > 1 ? 1 : fa * 0.55;
+        ctx.globalAlpha = (amp * 0.6) > 1 ? 1 : amp * 0.6;
         ctx.fillRect(ff.x - ff.s * 2, ff.y, ff.s * 5, 1);
         ctx.fillRect(ff.x, ff.y - ff.s * 2, 1, ff.s * 5);
       }
