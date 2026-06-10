@@ -581,7 +581,18 @@
     }
     function onGameClick() {
         if (nebulaUnlocked()) {
-            applyPalette(currentPalette() === 'cosmic' ? null : 'cosmic');
+            if (currentPalette() === 'cosmic') {
+                applyPalette(null);                  // turning off → just exit, no burst
+            } else {
+                // turning on → replay the real supernova, flipping the palette under its cover
+                loadPuzzleOnce(function () {
+                    if (window.NebulaPath && window.NebulaPath.supernova) {
+                        window.NebulaPath.supernova(function () { applyPalette('cosmic'); });
+                    } else {
+                        applyPalette('cosmic');
+                    }
+                });
+            }
         } else {
             loadPuzzleOnce(function () { if (window.NebulaPath) { window.NebulaPath.open(); } });
         }

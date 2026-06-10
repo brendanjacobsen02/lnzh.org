@@ -133,8 +133,11 @@
             '  stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(255,210,122,.55));}',
             '.np-tip{fill:#fff7e0;filter:drop-shadow(0 0 5px rgba(255,236,180,.9));}',
             '.np-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px 8px;}',
-            '.np-prog{font-family:var(--mono,monospace);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#777);}',
-            '.np-prog.np-win{color:var(--ink,#000);}',
+            // input hint (drag-with-mouse · arrow-keys) replaces a progress count
+            '.np-hint{display:flex;align-items:center;gap:5px;font-family:var(--mono,monospace);font-size:9px;',
+            '  letter-spacing:.04em;text-transform:lowercase;color:var(--muted,#777);}',
+            '.np-hint svg{display:block;flex:0 0 auto;}',
+            '.np-hint .np-or{opacity:.6;}',
             '.np-btns{display:flex;gap:5px;}',
             '.np-btn{font-family:var(--mono,monospace);font-size:10px;text-transform:lowercase;letter-spacing:.04em;',
             '  height:22px;padding:0 8px;cursor:pointer;color:var(--ink,#000);background:var(--paper,#f2f2e4);',
@@ -165,11 +168,6 @@
         trail.setAttribute('points', pts);
         // tip marker
         tip.setAttribute('cx', cx(head())); tip.setAttribute('cy', cy(head()));
-        // progress
-        if (!solved) {
-            progEl.classList.remove('np-win');
-            progEl.textContent = 'filled ' + path.length + ' / ' + board.count;
-        }
     }
 
     function tryStep(id) {
@@ -199,7 +197,6 @@
 
     function reset() {
         path = [board.start]; onPath = {}; onPath[board.start] = true; solved = false;
-        if (progEl) { progEl.classList.remove('np-win'); }
         redraw();
     }
     function nextBoard() {
@@ -329,7 +326,17 @@
         skyEl.appendChild(svgEl);
 
         var foot = document.createElement('div'); foot.className = 'np-foot';
-        progEl = document.createElement('span'); progEl.className = 'np-prog'; progEl.setAttribute('aria-live', 'polite');
+        // a quiet how-to-play hint, not a score: drag with the mouse, or use arrow keys
+        progEl = document.createElement('span'); progEl.className = 'np-hint';
+        progEl.setAttribute('aria-label', 'Drag across the grid, or use the arrow keys, to fill every square in one path.');
+        progEl.title = 'Drag, or use the arrow keys';
+        progEl.innerHTML =
+            '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+            '<rect x="7" y="2.5" width="10" height="19" rx="5"/><line x1="12" y1="6.5" x2="12" y2="10.5"/></svg>' +
+            '<span class="np-or" aria-hidden="true">or</span>' +
+            '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">' +
+            '<path d="M12 3 L15.5 7.5 H8.5 Z"/><path d="M12 21 L8.5 16.5 H15.5 Z"/>' +
+            '<path d="M3 12 L7.5 8.5 V15.5 Z"/><path d="M21 12 L16.5 15.5 V8.5 Z"/></svg>';
         var btns = document.createElement('div'); btns.className = 'np-btns';
         var resetBtn = document.createElement('button'); resetBtn.className = 'np-btn'; resetBtn.type = 'button'; resetBtn.textContent = 'reset'; resetBtn.addEventListener('click', reset);
         var newBtn = document.createElement('button'); newBtn.className = 'np-btn'; newBtn.type = 'button'; newBtn.textContent = 'new'; newBtn.addEventListener('click', nextBoard);
@@ -373,6 +380,8 @@
         open: open,
         isUnlocked: isUnlocked,
         applyNebula: applyNebula,
+        // re-fire the real ignition on demand (e.g. toggling nebula back on from the gear)
+        supernova: function (onFlip, onDone) { playSupernova(onFlip, onDone); },
         clear: function () { try { localStorage.removeItem(STORE_KEY); } catch (e) {} clearNebula(); }
     };
 })();
