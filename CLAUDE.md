@@ -78,8 +78,17 @@ in flight and pick a merge order.
 
 ```bash
 for f in assets/js/*.js; do node --check "$f" || exit 1; done   # JS syntax
-python3 -m http.server 8000                                     # serve, then check affected pages
+python3 -m http.server 8000                                     # serve, then:
+node dev/verify-matrix.mjs                                      # the matrix gate (below, automated)
 ```
+
+`dev/verify-matrix.mjs` (one-time setup: `cd dev && npm install`) loads every page in
+**both themes** in real Chrome and fails on console errors, 4xx/5xx requests, relative
+`--*-src` values, and any computed background/mask/`--*-src` URL that doesn't fetch 200.
+It also runs a **Lighthouse accessibility audit** (contrast, focus, labels) per
+page × theme (`--no-lighthouse` for a quick loop; `--base`/`--pages` to point it
+elsewhere). The `playwright` / `chrome-devtools` MCPs are the interactive complement
+when you need to poke at a page by hand.
 
 For anything touching the **nav, a shared component, or an asset reference**, eyeballing
 one page is NOT enough — verify the **page-depth × theme matrix**, because the nav is
@@ -90,8 +99,8 @@ copied into every page and each page sits at a different path depth:
 - **Theme:** check **light and dark** (assets swap by theme).
 - **Confirm the asset actually loads (HTTP 200)** — not just that the element exists. A
   `background-image` / `--*-src` 404 paints nothing and logs no error, so it looks fine
-  in the DOM while being invisible. Verify the computed `background-image` resolves to a
-  real URL (the `dev/` headless-Chrome probe pattern does exactly this).
+  in the DOM while being invisible. `verify-matrix.mjs` sweeps the computed styles for
+  exactly this; trust its red over a clean-looking DOM.
 
 > Why this matrix exists: we shipped it wrong once — an invisible nav star that 404'd on
 > every page except depth-2 ones, in both themes. It was verified only on a deep page, so
