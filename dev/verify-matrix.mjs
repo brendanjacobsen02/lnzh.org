@@ -56,6 +56,15 @@ const SHOTS = opt('--screens', '/tmp/lnzh-verify');
 const CDP_PORT = Number(opt('--cdp-port', '9777'));
 
 const slug = (p) => p.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'home';
+
+// Known-benign console noise that must not redden the gate. Keep this SHORT and
+// specific — every entry is a bug we've consciously decided not to fix.
+const CONSOLE_IGNORE = [
+    // The X-Frame-Options <meta> on every page: browsers ignore XFO in meta form
+    // (header-only per spec), so the tag is inert and Chrome logs this warning.
+    // GitHub Pages can't send response headers, so there's no header to move it to.
+    /X-Frame-Options may only be set via an HTTP header/,
+];
 const failures = [];
 const warnings = [];
 const a11yFindings = [];
@@ -86,7 +95,9 @@ try {
         let consoleErrors = [];
         let badResponses = [];
         let failedRequests = [];
-        page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
+        page.on('console', (m) => {
+            if (m.type() === 'error' && !CONSOLE_IGNORE.some((re) => re.test(m.text()))) consoleErrors.push(m.text());
+        });
         page.on('pageerror', (e) => consoleErrors.push(String(e)));
         page.on('response', (r) => { if (r.status() >= 400) badResponses.push(`${r.status()} ${r.url()}`); });
         page.on('requestfailed', (r) => failedRequests.push(`${r.failure()?.errorText ?? 'failed'} ${r.url()}`));
