@@ -24,8 +24,10 @@
 // Screenshots land in /tmp/lnzh-verify/. Exit 0 = green, 1 = something to fix.
 
 import { createRequire } from 'node:module';
-import { execFileSync } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
+import { execFileSync, spawn } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -70,14 +72,34 @@ const warnings = [];
 const a11yFindings = [];
 
 // ---- browser ---------------------------------------------------------------
+// We spawn Chrome OURSELVES (the repo's proven dev/ pattern) instead of letting
+// Playwright launch it: Lighthouse must attach to the same browser over CDP so
+// the localStorage theme sticks, and a Playwright-launched browser auto-manages
+// targets — Lighthouse's page gets closed under it ("Protocol error: Target
+// closed"). Playwright connects over CDP for the matrix, then DISCONNECTS while
+// each Lighthouse audit runs.
 mkdirSync(SHOTS, { recursive: true });
-const context = await chromium.launchPersistentContext('', {
-    channel: 'chrome',
-    headless: true,
-    viewport: { width: 1280, height: 900 },
-    deviceScaleFactor: 2,
-    args: [`--remote-debugging-port=${CDP_PORT}`, '--hide-scrollbars'],
-});
+const SYSTEM_CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const chromeBin = existsSync(SYSTEM_CHROME) ? SYSTEM_CHROME : chromium.executablePath();
+const profileDir = mkdtempSync(join(tmpdir(), 'lnzh-verify-'));
+const chrome = spawn(chromeBin, [
+    '--headless=new', `--remote-debugging-port=${CDP_PORT}`,
+    `--user-data-dir=${profileDir}`, '--no-first-run', '--no-default-browser-check',
+    '--window-size=1280,900', '--force-device-scale-factor=2', '--hide-scrollbars',
+    'about:blank',
+], { stdio: 'ignore' });
+const cdpUrl = `http://127.0.0.1:${CDP_PORT}`;
+{
+    let up = false;
+    for (let i = 0; i < 60 && !up; i++) {
+        try { await fetch(`${cdpUrl}/json/version`); up = true; } catch { await new Promise((r) => setTimeout(r, 250)); }
+    }
+    if (!up) {
+        console.error(`Chrome CDP did not come up on :${CDP_PORT}`);
+        chrome.kill();
+        process.exit(1);
+    }
+}
 
 try {
     // Make sure the server is actually up before blaming pages.
@@ -89,6 +111,9 @@ try {
     }
 
     for (const theme of THEMES) {
+        // Playwright rides along over CDP for the matrix half of this theme…
+        const browser = await chromium.connectOverCDP(cdpUrl);
+        const context = browser.contexts()[0] ?? (await browser.newContext());
         const page = await context.newPage();
 
         // Buffers the listeners write into; reset per page visit.
@@ -204,6 +229,10 @@ try {
             console.log(`checked ${label} — ${sameOrigin.length} swept assets`);
         }
         await page.close();
+        // …then disconnects so Lighthouse can own the browser without Playwright
+        // closing the targets it creates. The spawned Chrome (and the theme in its
+        // localStorage) stays up.
+        await browser.close();
 
         // ---- Lighthouse a11y pass, same profile so the theme sticks ----------
         if (!NO_LIGHTHOUSE) {
@@ -221,7 +250,8 @@ try {
                     ], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
                     report = JSON.parse(out);
                 } catch (e) {
-                    warnings.push(`${label} — lighthouse did not run: ${e.message.split('\n')[0]}`);
+                    const detail = (e.stderr || e.stdout || e.message || '').toString().trim().split('\n').slice(-3).join(' | ');
+                    warnings.push(`${label} — lighthouse did not run: ${detail}`);
                     continue;
                 }
                 const score = Math.round((report.categories?.accessibility?.score ?? 0) * 100);
@@ -240,7 +270,7 @@ try {
         }
     }
 } finally {
-    await context.close();
+    chrome.kill();
 }
 
 // ---- report -----------------------------------------------------------------
