@@ -39,7 +39,7 @@
     <span class="lbl">page</span>
     <div class="grp" id="pg-row"></div>
   </div>
-  <div class="frame-wrap"><iframe id="site" src="/index.html"></iframe></div>
+  <div class="frame-wrap"><iframe id="site" src="about:blank"></iframe></div>
 
 <script>
   // Swatch = the palette's page background + its link accent, pulled from palettes.css intent.
@@ -60,6 +60,21 @@
 
   var frame = document.getElementById('site');
   var current = localStorage.getItem('previewPalette') || 'cosmic';
+  var currentURL = '/index.html';
+
+  // All palettes are dark; only "current light" wants the light theme. The site's
+  // theme-toggle.js swaps hand-drawn PNGs to their -dark.png variants ONCE at load
+  // from the theme it sees then — so to get the right image variants we must set
+  // the theme in (shared-origin) localStorage BEFORE the page loads, then let the
+  // page's own swap run. Forcing the theme by attribute after load (what we used to
+  // do) left light-variant PNGs on a dark background → "broken" recolored elements.
+  function themeFor(p) { return p === '__light' ? 'light' : 'dark'; }
+
+  function loadFrame(url) {
+    currentURL = url;
+    try { localStorage.setItem('theme', themeFor(current)); } catch (e) {}
+    frame.src = url;                       // reload → theme-init + swapImages run correctly
+  }
 
   function applyPalette(p) {
     var doc = frame.contentDocument;
@@ -76,18 +91,20 @@
       doc.body.appendChild(sc);
     }
     var html = doc.documentElement;
-    if (p === '__dark')  { html.removeAttribute('data-palette'); html.setAttribute('data-theme', 'dark'); }
-    else if (p === '__light') { html.removeAttribute('data-palette'); html.setAttribute('data-theme', 'light'); }
-    else { html.setAttribute('data-theme', 'dark'); html.removeAttribute('data-accent'); html.setAttribute('data-palette', p); }
+    if (p === '__dark' || p === '__light') { html.removeAttribute('data-palette'); }
+    else { html.removeAttribute('data-accent'); html.setAttribute('data-palette', p); }
+    html.setAttribute('data-theme', themeFor(p));
   }
 
   function setPalette(p) {
+    var reload = themeFor(p) !== themeFor(current);  // dark↔light needs the PNG re-swap
     current = p;
     localStorage.setItem('previewPalette', p);
-    applyPalette(p);
     document.querySelectorAll('button.pal').forEach(function (b) {
       b.setAttribute('aria-pressed', b.dataset.pal === p ? 'true' : 'false');
     });
+    if (reload) loadFrame(currentURL);    // re-run the page's image swap for the new theme
+    else applyPalette(p);                 // dark→dark: images already right, just recolor live
   }
 
   // build palette buttons (insert before the two "current" buttons)
@@ -109,16 +126,20 @@
   PAGES.forEach(function (pg) {
     var b = document.createElement('button');
     b.className = 'pg'; b.textContent = pg.label;
-    b.addEventListener('click', function () { frame.src = pg.url; });
+    b.addEventListener('click', function () { loadFrame(pg.url); });
     pgRow.appendChild(b);
   });
 
   // re-apply on every (re)load, including in-iframe navigation
-  frame.addEventListener('load', function () { applyPalette(current); });
+  frame.addEventListener('load', function () {
+    if (frame.contentWindow && frame.contentWindow.location.href !== 'about:blank') applyPalette(current);
+  });
   // reflect initial pressed state
   document.querySelectorAll('button.pal').forEach(function (b) {
     b.setAttribute('aria-pressed', b.dataset.pal === current ? 'true' : 'false');
   });
+
+  loadFrame(currentURL);   // kick off the first load with the correct theme in localStorage
 </script>
 </body>
 </html>
