@@ -622,6 +622,7 @@
             window.NebulaPath.close();
             return;
         }
+        closePanel();   // opening the puzzle dismisses the settings panel (mutual exclusion)
         loadPuzzleOnce(function () { if (window.NebulaPath) { window.NebulaPath.open(); } });
     }
 
