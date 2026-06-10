@@ -156,6 +156,7 @@ nav .nav-divider {
 
 nav a {
     display: block;
+    width: fit-content;   /* clickable area = just the ink, not the full nav column */
     transition: opacity 0.3s ease;
 }
 
@@ -236,6 +237,7 @@ nav img:not([class*="size-"]) {
     padding: 0;
     line-height: 0;
     display: flex;
+    width: fit-content;   /* hitbox = just the four stars, not the full column */
     align-items: center;
     /* Room between the hr and the 4-star toggle. The hr's own margin-bottom is
        capped by the catch-all `nav img:not([class*="size-"])` rule, so the gap lives
@@ -484,9 +486,11 @@ body.critters-calm .critter-motion--sway {
 }
 
 .dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    /* block (not flex) so each image's size-N spacing margins collapse OUT of the
+       link box — the clickable <a> stays the size of the ink, not ink+margins.
+       In the tablet/mobile horizontal nav the item is still a flex child of
+       .dropdown-list, which centers it (align-items there). */
+    display: block;
     opacity: 0;                 /* hidden until the menu opens */
 }
 
@@ -531,7 +535,7 @@ body.critters-calm .critter-motion--sway {
 
 .dropdown-item a {
     display: block;
-    flex: 1;
+    width: fit-content;   /* shrink the hitbox to the word, not the full column */
 }
 
 /* Page fade-in animation */
@@ -2443,6 +2447,7 @@ footer a img {
         flex-direction: row;
         flex-wrap: nowrap;
         gap: 25px;
+        align-items: center;   /* center the now-block items in the horizontal bar */
     }
 
     main {
@@ -2586,6 +2591,7 @@ footer a img {
         flex-direction: row;
         flex-wrap: wrap;
         gap: 30px;
+        align-items: center;   /* center the now-block items in the horizontal bar */
     }
 
     main {
