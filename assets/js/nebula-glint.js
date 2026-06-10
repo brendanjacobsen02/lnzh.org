@@ -140,7 +140,7 @@
     // occasional supernova FLARES — a patch igniting + dissolving, here and there
     if (t > nextFlare && flares.length < 2) {
       spawnFlare(t);
-      nextFlare = t + 1600 + Math.random() * 2600;          // every ~1.6-4.2s
+      nextFlare = t + 3200 + Math.random() * 3200;          // slower gap between flares: every ~3.2-6.4s
     }
     for (var q = flares.length - 1; q >= 0; q--) {
       var fl = flares[q];
