@@ -71,7 +71,7 @@
           href: '../', src: null, ratio: '16 / 10', guide: 'this site, from outside' },
         { era: 2, z: -6650, wall: 'right', year: '2026', title: 'the coffee project',
           blurb: 'espresso, americano, latte — real orders, no storefront.',
-          href: '../coffee/', src: null, ratio: '4 / 3', guide: 'a latte, mid-pour' },
+          href: '../archive/coffee/', src: null, ratio: '4 / 3', guide: 'a latte, mid-pour' },
         { era: 2, z: -7050, wall: 'left',  year: '2026', title: 'the writing tool',
           blurb: 'one sentence at a time. no going back.',
           href: '../writing/', src: null, ratio: '4 / 3', guide: 'the editor, mid-redaction' },
@@ -260,6 +260,8 @@
             art.appendChild(plaque(ex.year, ex.title, ex.blurb, ex.href, ex.nova));
             art.addEventListener('focus', onExhibitFocus);
             art.addEventListener('keydown', onExhibitKey);
+            art.addEventListener('pointerdown', onExhibitTapStart);
+            art.addEventListener('pointerup', onExhibitTapEnd);
             world.appendChild(art);
             exhibitEls.push({ el: art, z: ex.z, fade: -1 });
         }
@@ -284,7 +286,7 @@
             g.appendChild(plaque('someday', f.title, f.blurb, null, false));
             g.addEventListener('focus', onExhibitFocus);
             world.appendChild(g);
-            exhibitEls.push({ el: g, z: f.z, fade: -1 });
+            exhibitEls.push({ el: g, z: f.z, fade: -1, ghost: true });
         }
     }
 
@@ -316,22 +318,32 @@
             walk.toFixed(2) + 'px) rotateY(' + (sway + lean * 0.012).toFixed(3) + 'deg)';
     }
 
-    var hazeFar = -6400, hazeNear = -5200;          // emergence band (narrower on phones)
+    // emergence band — much narrower on phones, where every piece shares the
+    // center lane and would otherwise pile up; the walked-past fade also starts
+    // sooner there so the piece behind clears the one in front
+    var hazeFar = -6400, hazeNear = -5200, narrowFade = false;
     function sizeHaze() {
         var narrow = window.innerWidth < 600;
-        hazeFar = narrow ? -2950 : -6400;
-        hazeNear = narrow ? -2150 : -5200;
+        narrowFade = narrow;
+        hazeFar = narrow ? -1080 : -6400;
+        hazeNear = narrow ? -760 : -5200;
     }
 
     function updateFades() {
-        var i, d, o, rec;
+        var i, d, o, rec, far, near, passAt, passSpan;
         for (i = 0; i < exhibitEls.length; i++) {
             rec = exhibitEls[i];
             d = rec.z + walk;                       // 0 = at the camera plane
-            if (d < hazeFar) { o = 0; }             // still lost in the haze
-            else if (d < hazeNear) { o = (d - hazeFar) / (hazeNear - hazeFar); }
-            else if (d < -60) { o = 1; }
-            else if (d < 300) { o = 1 - (d + 60) / 360; }  // walked past
+            // ghosts fan sideways (no pile-up) and are never walked past, so
+            // they keep the long view even on phones
+            far = rec.ghost && narrowFade ? -1600 : hazeFar;
+            near = rec.ghost && narrowFade ? -1100 : hazeNear;
+            passAt = narrowFade && !rec.ghost ? -600 : -60;
+            passSpan = narrowFade && !rec.ghost ? 380 : 360;
+            if (d < far) { o = 0; }                 // still lost in the haze
+            else if (d < near) { o = (d - far) / (near - far); }
+            else if (d < passAt) { o = 1; }
+            else if (d < passAt + passSpan) { o = 1 - (d - passAt) / passSpan; }  // walked past
             else { o = 0; }
             o = Math.round(o * 50) / 50;
             if (o !== rec.fade) {
@@ -369,8 +381,14 @@
         }, 260);
     }
 
+    var deepNow = false;
     function updateRail() {
         railFill.style.transform = 'scaleY(' + (walk / WALK_MAX).toFixed(4) + ')';
+        var deep = walk > FORK_AT + 200;        // the fog lifts as you reach the stars
+        if (deep !== deepNow) {
+            deepNow = deep;
+            museum.classList.toggle('is-deep', deep);
+        }
     }
 
     /* ---- dust: a few chunky motes drifting up, paused in cosmic mode
@@ -481,7 +499,15 @@
 
     /* ======================= input ======================= */
 
+    // while the one-stroke puzzle or the settings panel is open, the modal owns
+    // every input — the hall must not scroll behind it (and Escape belongs to it)
+    function modalOpen() {
+        return !!(window.NebulaPath && window.NebulaPath.isOpen && window.NebulaPath.isOpen()) ||
+            !!document.querySelector('.theme-settings-panel:not([hidden])');
+    }
+
     function onWheel(e) {
+        if (modalOpen()) { return; }            // let the modal own the wheel
         e.preventDefault();
         glide = 0;
         nudge(e.deltaY * (e.deltaMode === 1 ? 18 : 1.25));
@@ -489,6 +515,7 @@
 
     function onKey(e) {
         if (e.metaKey || e.ctrlKey || e.altKey) { return; }
+        if (modalOpen()) { return; }            // arrows steer the puzzle, Esc closes it
         var el = document.activeElement;
         if (el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable)) { return; }
         switch (e.key) {
@@ -533,6 +560,7 @@
     }
     function onPointerMove(e) {
         if (e.pointerId !== touch.id) { return; }
+        if (modalOpen()) { return; }               // the settings panel doesn't cover the stage
         var dy = touch.lastY - e.clientY;          // swipe up = walk in
         var dt = Math.max(1, e.timeStamp - touch.lastT);
         touch.vel = (dy * 2.4) / (dt / 16.7);
@@ -557,6 +585,30 @@
     function onExhibitKey(e) {
         if (e.key !== 'Enter' || e.target !== e.currentTarget) { return; }
         var go = e.currentTarget.querySelector('.plaque-read');
+        if (go) { go.click(); }
+    }
+
+    // touch can't reach the tiny plaque link under the 3D hit surface — a real
+    // tap (not a walk-drag) on a far piece docks to it, on a near piece visits it
+    var tapDown = null;
+    function onExhibitTapStart(e) {
+        if (e.pointerType === 'mouse') { return; }
+        tapDown = { x: e.clientX, y: e.clientY, t: e.timeStamp, el: e.currentTarget };
+    }
+    function onExhibitTapEnd(e) {
+        if (!tapDown || tapDown.el !== e.currentTarget) { tapDown = null; return; }
+        var dx = e.clientX - tapDown.x, dy = e.clientY - tapDown.y, dt = e.timeStamp - tapDown.t;
+        tapDown = null;
+        if (dx * dx + dy * dy > 144 || dt > 400) { return; }   // a drag, not a tap
+        var art = e.currentTarget;
+        var z = parseFloat(art.style.getPropertyValue('--ex-z'));
+        if (!isNaN(z) && z + walk < -900) {                    // far away: walk to it
+            glide = 0;
+            targetWalk = clampWalk(-z - DOCK_BACKOFF);
+            if (reduced) { applyOnce(); }
+            return;
+        }
+        var go = art.querySelector('.plaque-read');
         if (go) { go.click(); }
     }
 
@@ -617,8 +669,14 @@
         world.setAttribute('data-era', '0');
         eraEl.textContent = ERAS[0].label;
 
+        // deep-link: /time/?at=6700 starts that far down the hall
+        var at = parseFloat(new URLSearchParams(window.location.search).get('at'));
+        if (!isNaN(at)) { walk = targetWalk = clampWalk(at); }
+
         window.addEventListener('wheel', onWheel, { passive: false });
-        window.addEventListener('keydown', onKey);
+        // capture phase: the modal-open check must run BEFORE a modal's own
+        // Escape handler closes it, or the museum steals the restored focus
+        window.addEventListener('keydown', onKey, { capture: true });
         window.addEventListener('keyup', onKeyUp);
         stage.addEventListener('pointerdown', onPointerDown);
         stage.addEventListener('pointermove', onPointerMove);

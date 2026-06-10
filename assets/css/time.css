@@ -13,8 +13,8 @@
     --lift: 0%;                    /* how much the night lifts surfaces off the dark */
     --lamp: 20%;                   /* picture-light strength */
     /* daylight: distance dissolves into paper haze */
-    --fog: radial-gradient(34% 30% at 50% 45%,
-        color-mix(in srgb, var(--paper) 88%, transparent), transparent 72%);
+    --fog: radial-gradient(28% 24% at 50% 45%,
+        color-mix(in srgb, var(--paper) 72%, transparent), transparent 68%);
     --vignette-a: 0.07;
 }
 
@@ -162,7 +162,7 @@ body.museum-on .stage {
    picture rail, tops dissolving into the sky. Square, hand-set — a gallery. */
 .wall {
     height: 68vh;
-    background-color: color-mix(in srgb, var(--seg-c, var(--link)) 7%,
+    background-color: color-mix(in srgb, var(--seg-c, var(--link)) 12%,
         color-mix(in srgb, var(--ink) var(--lift), var(--paper)));
     background-image:
         radial-gradient(rgba(var(--text-rgb), 0.05) 1px, transparent 1.7px);
@@ -457,9 +457,9 @@ body.museum-on .stage {
 
 .ghost-frame {
     aspect-ratio: 4 / 5;
-    border: 1px dashed color-mix(in srgb, var(--cat-violet) 75%, transparent);
+    border: 1.5px dashed color-mix(in srgb, var(--cat-violet-deep) 80%, transparent);
     background: radial-gradient(70% 60% at 50% 40%,
-        color-mix(in srgb, var(--cat-violet) 9%, transparent), transparent 75%);
+        color-mix(in srgb, var(--cat-violet) 14%, transparent), transparent 75%);
 }
 
 .ghost .plaque {
@@ -644,6 +644,18 @@ body.museum-on .museum-curtain[hidden] {
     color: var(--muted);
     margin: 0;
     animation: fadeIn 0.9s ease-out 0.6s both;
+}
+
+/* fingers need bigger doors: real touch targets on coarse pointers */
+@media (pointer: coarse) {
+    body.museum-on .museum-exit {
+        min-height: 44px;
+    }
+
+    .plaque-read {
+        padding: 0.6rem 0.8rem 0.45rem;
+        margin: -0.3rem auto -0.35rem;
+    }
 }
 
 /* ==========================================================================
