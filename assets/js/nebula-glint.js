@@ -82,16 +82,16 @@
                      c: FLARE_GAS[(Math.random() * FLARE_GAS.length) | 0] });
       }
     }
-    var flk = [], nf = 6 + (Math.random() * 6 | 0);               // more, brighter flecks
+    var flk = [], nf = 4 + (Math.random() * 4 | 0);               // a few glowing flecks
     for (var i = 0; i < nf; i++) {
-      flk.push({ x: (cx + (Math.random() - 0.5) * R * 1.5) | 0,
-                 y: (cy + (Math.random() - 0.5) * R * 1.5) | 0,
+      flk.push({ x: (cx + (Math.random() - 0.5) * R * 1.4) | 0,
+                 y: (cy + (Math.random() - 0.5) * R * 1.4) | 0,
                  s: 2 + (Math.random() * 2 | 0), ph: Math.random() * 6.2832,
                  c: FLECKS[(Math.random() * FLECKS.length) | 0] });
     }
     flares.push({ cx: cx, cy: cy, R: R, cells: cells, flecks: flk, born: t,
-                  life: 700 + Math.random() * 400,             // fast: ~0.7-1.1s
-                  pulses: 4 + (Math.random() * 3 | 0),         // fast strobe: 4-6 beats
+                  life: 1100 + Math.random() * 800,            // slower, breathing: ~1.1-1.9s
+                  pulses: 2 + (Math.random() * 2 | 0),         // 2-3 gentle throbs
                   flash: FLARE_GAS[(Math.random() * FLARE_GAS.length) | 0] });
   }
 
@@ -123,54 +123,50 @@
     ctx.globalCompositeOperation = 'source-over';
 
     // occasional supernova FLARES — a patch igniting + dissolving, here and there
-    if (t > nextFlare && flares.length < 3) {
+    if (t > nextFlare && flares.length < 2) {
       spawnFlare(t);
-      nextFlare = t + 1000 + Math.random() * 2000;          // more often: every ~1-3s
+      nextFlare = t + 1600 + Math.random() * 2600;          // every ~1.6-4.2s
     }
     for (var q = flares.length - 1; q >= 0; q--) {
       var fl = flares[q];
       var e = (t - fl.born) / fl.life;
       if (e >= 1) { flares.splice(q, 1); continue; }
-      // Sharp fast STROBE: pow() narrows each beat to a bright spike with a near-dark
-      // trough between, riding a smooth appear→disappear envelope.
+      // Smooth THROB: a gentle breathing swell that never snaps to black — riding a
+      // soft appear→disappear envelope. (No hard strobe; it pulses, it doesn't flash.)
       var env = Math.sin(e * Math.PI);
-      var pulse = Math.pow(Math.abs(Math.sin(e * Math.PI * fl.pulses)), 3);
-      var amp = env * pulse;
-      if (amp < 0.012) continue;                              // dark between beats
+      var throb = 0.5 - 0.5 * Math.cos(e * 6.2832 * fl.pulses);   // 0..1, `pulses` swells
+      var amp = env * (0.5 + 0.5 * throb);                        // breathes 0.5→1, never dark
+      if (amp < 0.01) continue;
 
-      // bright bloom — pops on every beat
-      ctx.globalCompositeOperation = 'lighter';
-      var fg = ctx.createRadialGradient(fl.cx, fl.cy, 0, fl.cx, fl.cy, fl.R * 1.2);
-      fg.addColorStop(0, '#fff4d6'); fg.addColorStop(0.35, fl.flash); fg.addColorStop(1, 'transparent');
-      ctx.globalAlpha = amp * 0.55; ctx.fillStyle = fg;
-      ctx.fillRect(fl.cx - fl.R * 1.2, fl.cy - fl.R * 1.2, fl.R * 2.4, fl.R * 2.4);
-
-      // nebula gas blocks (screen) + a luminous core pass (lighter), brighter at peak
+      // GLOW — a big soft layered radial bloom is the body of the flare (warm core →
+      // nebula hue → out). This is what makes it read as glowing, not flashing.
       ctx.globalCompositeOperation = 'screen';
+      var g = ctx.createRadialGradient(fl.cx, fl.cy, 0, fl.cx, fl.cy, fl.R * 1.7);
+      g.addColorStop(0, '#fff4d6');
+      g.addColorStop(0.22, fl.flash);
+      g.addColorStop(0.62, fl.flash);
+      g.addColorStop(1, 'transparent');
+      ctx.globalAlpha = amp * 0.5; ctx.fillStyle = g;
+      ctx.fillRect(fl.cx - fl.R * 1.7, fl.cy - fl.R * 1.7, fl.R * 3.4, fl.R * 3.4);
+
+      // subtle pixel-gas texture INSIDE the glow — low alpha, soft, keeps the 8-bit feel
       for (var ci = 0; ci < fl.cells.length; ci++) {
         var cc = fl.cells[ci];
-        ctx.globalAlpha = amp * (0.25 + (1 - cc.ring) * 0.6);
+        ctx.globalAlpha = amp * (0.07 + (1 - cc.ring) * 0.2);
         ctx.fillStyle = cc.c;
         ctx.fillRect(cc.x, cc.y, cc.s, cc.s);
       }
-      ctx.globalCompositeOperation = 'lighter';
-      for (var ck = 0; ck < fl.cells.length; ck++) {
-        var c2 = fl.cells[ck];
-        if (c2.ring > 0.45) continue;
-        ctx.globalAlpha = amp * 0.22 * (1 - c2.ring);
-        ctx.fillStyle = c2.c;
-        ctx.fillRect(c2.x, c2.y, c2.s, c2.s);
-      }
 
-      // bright flecks + fat star cross, strobing with the beat
+      // glowing flecks — a soft halo + a bright core (no hard cross)
+      ctx.globalCompositeOperation = 'lighter';
       for (var fj = 0; fj < fl.flecks.length; fj++) {
         var ff = fl.flecks[fj];
-        ctx.globalAlpha = amp > 1 ? 1 : amp;
-        ctx.fillStyle = ff.c;
+        var hg = ctx.createRadialGradient(ff.x, ff.y, 0, ff.x, ff.y, 8);
+        hg.addColorStop(0, ff.c); hg.addColorStop(1, 'transparent');
+        ctx.globalAlpha = amp * 0.7; ctx.fillStyle = hg;
+        ctx.fillRect(ff.x - 8, ff.y - 8, 16, 16);
+        ctx.globalAlpha = amp; ctx.fillStyle = ff.c;
         ctx.fillRect(ff.x, ff.y, ff.s, ff.s);
-        ctx.globalAlpha = (amp * 0.6) > 1 ? 1 : amp * 0.6;
-        ctx.fillRect(ff.x - ff.s * 2, ff.y, ff.s * 5, 1);
-        ctx.fillRect(ff.x, ff.y - ff.s * 2, 1, ff.s * 5);
       }
       ctx.globalCompositeOperation = 'source-over';
     }
