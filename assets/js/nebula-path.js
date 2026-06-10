@@ -23,7 +23,8 @@
     var CELL = 40;
     // cosmic supernova palette (mirrors the nova-iris in dev/theme-demo.html)
     var NOVA = {
-        gas: ['#1c0838', '#290b48', '#43135e', '#5a1556', '#0a2238', '#0d2c4a', '#093846', '#145460'],
+        gas: ['#1c0838', '#290b48', '#43135e', '#5a1556', '#0a2238', '#0d2c4a', '#093846', '#145460',
+              '#7a1d6b', '#1d6d7a'],   // two hotter hues (from the glint's flare gas) so the cloud reads vivid
         space: '#06040f',
         flecks: ['#fff4d6', '#ffd9a0', '#ffe9b3', '#cfe8ff']
     };
@@ -243,12 +244,27 @@
         });
     }
 
-    /* ---- the REAL supernova — ported from the demo's nova-iris. A full-screen
-            pixel grid of cosmic gas + star flecks ignites center→out, flips the page
-            to nebula underneath (onFlip), then clears to reveal it (onDone). ---- */
+    /* ---- the REAL supernova — evolved from the demo's nova-iris.
+            Three acts on one full-screen pixel canvas:
+              collapse — the page is swallowed edge→center into deep space while
+                         a core brightens at the middle (anticipation);
+              detonation — the core blows: a chunky additive diamond flash and a
+                         decaying screen shake (transform on the canvas, so the
+                         viewport never shows gaps);
+              burst — a bright shockwave front races center→out with the cosmic
+                         gas igniting + dissolving behind it, star flecks and
+                         plus-shaped sparkles riding the cloud, then it all
+                         clears to reveal the flipped page (onFlip fires under
+                         full cover at the end of the collapse). ---- */
     function playSupernova(onFlip, onDone) {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            if (onFlip) { onFlip(); }
+            if (onDone) { onDone(); }
+            return;
+        }
         var CELL = 18, wild = 1, bloom = 14, noise = 0.4;
-        var ringDelay = 20, novaDur = 620, gasFill = 0.42, starPct = 0.045;
+        var ringDelay = 17, novaDur = 850, gasFill = 0.55, starPct = 0.07;
+        var collapseDur = 480, flashDur = 150, shockWin = 95, shakeDur = 380;
         var W = window.innerWidth, Hh = window.innerHeight;
         var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL), total = cols * rows;
         var cellW = W / cols, cellH = Hh / rows, cx = (cols - 1) / 2, cy = (rows - 1) / 2;
@@ -261,9 +277,19 @@
         function blob(c, r) { return (Math.sin(c * bf + sA) * Math.cos(r * bf + sB) + 0.6 * Math.sin((c + r) * bf * 0.7 + sC)) / 1.6; }
         var tAmp = wild * 5, bAmp = wild * 4, eff = new Float64Array(total), maxEff = 0, idx = 0;
         for (var r1 = 0; r1 < rows; r1++) { for (var c1 = 0; c1 < cols; c1++) { var dx = c1 - cx, dy = r1 - cy; var dd = Math.hypot(dx, dy) + tendril(Math.atan2(dy, dx)) * tAmp + blob(c1, r1) * bAmp; if (dd < 0) { dd = 0; } eff[idx++] = dd; if (dd > maxEff) { maxEff = dd; } } }
-        var maxRing = Math.round(maxEff), delay = new Float64Array(total);
-        for (var i = 0; i < total; i++) { var ring = Math.round(eff[i]); var dl = ring * ringDelay + Math.random() * grainMs; delay[i] = dl < 0 ? 0 : dl; }  // burst: ignite center→out
-        var DUR = novaDur, endT = maxRing * ringDelay + grainMs + DUR + 80;
+        var maxRing = Math.round(maxEff);
+        // collapse: outer ring covered first, crumbling inward; burst: center→out
+        var collapseAt = new Float64Array(total), delay = new Float64Array(total);
+        var cRD = collapseDur / (maxRing + 1);
+        for (var i = 0; i < total; i++) {
+            var ring = Math.round(eff[i]);
+            var ca = (maxRing - ring) * cRD + Math.random() * cRD * 2.2;
+            collapseAt[i] = ca < 0 ? 0 : ca;
+            var dl = ring * ringDelay + Math.random() * grainMs;
+            delay[i] = dl < 0 ? 0 : dl;
+        }
+        var burstStart = collapseDur + flashDur * 0.4;        // burst overlaps the flash tail
+        var DUR = novaDur, endT = burstStart + maxRing * ringDelay + grainMs + DUR + 80;
         var cellGlow = new Array(total), isFleck = new Uint8Array(total);
         for (var s2 = 0; s2 < total; s2++) { var bse = NOVA.gas[(Math.random() * NOVA.gas.length) | 0]; cellGlow[s2] = shadeColor(bse, ((Math.random() - 0.5) * 2 * noise * 120) | 0); isFleck[s2] = Math.random() < starPct ? 1 : 0; }
         var baseFill = NOVA.space;
@@ -273,44 +299,119 @@
         canvas.style.cssText = 'position:fixed;inset:0;z-index:2147483646;pointer-events:none;width:' + W + 'px;height:' + Hh + 'px;image-rendering:pixelated;';
         var ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
         var cw = Math.ceil(cellW) + 1, ch = Math.ceil(cellH) + 1;
+        function fleckDot(i2, x, y) {           // a winking quarter-cell star on a covered cell
+            ctx.globalAlpha = 0.5 + Math.random() * 0.4; ctx.fillStyle = NOVA.flecks[i2 & 3];
+            var q = (cw >> 2) || 2; ctx.fillRect(x + ((cw - q) >> 1), y + ((ch - q) >> 1), q, q);
+        }
         function draw(t) {
             ctx.clearRect(0, 0, W, Hh);
-            for (var i2 = 0; i2 < total; i2++) {
-                var local = t - delay[i2];
-                if (local >= DUR) { continue; }                              // cleared → page shows
-                var x = ((i2 % cols) * cellW) | 0, y = (((i2 / cols) | 0) * cellH) | 0;
-                if (local < 0) { ctx.globalAlpha = 1; ctx.fillStyle = baseFill; ctx.fillRect(x, y, cw, ch); continue; }
-                var ph = local / DUR, cover = ph < 0.52 ? 1 : 1 - (ph - 0.52) / 0.48;
-                var spike = (ph >= 0.10 && ph < 0.22) || (ph >= 0.34 && ph < 0.46);   // 2 flickers
-                if (spike) {
-                    var gc = cellGlow[i2];
-                    ctx.globalCompositeOperation = 'screen';                  // gas, never white-out
-                    ctx.globalAlpha = (0.10 + gasFill * 0.45) * cover; ctx.fillStyle = gc;
-                    ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
-                    ctx.globalCompositeOperation = 'source-over';
-                    ctx.globalAlpha = cover; ctx.fillStyle = gc; ctx.fillRect(x, y, cw, ch);
-                } else { ctx.globalAlpha = cover; ctx.fillStyle = baseFill; ctx.fillRect(x, y, cw, ch); }
-                if (isFleck[i2] && ph > 0.08 && ph < 0.72) {                  // bright star flecks
+            var i2, x, y;
+            if (t < burstStart) {
+                // ---- act 1: collapse + core charging up ----
+                for (i2 = 0; i2 < total; i2++) {
+                    if (t < collapseAt[i2]) { continue; }            // not swallowed yet → page shows
+                    x = ((i2 % cols) * cellW) | 0; y = (((i2 / cols) | 0) * cellH) | 0;
+                    ctx.globalAlpha = 1; ctx.fillStyle = baseFill; ctx.fillRect(x, y, cw, ch);
+                    if (isFleck[i2]) { fleckDot(i2, x, y); }          // stars wink on in the dark
+                }
+                var corePh = (t - collapseDur * 0.45) / (collapseDur * 0.55);
+                if (corePh > 0) {
+                    if (corePh > 1) { corePh = 1; }
                     ctx.globalCompositeOperation = 'lighter';
-                    ctx.globalAlpha = (0.5 + Math.random() * 0.5) * cover; ctx.fillStyle = NOVA.flecks[i2 & 3];
-                    var q = (cw >> 1) || 2; ctx.fillRect(x + (q >> 1), y + (q >> 1), q, q);
+                    for (i2 = 0; i2 < total; i2++) {
+                        var dc = Math.abs((i2 % cols) - cx) + Math.abs(((i2 / cols) | 0) - cy);
+                        if (dc > 2.5) { continue; }
+                        x = ((i2 % cols) * cellW) | 0; y = (((i2 / cols) | 0) * cellH) | 0;
+                        ctx.globalAlpha = (dc < 1 ? 0.9 : dc < 2 ? 0.5 : 0.22) * corePh * (0.75 + 0.25 * Math.random());
+                        ctx.fillStyle = NOVA.flecks[(dc | 0) & 3]; ctx.fillRect(x, y, cw, ch);
+                    }
                     ctx.globalCompositeOperation = 'source-over';
                 }
+            } else {
+                // ---- act 3: shockwave front + igniting gas, then the clear ----
+                var bt = t - burstStart;
+                for (i2 = 0; i2 < total; i2++) {
+                    var local = bt - delay[i2];
+                    if (local >= DUR) { continue; }                              // cleared → page shows
+                    x = ((i2 % cols) * cellW) | 0; y = (((i2 / cols) | 0) * cellH) | 0;
+                    if (local < 0) {                                              // not ignited: still deep space
+                        ctx.globalAlpha = 1; ctx.fillStyle = baseFill; ctx.fillRect(x, y, cw, ch);
+                        if (isFleck[i2]) { fleckDot(i2, x, y); }                  // starfield holds until the front hits
+                        continue;
+                    }
+                    var ph = local / DUR, cover = ph < 0.55 ? 1 : 1 - (ph - 0.55) / 0.45;
+                    var spike = (ph >= 0.08 && ph < 0.20) || (ph >= 0.32 && ph < 0.44) || (ph >= 0.58 && ph < 0.68);
+                    if (spike) {
+                        var gc = cellGlow[i2];
+                        ctx.globalCompositeOperation = 'screen';                  // gas, never white-out
+                        ctx.globalAlpha = (0.10 + gasFill * 0.45) * cover; ctx.fillStyle = gc;
+                        ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
+                        ctx.globalCompositeOperation = 'source-over';
+                        ctx.globalAlpha = cover; ctx.fillStyle = gc; ctx.fillRect(x, y, cw, ch);
+                    } else { ctx.globalAlpha = cover; ctx.fillStyle = baseFill; ctx.fillRect(x, y, cw, ch); }
+                    if (local < shockWin) {                                       // the blast front itself
+                        var sk = 1 - local / shockWin;
+                        ctx.globalCompositeOperation = 'screen';                  // glow haloing the ring
+                        ctx.globalAlpha = 0.35 * sk; ctx.fillStyle = NOVA.flecks[i2 & 3];
+                        ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
+                        ctx.globalCompositeOperation = 'lighter';
+                        ctx.globalAlpha = 0.9 * sk; ctx.fillRect(x, y, cw, ch);
+                        ctx.globalCompositeOperation = 'source-over';
+                    }
+                    if (isFleck[i2] && ph > 0.08 && ph < 0.78) {                  // star flecks + sparkle crosses
+                        ctx.globalCompositeOperation = 'lighter';
+                        ctx.globalAlpha = (0.5 + Math.random() * 0.5) * cover; ctx.fillStyle = NOVA.flecks[i2 & 3];
+                        var q = (cw >> 1) || 2, hq = q >> 1;
+                        ctx.fillRect(x + hq, y + hq, q, q);
+                        if ((i2 & 7) === 0 && ph > 0.2 && ph < 0.6) {             // some flecks flare into a +
+                            ctx.globalAlpha = 0.35 * cover;
+                            ctx.fillRect(x + hq - q, y + hq, q, q); ctx.fillRect(x + hq + q, y + hq, q, q);
+                            ctx.fillRect(x + hq, y + hq - q, q, q); ctx.fillRect(x + hq, y + hq + q, q, q);
+                        }
+                        ctx.globalCompositeOperation = 'source-over';
+                    }
+                }
+            }
+            if (t >= collapseDur && t < collapseDur + flashDur) {
+                // ---- act 2: detonation — an expanding chunky diamond drawn LAST so it
+                //      rides over the cover; capped additive (never a white-out) ----
+                var fph = (t - collapseDur) / flashDur;
+                var fr = 2 + fph * 7;
+                ctx.globalCompositeOperation = 'lighter';
+                for (i2 = 0; i2 < total; i2++) {
+                    var dxc = Math.abs((i2 % cols) - cx), dyc = Math.abs(((i2 / cols) | 0) - cy);
+                    if (dxc + dyc > fr) { continue; }
+                    x = ((i2 % cols) * cellW) | 0; y = (((i2 / cols) | 0) * cellH) | 0;
+                    ctx.globalAlpha = 0.6 * (1 - fph) * (1 - (dxc + dyc) / (fr + 1));
+                    ctx.fillStyle = NOVA.flecks[(i2 ^ (i2 >> 3)) & 3]; ctx.fillRect(x, y, cw, ch);
+                }
+                ctx.globalCompositeOperation = 'source-over';
             }
             ctx.globalAlpha = 1;
         }
-        draw(0); document.body.appendChild(canvas);    // cover the page before the flip
+        draw(0); document.body.appendChild(canvas);    // page still visible — the collapse swallows it
         var finished = false, flipped = false;
         // flip EXACTLY once — the failsafe must not re-fire onFlip later (with
         // toggling, a stale re-flip would silently flip the palette back ~3s on).
         function doFlip() { if (flipped) { return; } flipped = true; if (onFlip) { onFlip(); } }
         function finish() { if (finished) { return; } finished = true; if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); } if (onDone) { onDone(); } }
-        requestAnimationFrame(function () {
-            doFlip();                                                        // restyle under the cover
-            var t0 = null;
-            function loop(now) { if (t0 === null) { t0 = now; } var t = now - t0; draw(t); if (t < endT) { requestAnimationFrame(loop); } else { finish(); } }
-            requestAnimationFrame(loop);
-        });
+        var t0 = null;
+        function loop(now) {
+            if (t0 === null) { t0 = now; }
+            var t = now - t0;
+            if (t >= collapseDur) { doFlip(); }                       // restyle under full cover
+            // detonation kick: decaying shake on the canvas itself (scale hides edges)
+            var st = t - collapseDur;
+            if (st >= 0 && st < shakeDur) {
+                var kk = 1 - st / shakeDur, amp = 7 * kk * kk;
+                canvas.style.transform = 'scale(1.02) translate(' + ((Math.random() * 2 - 1) * amp).toFixed(1) + 'px,' + ((Math.random() * 2 - 1) * amp).toFixed(1) + 'px)';
+            } else if (st >= shakeDur && canvas.style.transform) {
+                canvas.style.transform = '';
+            }
+            draw(t);
+            if (t < endT) { requestAnimationFrame(loop); } else { finish(); }
+        }
+        requestAnimationFrame(loop);
         window.setTimeout(function () { doFlip(); finish(); }, endT + 1500);  // failsafe
     }
 
