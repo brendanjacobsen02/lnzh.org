@@ -2576,7 +2576,8 @@ footer a img {
     .dropdown-trigger {
         height: auto;
         overflow: visible;
-        width: 100%;  /* Force dropdown to start on new row */
+        width: fit-content;  /* hitbox = just the four stars; the menu's own
+                                width:100% (below) still forces it onto a new row */
         margin-top: 0;
         margin-bottom: 0;
     }
