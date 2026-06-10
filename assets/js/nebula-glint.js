@@ -10,10 +10,16 @@
  * 8-bit theme-toggle/supernova, NOT soft glowy particle-js dots. Deliberately
  * non-intrusive — low alpha, slow, sparse.
  *
+ * It ALSO paints a glittery pixel trail that follows the cursor — little star
+ * flecks that scatter off the pointer, settle, and twinkle out (a separate,
+ * FOREGROUND canvas, since the ambient layer sits behind content). Mouse/pen
+ * only, cosmic-mode only.
+ *
  * Gated on the special mode: runs only while <html data-palette="cosmic">.
- * A MutationObserver starts/stops it as the palette flips. Canvas sits at
- * z-index:-1 (above the page background, below content), like critter-layer--back.
- * Reduced-motion → a single static sprinkle, no animation.
+ * A MutationObserver starts/stops it as the palette flips. The ambient canvas
+ * sits at z-index:-1 (above the page background, below content); the cursor
+ * trail rides a separate canvas above content. Both are pointer-events:none.
+ * Reduced-motion → a single static sprinkle, no animation, no cursor trail.
  */
 (function () {
   'use strict';
@@ -23,9 +29,13 @@
   var FLECKS = ['#fff4d6', '#ffd9a0', '#ffe9b3', '#cfe8ff', '#cfe8ff'];  // warm + a little ice
   var GAS    = ['#5a1aa0', '#2a3fb0', '#0e6d8c'];                        // deep nebula motes
   var FLARE_GAS = ['#5a1a7a', '#7a1d6b', '#43135e', '#123a63', '#0e4d5c', '#1d6d7a']; // supernova gas
+  // cursor-trail glitter: mostly warm/icy starlight, a little cosmic violet
+  var SPARKS = ['#fff4d6', '#ffe9b3', '#cfe8ff', '#fff4d6', '#cfe8ff', '#c8b8ff', '#a48cf0'];
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var canvas, ctx, W, H, dpr, flecks, motes, flares, nextFlare, raf = 0, running = false, t0 = 0;
+  // cursor trail: its own foreground canvas + a pool of glitter sparks
+  var cur, cctx, sparks = [], lastPX = null, lastPY = null, prevT = 0, pointerBound = false;
 
   function isActive() {
     return document.documentElement.getAttribute('data-palette') === 'cosmic';
@@ -116,7 +126,79 @@
     canvas.width = W * dpr; canvas.height = H * dpr;
     canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (cur) {
+      cur.width = W * dpr; cur.height = H * dpr;
+      cur.style.width = W + 'px'; cur.style.height = H + 'px';
+      cctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
     build();
+  }
+
+  /* ---- cursor glitter trail (foreground canvas) ---- */
+  function spawnSparks(x, y, n, dx, dy) {
+    for (var i = 0; i < n; i++) {
+      if (sparks.length > 150) { sparks.shift(); }   // hard cap
+      var ang = Math.random() * 6.2832, spd = 0.25 + Math.random() * 1.0;
+      sparks.push({
+        x: x + (Math.random() - 0.5) * 7,
+        y: y + (Math.random() - 0.5) * 7,
+        vx: Math.cos(ang) * spd - dx * 0.018,        // scatter, biased to trail behind motion
+        vy: Math.sin(ang) * spd - dy * 0.018 - 0.15, // a touch of initial lift, then it settles
+        s: 1 + (Math.random() * 3 | 0),              // 1–3 px pixel flecks
+        c: SPARKS[(Math.random() * SPARKS.length) | 0],
+        age: 0, dur: 480 + Math.random() * 620,      // ~0.5–1.1 s
+        ph: Math.random() * 6.2832,
+        cross: Math.random() < 0.3                   // a third get a twinkle cross
+      });
+    }
+  }
+  function onPointerMove(e) {
+    if (e.pointerType === 'touch') { return; }       // it's a *cursor* trail
+    var x = e.clientX, y = e.clientY;
+    if (lastPX === null) { lastPX = x; lastPY = y; return; }
+    var dx = x - lastPX, dy = y - lastPY, dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 4) { return; }                         // need real movement to glitter
+    spawnSparks(x, y, Math.min(4, 1 + (dist / 16 | 0)), dx, dy);
+    lastPX = x; lastPY = y;
+  }
+  function bindPointer() {
+    if (pointerBound) { return; }
+    pointerBound = true; lastPX = lastPY = null;
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+  }
+  function unbindPointer() {
+    if (!pointerBound) { return; }
+    pointerBound = false;
+    window.removeEventListener('pointermove', onPointerMove);
+  }
+  function drawSparks(t, dt) {
+    cctx.clearRect(0, 0, W, H);
+    if (!sparks.length) { return; }
+    var k = dt / 16.67;                               // frame-rate-independent step
+    cctx.globalCompositeOperation = 'lighter';        // additive → glows on the dark void
+    for (var i = sparks.length - 1; i >= 0; i--) {
+      var p = sparks[i];
+      p.age += dt;
+      if (p.age >= p.dur) { sparks.splice(i, 1); continue; }
+      p.vy += 0.014 * k;                              // gentle settle
+      p.vx *= Math.pow(0.95, k); p.vy *= Math.pow(0.985, k);
+      p.x += p.vx * k; p.y += p.vy * k;
+      var life = 1 - p.age / p.dur;                   // 1 → 0
+      var tw = 0.65 + 0.35 * Math.sin(t * 0.02 + p.ph);
+      var a = life * life * tw;                       // ease-out fade, twinkling
+      if (a < 0.02) { continue; }
+      cctx.globalAlpha = a > 1 ? 1 : a;
+      cctx.fillStyle = p.c;
+      var px = p.x | 0, py = p.y | 0;
+      cctx.fillRect(px, py, p.s, p.s);
+      if (p.cross && life > 0.4) {                    // a tiny + sparkle while it's bright
+        cctx.globalAlpha = (a * 0.55);
+        cctx.fillRect(px - p.s, py, p.s * 3, 1);
+        cctx.fillRect(px, py - p.s, 1, p.s * 3);
+      }
+    }
+    cctx.globalCompositeOperation = 'source-over';
+    cctx.globalAlpha = 1;
   }
 
   function drawFrame(t) {
@@ -219,7 +301,11 @@
   function loop(now) {
     if (!running) return;
     if (!t0) t0 = now;
-    drawFrame(now - t0);
+    var t = now - t0;
+    var dt = t - prevT; if (dt <= 0 || dt > 50) { dt = 16; }    // clamp tab-switch jumps
+    prevT = t;
+    drawFrame(t);          // ambient glint (behind content)
+    drawSparks(t, dt);     // cursor glitter (above content)
     raf = requestAnimationFrame(loop);
   }
 
@@ -233,18 +319,31 @@
         + 'image-rendering:pixelated;';
       ctx = canvas.getContext('2d');
       document.body.appendChild(canvas);
+      // cursor-trail layer: same full-viewport canvas, but ABOVE content
+      cur = document.createElement('canvas');
+      cur.className = 'nebula-cursor-layer';
+      cur.setAttribute('aria-hidden', 'true');
+      cur.style.cssText = 'position:fixed;inset:0;z-index:2147483640;pointer-events:none;'
+        + 'image-rendering:pixelated;';
+      cctx = cur.getContext('2d');
+      document.body.appendChild(cur);
       window.addEventListener('resize', size, { passive: true });
     }
     canvas.style.display = 'block';
     size();
-    if (reduce) { drawFrame(0); return; }     // static sprinkle, no animation
-    running = true; t0 = 0; raf = requestAnimationFrame(loop);
+    if (reduce) { drawFrame(0); return; }     // static sprinkle, no animation, no trail
+    cur.style.display = 'block';
+    bindPointer();
+    running = true; t0 = 0; prevT = 0; raf = requestAnimationFrame(loop);
   }
 
   function stop() {
     running = false;
     if (raf) cancelAnimationFrame(raf);
+    unbindPointer();
+    sparks.length = 0;
     if (canvas) { ctx.clearRect(0, 0, W, H); canvas.style.display = 'none'; }
+    if (cur) { cctx.clearRect(0, 0, W, H); cur.style.display = 'none'; }
   }
 
   function sync() { if (isActive()) start(); else stop(); }
