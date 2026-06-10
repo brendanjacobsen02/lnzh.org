@@ -75,6 +75,7 @@
         'assets/images/ui/arrow0.png',
         'assets/images/ui/arrow1.png',
         'assets/images/ui/arrow2.png',
+        'assets/images/ui/arrow-sort.png',
         'assets/images/ui/hr.png'
     ];
 
