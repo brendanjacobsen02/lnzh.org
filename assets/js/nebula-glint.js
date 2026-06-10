@@ -89,7 +89,22 @@
                  s: 2 + (Math.random() * 2 | 0), ph: Math.random() * 6.2832,
                  c: FLECKS[(Math.random() * FLECKS.length) | 0] });
     }
-    flares.push({ cx: cx, cy: cy, R: R, cells: cells, flecks: flk, born: t,
+    // Break the perfect circle: the glow is several offset "lobes" of varying size,
+    // each breathing + drifting on its own, so the bloom is lumpy and a bit erratic.
+    var lobes = [{ ox: (Math.random() - 0.5) * R * 0.3, oy: (Math.random() - 0.5) * R * 0.3,
+                   r: R * (0.4 + Math.random() * 0.2), c: '#fff4d6', w: 0.9,
+                   ph: Math.random() * 6.2832, sp: 0.8 + Math.random() * 0.6,
+                   dx: (Math.random() - 0.5), dy: (Math.random() - 0.5) }];   // warm core
+    var nl = 3 + (Math.random() * 4 | 0);
+    for (var lj = 0; lj < nl; lj++) {
+      var ang = Math.random() * 6.2832, dist = R * (0.25 + Math.random() * 0.6);
+      lobes.push({ ox: Math.cos(ang) * dist, oy: Math.sin(ang) * dist,
+                   r: R * (0.4 + Math.random() * 0.65),
+                   c: FLARE_GAS[(Math.random() * FLARE_GAS.length) | 0],
+                   w: 0.4 + Math.random() * 0.7, ph: Math.random() * 6.2832,
+                   sp: 0.7 + Math.random() * 1.0, dx: (Math.random() - 0.5), dy: (Math.random() - 0.5) });
+    }
+    flares.push({ cx: cx, cy: cy, R: R, cells: cells, flecks: flk, lobes: lobes, born: t,
                   life: 1100 + Math.random() * 800,            // slower, breathing: ~1.1-1.9s
                   pulses: 2 + (Math.random() * 2 | 0),         // 2-3 gentle throbs
                   flash: FLARE_GAS[(Math.random() * FLARE_GAS.length) | 0] });
@@ -138,16 +153,21 @@
       var amp = env * (0.5 + 0.5 * throb);                        // breathes 0.5→1, never dark
       if (amp < 0.01) continue;
 
-      // GLOW — a big soft layered radial bloom is the body of the flare (warm core →
-      // nebula hue → out). This is what makes it read as glowing, not flashing.
+      // GLOW — a lumpy bloom of several offset lobes (breaks the perfect circle),
+      // each breathing + drifting on its own for an erratic, organic glow.
       ctx.globalCompositeOperation = 'screen';
-      var g = ctx.createRadialGradient(fl.cx, fl.cy, 0, fl.cx, fl.cy, fl.R * 1.7);
-      g.addColorStop(0, '#fff4d6');
-      g.addColorStop(0.22, fl.flash);
-      g.addColorStop(0.62, fl.flash);
-      g.addColorStop(1, 'transparent');
-      ctx.globalAlpha = amp * 0.5; ctx.fillStyle = g;
-      ctx.fillRect(fl.cx - fl.R * 1.7, fl.cy - fl.R * 1.7, fl.R * 3.4, fl.R * 3.4);
+      for (var lk = 0; lk < fl.lobes.length; lk++) {
+        var lo = fl.lobes[lk];
+        var lw = 0.6 + 0.4 * Math.sin(e * 6.2832 * fl.pulses * lo.sp + lo.ph);  // own wave
+        var la = amp * lo.w * 0.42 * lw;
+        if (la < 0.006) continue;
+        var lx = fl.cx + lo.ox + lo.dx * e * 16;          // slight drift over the flare's life
+        var ly = fl.cy + lo.oy + lo.dy * e * 16;
+        var lg = ctx.createRadialGradient(lx, ly, 0, lx, ly, lo.r);
+        lg.addColorStop(0, lo.c); lg.addColorStop(1, 'transparent');
+        ctx.globalAlpha = la > 1 ? 1 : la; ctx.fillStyle = lg;
+        ctx.fillRect(lx - lo.r, ly - lo.r, lo.r * 2, lo.r * 2);
+      }
 
       // subtle pixel-gas texture INSIDE the glow — low alpha, soft, keeps the 8-bit feel
       for (var ci = 0; ci < fl.cells.length; ci++) {
