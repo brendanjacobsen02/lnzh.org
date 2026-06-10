@@ -40,7 +40,7 @@
     --inset-highlight: rgba(255, 255, 255, 0.75);
 
     /* Links */
-    --link: #119c36;
+    --link: #0d782a;      /* forest green, AA on both paper surfaces (was #119c36 @ 3.2:1) */
     --link-hover: #0a4a1a;
 
     /* Category / accent palette (header tones) */
@@ -2073,6 +2073,7 @@ footer a img {
 .thoughts-controls input[type="password"]:focus,
 .thoughts-controls input[type="email"]:focus {
     outline: none;
+    border-color: var(--link);   /* keyboard focus must stay visible */
 }
 
 .thoughts-controls input[type="text"]::placeholder,
@@ -2095,6 +2096,7 @@ footer a img {
 
 #coffee-comment-form textarea:focus {
     outline: none;
+    border-color: var(--link);   /* keyboard focus must stay visible */
 }
 
 #coffee-comment-form {
