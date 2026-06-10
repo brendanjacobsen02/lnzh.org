@@ -185,13 +185,8 @@ nav img {
     object-position: left center;
 }
 
-/* Size variations for different letter heights */
-nav img.size-0 {
-    height: 1.15rem;  /* Extra short/tiny letters */
-    margin-top: 0.5rem;
-    margin-bottom: 1.609375rem;  /* padding factor: 1.125, split with constant top */
-}
-
+/* Size variations for different letter heights (scale runs 1–6; the unused
+   end rungs 0 and 7 were pruned 2026-06-10) */
 nav img.size-1 {
     height: 1.55rem;  /* Short, flat letters (e.g., "one") */
     margin-top: 0.5rem;
@@ -226,12 +221,6 @@ nav img.size-6 {
     height: 4rem;
     margin-top: 0.40625rem;
     margin-bottom: 0.40625rem;
-}
-
-nav img.size-7 {
-    height: 4.5rem;
-    margin-top: 0.34375rem;
-    margin-bottom: 0.34375rem;
 }
 
 /* Default size (no class) */
@@ -1632,10 +1621,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     object-fit: contain;
 }
 
-.card-title img.size-0 {
-        max-height: 1.2rem;
-    }
-    .card-title img.size-1 {
+.card-title img.size-1 {
         max-height: 1.4rem;
     }
 
@@ -1659,9 +1645,6 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
         max-height: 3.2rem;
     }
 
-    .card-title img.size-7 {
-        max-height: 3.6rem;
-    }
 
 .card-image {
     width: 100%;
@@ -2432,10 +2415,6 @@ footer a img {
     }
 
     /* Slightly smaller sizes for tablets */
-    nav img.size-0 {
-        height: 1.035rem;
-    }
-
     nav img.size-1 {
         height: 1.35rem;
     }
@@ -2460,9 +2439,6 @@ footer a img {
         height: 3.5rem;
     }
 
-    nav img.size-7 {
-        height: 4rem;
-    }
 
     /* Adjust dropdown for tablets */
     .dropdown-trigger {
@@ -2516,9 +2492,6 @@ footer a img {
     }
 
 
-    .card-title img.size-0 {
-        max-height: 1.2rem;
-    }
     .card-title img.size-1 {
         max-height: 1.4rem;
     }
@@ -2543,9 +2516,6 @@ footer a img {
         max-height: 3.2rem;
     }
 
-    .card-title img.size-7 {
-        max-height: 3.6rem;
-    }
 }
 
 /* Mobile - wrapping nav at top */
@@ -2587,10 +2557,6 @@ footer a img {
     }
 
     /* Proportionally smaller sizes for mobile */
-    nav img.size-0 {
-        height: 0.92rem;
-    }
-
     nav img.size-1 {
         height: 1.25rem;
     }
@@ -2615,9 +2581,6 @@ footer a img {
         height: 3.2rem;
     }
 
-    nav img.size-7 {
-        height: 3.6rem;
-    }
 
     /* Adjust dropdown for mobile */
     .dropdown-trigger {
@@ -2669,9 +2632,6 @@ footer a img {
         padding: 0;
     }
 
-    .card-title img.size-0 {
-        max-height: 1.2rem;
-    }
     .card-title img.size-1 {
         max-height: 1.4rem;
     }
@@ -2696,9 +2656,6 @@ footer a img {
         max-height: 3.2rem;
     }
 
-    .card-title img.size-7 {
-        max-height: 3.6rem;
-    }
 
     /* Thoughts controls mobile */
     .thoughts-controls {
