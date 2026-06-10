@@ -581,18 +581,18 @@
     }
     function onGameClick() {
         if (nebulaUnlocked()) {
-            if (currentPalette() === 'cosmic') {
-                applyPalette(null);                  // turning off → just exit, no burst
-            } else {
-                // turning on → replay the real supernova, flipping the palette under its cover
-                loadPuzzleOnce(function () {
-                    if (window.NebulaPath && window.NebulaPath.supernova) {
-                        window.NebulaPath.supernova(function () { applyPalette('cosmic'); });
-                    } else {
-                        applyPalette('cosmic');
-                    }
-                });
-            }
+            // toggle the palette behind a supernova burst — both on AND off. The
+            // flip happens under the burst's cover; the burst then clears to reveal
+            // whichever side we landed on.
+            var goingCosmic = currentPalette() !== 'cosmic';
+            loadPuzzleOnce(function () {
+                var flip = function () { applyPalette(goingCosmic ? 'cosmic' : null); };
+                if (window.NebulaPath && window.NebulaPath.supernova) {
+                    window.NebulaPath.supernova(flip);
+                } else {
+                    flip();
+                }
+            });
         } else {
             loadPuzzleOnce(function () { if (window.NebulaPath) { window.NebulaPath.open(); } });
         }

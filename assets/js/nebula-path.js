@@ -292,15 +292,18 @@
             ctx.globalAlpha = 1;
         }
         draw(0); document.body.appendChild(canvas);    // cover the page before the flip
-        var finished = false;
+        var finished = false, flipped = false;
+        // flip EXACTLY once — the failsafe must not re-fire onFlip later (with
+        // toggling, a stale re-flip would silently flip the palette back ~3s on).
+        function doFlip() { if (flipped) { return; } flipped = true; if (onFlip) { onFlip(); } }
         function finish() { if (finished) { return; } finished = true; if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); } if (onDone) { onDone(); } }
         requestAnimationFrame(function () {
-            if (onFlip) { onFlip(); }                                        // restyle to nebula, hidden
+            doFlip();                                                        // restyle under the cover
             var t0 = null;
             function loop(now) { if (t0 === null) { t0 = now; } var t = now - t0; draw(t); if (t < endT) { requestAnimationFrame(loop); } else { finish(); } }
             requestAnimationFrame(loop);
         });
-        window.setTimeout(function () { if (onFlip) { onFlip(); } finish(); }, endT + 1500);  // failsafe
+        window.setTimeout(function () { doFlip(); finish(); }, endT + 1500);  // failsafe
     }
 
     /* ---- open / close ---- */
