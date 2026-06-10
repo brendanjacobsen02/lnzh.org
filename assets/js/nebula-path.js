@@ -352,12 +352,21 @@
         svgEl.addEventListener('pointerdown', function (ev) { ev.preventDefault(); dragging = true; lastCell = -1; handlePointer(ev); });
         svgEl.addEventListener('pointermove', function (ev) { if (dragging) { handlePointer(ev); } });
         window.addEventListener('pointerup', endDrag);
-        // keyboard play (arrows move the head)
-        skyEl.addEventListener('keydown', function (ev) {
-            var d = { ArrowUp: 0, ArrowDown: 1, ArrowLeft: 2, ArrowRight: 3 };
-            if (ev.key in d) { ev.preventDefault(); tryStep(neighborOf(head(), d[ev.key])); }
-        });
-        keyHandler = function (ev) { if (ev.key === 'Escape') { close(); } };
+        // keyboard play — bound to the DOCUMENT, not the grid, so arrows keep working
+        // no matter where focus lands. (Clicking reset/new/×, the panel chrome, or
+        // dragging — pointerdown preventDefaults focus — all move focus off the grid;
+        // a grid-only listener then goes dead, which read as "arrows sometimes don't work".)
+        var ARROW = { ArrowUp: 0, ArrowDown: 1, ArrowLeft: 2, ArrowRight: 3 };
+        keyHandler = function (ev) {
+            if (!overlay) { return; }
+            if (ev.key === 'Escape') { close(); return; }
+            if (ev.key in ARROW) {
+                var ae = document.activeElement, tag = ae && ae.tagName;   // don't hijack real typing
+                if (tag === 'INPUT' || tag === 'TEXTAREA' || (ae && ae.isContentEditable)) { return; }
+                ev.preventDefault();
+                tryStep(neighborOf(head(), ARROW[ev.key]));
+            }
+        };
         document.addEventListener('keydown', keyHandler);
 
         loadBoard(boardIndex);
