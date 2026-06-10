@@ -535,7 +535,7 @@
             solve it MORPHS into a nebula star that toggles the cosmic palette on/off.
             The puzzle (nebula-path.js, lazy-loaded) persists 'nebula-unlocked' and
             fires a 'nebula-unlocked' event on solve. ---- */
-    var GAME_GLYPH = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4 H20 V11 H4 V18 H20"/></svg>';
+    var GAME_GLYPH = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/><rect x="4" y="4" width="7" height="7" fill="currentColor" stroke="none"/></svg>';
     var NEBULA_GLYPH = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1.5 L13.9 9.4 L21.5 12 L13.9 14.6 L12 22.5 L10.1 14.6 L2.5 12 L10.1 9.4 Z"/></svg>';
     function nebulaUnlocked() {
         try { return localStorage.getItem('nebula-unlocked') === '1'; } catch (e) { return false; }

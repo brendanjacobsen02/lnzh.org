@@ -21,7 +21,19 @@
     var ROT_KEY = 'nebula-path-i';      // rotate the starting board across opens
     var SVGNS = 'http://www.w3.org/2000/svg';
     var CELL = 40;
-    var FLARE = ['#ffe8b0', '#ffd27a', '#7a1d6b', '#5a1a7a', '#123a63', '#0e4d5c'];
+    // cosmic supernova palette (mirrors the nova-iris in dev/theme-demo.html)
+    var NOVA = {
+        gas: ['#1c0838', '#290b48', '#43135e', '#5a1556', '#0a2238', '#0d2c4a', '#093846', '#145460'],
+        space: '#06040f',
+        flecks: ['#fff4d6', '#ffd9a0', '#ffe9b3', '#cfe8ff']
+    };
+    function shadeColor(hex, delta) {
+        var h = hex.replace('#', '');
+        if (h.length === 3) { h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]; }
+        var r = parseInt(h.substr(0, 2), 16) + delta, g = parseInt(h.substr(2, 2), 16) + delta, b = parseInt(h.substr(4, 2), 16) + delta;
+        r = r < 0 ? 0 : r > 255 ? 255 : r; g = g < 0 ? 0 : g > 255 ? 255 : g; b = b < 0 ? 0 : b > 255 ? 255 : b;
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
+    }
 
     /* Lazy-load the ambient nebula glint (the real supernova flares) the first
        time cosmic mode turns on — mirrors theme-toggle.js's own lazy-load. The
@@ -95,41 +107,39 @@
         if (document.getElementById('np-styles')) { return; }
         var s = document.createElement('style'); s.id = 'np-styles';
         s.textContent = [
-            '.np-backdrop{position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;',
-            '  justify-content:center;padding:20px;background:rgba(8,6,16,.62);',
-            '  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:np-fade .22s ease both;}',
-            '@keyframes np-fade{from{opacity:0}to{opacity:1}}',
-            '.np-panel{width:min(92vw,392px);background:var(--paper-raised,#fffdf4);',
-            '  border:1px solid rgba(var(--text-rgb,20,20,20),.18);',
-            '  box-shadow:0 14px 50px rgba(var(--shadow-rgb,0,0,0),.30);',
-            '  animation:np-rise .26s cubic-bezier(.2,.9,.3,1.1) both;}',
-            '@keyframes np-rise{from{transform:translateY(8px) scale(.985);opacity:0}to{transform:none;opacity:1}}',
-            '.np-head{display:flex;align-items:center;justify-content:flex-end;',
-            '  padding:.62rem .8rem;border-bottom:1px solid rgba(var(--text-rgb,20,20,20),.12);}',
-            '.np-eyebrow{font-family:var(--mono,monospace);font-size:.58rem;text-transform:uppercase;',
-            '  letter-spacing:.14em;color:var(--muted,#777);}',
-            '.np-x{font-family:var(--mono,monospace);font-size:.85rem;line-height:1;width:1.7rem;height:1.7rem;',
-            '  display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;',
-            '  border:1px solid rgba(var(--text-rgb,20,20,20),.2);background:var(--paper-raised,#fffdf4);color:var(--text,#333);}',
-            '.np-x:hover{border-color:rgba(var(--text-rgb,20,20,20),.5);color:var(--ink,#000);}',
-            // the deep-space board window (dark in BOTH themes — it is space)
-            '.np-sky{position:relative;padding:18px;background:radial-gradient(120% 100% at 50% 14%,#1a1430 0%,#0c0a1c 50%,#070611 100%);outline:none;}',
-            '.np-sky svg{display:block;margin:0 auto;max-width:100%;max-height:54vh;height:auto;touch-action:none;}',
+            // anchored top-right by the game icon (like the settings panel), no dim
+            '.np-backdrop{position:fixed;inset:0;z-index:2147483600;display:flex;',
+            '  align-items:flex-start;justify-content:flex-end;padding:76px 16px 16px;}',
+            '@media (max-width:600px){.np-backdrop{padding:62px 10px 10px;}}',
+            // small + cute chunky-8bit panel, matching the settings panel
+            '.np-panel{width:232px;max-width:calc(100vw - 32px);font-family:var(--mono,monospace);',
+            '  background:var(--paper-raised,#fffdf4);color:var(--ink,#000);image-rendering:pixelated;',
+            '  border:3px solid var(--line-strong,#000);box-shadow:4px 4px 0 0 var(--line-strong,#000);',
+            '  transform-origin:top right;animation:np-pop .16s steps(3) both;}',
+            '@keyframes np-pop{from{transform:scale(.5);opacity:.4}to{transform:scale(1);opacity:1}}',
+            '.np-head{display:flex;align-items:center;justify-content:flex-end;padding:5px 6px 0;}',
+            '.np-x{font-family:var(--mono,monospace);font-size:13px;line-height:1;width:20px;height:20px;padding:0;',
+            '  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink,#000);',
+            '  background:var(--paper,#f2f2e4);border:2px solid var(--line-strong,#000);box-shadow:2px 2px 0 0 var(--line-strong,#000);}',
+            '.np-x:hover{transform:translate(1px,1px);box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
+            // deep-space board window (dark in BOTH themes — it is space)
+            '.np-sky{position:relative;margin:6px 8px;padding:7px;outline:none;border:2px solid var(--line-strong,#000);',
+            '  background:radial-gradient(120% 100% at 50% 14%,#1a1430 0%,#0c0a1c 50%,#070611 100%);}',
+            '.np-sky svg{display:block;margin:0 auto;max-width:100%;max-height:40vh;height:auto;touch-action:none;}',
             '.np-cell{fill:rgba(120,128,200,.10);stroke:rgba(150,158,230,.16);stroke-width:1;}',
             '.np-cell.np-on{fill:rgba(255,210,122,.20);stroke:rgba(255,210,122,.35);}',
             '.np-start{fill:none;stroke:#ffd27a;stroke-width:2;}',
             '.np-trail{fill:none;stroke:#ffd27a;stroke-width:' + (CELL * 0.30) + ';stroke-linecap:round;',
             '  stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(255,210,122,.55));}',
             '.np-tip{fill:#fff7e0;filter:drop-shadow(0 0 5px rgba(255,236,180,.9));}',
-            '.np-foot{display:flex;align-items:center;justify-content:space-between;gap:.5rem;',
-            '  padding:.55rem .8rem;border-top:1px solid rgba(var(--text-rgb,20,20,20),.12);}',
-            '.np-prog{font-family:var(--mono,monospace);font-size:.58rem;letter-spacing:.05em;color:var(--faint,#999);}',
-            '.np-prog.np-win{color:#caa24a;}',
-            '.np-btns{display:flex;gap:.4rem;}',
-            '.np-btn{font-family:var(--mono,monospace);font-size:.62rem;text-transform:lowercase;letter-spacing:.05em;',
-            '  height:1.8rem;padding:0 .7rem;cursor:pointer;border:1px solid rgba(var(--text-rgb,20,20,20),.2);',
-            '  background:var(--paper-raised,#fffdf4);color:var(--text,#333);}',
-            '.np-btn:hover{border-color:rgba(var(--text-rgb,20,20,20),.5);color:var(--ink,#000);}',
+            '.np-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px 8px;}',
+            '.np-prog{font-family:var(--mono,monospace);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#777);}',
+            '.np-prog.np-win{color:var(--ink,#000);}',
+            '.np-btns{display:flex;gap:5px;}',
+            '.np-btn{font-family:var(--mono,monospace);font-size:10px;text-transform:lowercase;letter-spacing:.04em;',
+            '  height:22px;padding:0 8px;cursor:pointer;color:var(--ink,#000);background:var(--paper,#f2f2e4);',
+            '  border:2px solid var(--line-strong,#000);box-shadow:2px 2px 0 0 var(--line-strong,#000);}',
+            '.np-btn:hover{transform:translate(1px,1px);box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
             '.np-burst{position:fixed;inset:0;z-index:2147483646;pointer-events:none;}'
         ].join('');
         document.head.appendChild(s);
@@ -221,45 +231,79 @@
     /* ---- ignition (shared with the cosmic look) ---- */
     function solve() {
         solved = true;
-        persistUnlock();                                  // mark unlocked before teardown
-        var box = skyEl.getBoundingClientRect();
-        var ox = box.left + box.width / 2, oy = box.top + box.height / 2;
-        close();                                          // close the puzzle, reveal the page
-        igniteBurst(ox, oy, function () {                 // supernova plays over the page
-            applyNebula();                                // cosmic palette on
-            document.dispatchEvent(new CustomEvent('nebula-unlocked'));  // morphs the game icon
+        persistUnlock();            // mark unlocked before teardown
+        close();                    // close the puzzle panel, reveal the page
+        playSupernova(applyNebula, function () {                          // flip to nebula under the cover
+            document.dispatchEvent(new CustomEvent('nebula-unlocked'));   // morph the game icon on reveal
         });
     }
 
-    function igniteBurst(ox, oy, done) {
+    /* ---- the REAL supernova — ported from the demo's nova-iris. A full-screen
+            pixel grid of cosmic gas + star flecks ignites center→out, flips the page
+            to nebula underneath (onFlip), then clears to reveal it (onDone). ---- */
+    function playSupernova(onFlip, onDone) {
+        var CELL = 18, wild = 1, bloom = 14, noise = 0.4;
+        var ringDelay = 20, novaDur = 620, gasFill = 0.42, starPct = 0.045;
+        var W = window.innerWidth, Hh = window.innerHeight;
+        var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL), total = cols * rows;
+        var cellW = W / cols, cellH = Hh / rows, cx = (cols - 1) / 2, cy = (rows - 1) / 2;
+        var grainMs = ringDelay * (0.6 + wild * 1.8);
+        // noise-warped per-cell radius (angular tendrils + blobby corrosion)
+        var HH = [], nH = 4 + Math.floor(Math.random() * 3), ampSum = 0;
+        for (var k = 0; k < nH; k++) { var a = 0.4 + Math.random(); ampSum += a; HH.push({ f: 2 + Math.floor(Math.random() * 7), a: a, ph: Math.random() * 6.2832 }); }
+        function tendril(th) { var s = 0; for (var t = 0; t < HH.length; t++) { s += HH[t].a * Math.sin(HH[t].f * th + HH[t].ph); } return s / ampSum; }
+        var sA = Math.random() * 6.2832, sB = Math.random() * 6.2832, sC = Math.random() * 6.2832, bf = 0.16 + Math.random() * 0.18;
+        function blob(c, r) { return (Math.sin(c * bf + sA) * Math.cos(r * bf + sB) + 0.6 * Math.sin((c + r) * bf * 0.7 + sC)) / 1.6; }
+        var tAmp = wild * 5, bAmp = wild * 4, eff = new Float64Array(total), maxEff = 0, idx = 0;
+        for (var r1 = 0; r1 < rows; r1++) { for (var c1 = 0; c1 < cols; c1++) { var dx = c1 - cx, dy = r1 - cy; var dd = Math.hypot(dx, dy) + tendril(Math.atan2(dy, dx)) * tAmp + blob(c1, r1) * bAmp; if (dd < 0) { dd = 0; } eff[idx++] = dd; if (dd > maxEff) { maxEff = dd; } } }
+        var maxRing = Math.round(maxEff), delay = new Float64Array(total);
+        for (var i = 0; i < total; i++) { var ring = Math.round(eff[i]); var dl = ring * ringDelay + Math.random() * grainMs; delay[i] = dl < 0 ? 0 : dl; }  // burst: ignite center→out
+        var DUR = novaDur, endT = maxRing * ringDelay + grainMs + DUR + 80;
+        var cellGlow = new Array(total), isFleck = new Uint8Array(total);
+        for (var s2 = 0; s2 < total; s2++) { var bse = NOVA.gas[(Math.random() * NOVA.gas.length) | 0]; cellGlow[s2] = shadeColor(bse, ((Math.random() - 0.5) * 2 * noise * 120) | 0); isFleck[s2] = Math.random() < starPct ? 1 : 0; }
+        var baseFill = NOVA.space;
         var canvas = document.createElement('canvas'); canvas.className = 'np-burst';
         var dpr = Math.min(window.devicePixelRatio || 1, 2);
-        var W = window.innerWidth, H = window.innerHeight;
-        canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
-        document.body.appendChild(canvas);
+        canvas.width = W * dpr; canvas.height = Hh * dpr;
+        canvas.style.cssText = 'position:fixed;inset:0;z-index:2147483646;pointer-events:none;width:' + W + 'px;height:' + Hh + 'px;image-rendering:pixelated;';
         var ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
-        var maxR = Math.hypot(Math.max(ox, W - ox), Math.max(oy, H - oy)) + 40;
-        var motes = [];
-        for (var i = 0; i < 90; i++) { motes.push({ a: (i / 90) * Math.PI * 2 + (i % 7) * 0.13, sp: 0.55 + ((i * 37) % 100) / 100 * 0.7, col: FLARE[i % FLARE.length], sz: 2 + (i % 4) }); }
-        var DUR = 900, t0 = null;
-        function frame(now) {
-            if (t0 === null) { t0 = now; }
-            var t = (now - t0) / DUR; if (t > 1) { t = 1; }
-            ctx.clearRect(0, 0, W, H);
-            var ease = 1 - Math.pow(1 - t, 3), r = ease * maxR;
-            var g = ctx.createRadialGradient(ox, oy, 0, ox, oy, Math.max(r, 1));
-            g.addColorStop(0, 'rgba(255,248,224,' + (0.9 * (1 - t)) + ')');
-            g.addColorStop(0.55, 'rgba(255,210,122,' + (0.5 * (1 - t)) + ')');
-            g.addColorStop(0.8, 'rgba(122,29,107,' + (0.32 * (1 - t)) + ')');
-            g.addColorStop(1, 'rgba(7,6,17,0)');
-            ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-            ctx.strokeStyle = 'rgba(255,235,180,' + (0.8 * (1 - t)) + ')'; ctx.lineWidth = 3 * (1 - t) + 0.5;
-            ctx.beginPath(); ctx.arc(ox, oy, r * 0.92, 0, Math.PI * 2); ctx.stroke();
-            for (var m = 0; m < motes.length; m++) { var mo = motes[m]; var d = ease * maxR * mo.sp; ctx.globalAlpha = (1 - t) * 0.9; ctx.fillStyle = mo.col; ctx.fillRect(ox + Math.cos(mo.a) * d, oy + Math.sin(mo.a) * d, mo.sz, mo.sz); }
+        var cw = Math.ceil(cellW) + 1, ch = Math.ceil(cellH) + 1;
+        function draw(t) {
+            ctx.clearRect(0, 0, W, Hh);
+            for (var i2 = 0; i2 < total; i2++) {
+                var local = t - delay[i2];
+                if (local >= DUR) { continue; }                              // cleared → page shows
+                var x = ((i2 % cols) * cellW) | 0, y = (((i2 / cols) | 0) * cellH) | 0;
+                if (local < 0) { ctx.globalAlpha = 1; ctx.fillStyle = baseFill; ctx.fillRect(x, y, cw, ch); continue; }
+                var ph = local / DUR, cover = ph < 0.52 ? 1 : 1 - (ph - 0.52) / 0.48;
+                var spike = (ph >= 0.10 && ph < 0.22) || (ph >= 0.34 && ph < 0.46);   // 2 flickers
+                if (spike) {
+                    var gc = cellGlow[i2];
+                    ctx.globalCompositeOperation = 'screen';                  // gas, never white-out
+                    ctx.globalAlpha = (0.10 + gasFill * 0.45) * cover; ctx.fillStyle = gc;
+                    ctx.fillRect(x - bloom, y - bloom, cw + 2 * bloom, ch + 2 * bloom);
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.globalAlpha = cover; ctx.fillStyle = gc; ctx.fillRect(x, y, cw, ch);
+                } else { ctx.globalAlpha = cover; ctx.fillStyle = baseFill; ctx.fillRect(x, y, cw, ch); }
+                if (isFleck[i2] && ph > 0.08 && ph < 0.72) {                  // bright star flecks
+                    ctx.globalCompositeOperation = 'lighter';
+                    ctx.globalAlpha = (0.5 + Math.random() * 0.5) * cover; ctx.fillStyle = NOVA.flecks[i2 & 3];
+                    var q = (cw >> 1) || 2; ctx.fillRect(x + (q >> 1), y + (q >> 1), q, q);
+                    ctx.globalCompositeOperation = 'source-over';
+                }
+            }
             ctx.globalAlpha = 1;
-            if (t < 1) { requestAnimationFrame(frame); } else { if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); } if (done) { done(); } }
         }
-        requestAnimationFrame(frame);
+        draw(0); document.body.appendChild(canvas);    // cover the page before the flip
+        var finished = false;
+        function finish() { if (finished) { return; } finished = true; if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); } if (onDone) { onDone(); } }
+        requestAnimationFrame(function () {
+            if (onFlip) { onFlip(); }                                        // restyle to nebula, hidden
+            var t0 = null;
+            function loop(now) { if (t0 === null) { t0 = now; } var t = now - t0; draw(t); if (t < endT) { requestAnimationFrame(loop); } else { finish(); } }
+            requestAnimationFrame(loop);
+        });
+        window.setTimeout(function () { if (onFlip) { onFlip(); } finish(); }, endT + 1500);  // failsafe
     }
 
     /* ---- open / close ---- */
