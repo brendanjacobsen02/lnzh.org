@@ -95,7 +95,7 @@
             '  box-shadow:0 14px 50px rgba(var(--shadow-rgb,0,0,0),.30);',
             '  animation:np-rise .26s cubic-bezier(.2,.9,.3,1.1) both;}',
             '@keyframes np-rise{from{transform:translateY(8px) scale(.985);opacity:0}to{transform:none;opacity:1}}',
-            '.np-head{display:flex;align-items:center;justify-content:space-between;',
+            '.np-head{display:flex;align-items:center;justify-content:flex-end;',
             '  padding:.62rem .8rem;border-bottom:1px solid rgba(var(--text-rgb,20,20,20),.12);}',
             '.np-eyebrow{font-family:var(--mono,monospace);font-size:.58rem;text-transform:uppercase;',
             '  letter-spacing:.14em;color:var(--muted,#777);}',
@@ -212,7 +212,7 @@
     /* ---- ignition (shared with the cosmic look) ---- */
     function solve() {
         solved = true;
-        progEl.classList.add('np-win'); progEl.textContent = '✦ solved — nebula unlocked';
+        progEl.classList.add('np-win'); progEl.textContent = 'solved — nebula unlocked';
         var box = skyEl.getBoundingClientRect();
         igniteBurst(box.left + box.width / 2, box.top + box.height / 2, function () {
             applyNebula(); persistUnlock();
@@ -264,9 +264,8 @@
 
         var panel = document.createElement('div'); panel.className = 'np-panel';
         var headBar = document.createElement('div'); headBar.className = 'np-head';
-        var eb = document.createElement('span'); eb.className = 'np-eyebrow'; eb.textContent = '✦ one stroke · fill every square';
         var x = document.createElement('button'); x.className = 'np-x'; x.type = 'button'; x.setAttribute('aria-label', 'Close puzzle'); x.textContent = '×'; x.addEventListener('click', close);
-        headBar.appendChild(eb); headBar.appendChild(x);
+        headBar.appendChild(x);
 
         skyEl = document.createElement('div'); skyEl.className = 'np-sky'; skyEl.tabIndex = 0;
         skyEl.setAttribute('role', 'application');
