@@ -245,17 +245,21 @@
     }
 
     /* ---- the REAL supernova — evolved from the demo's nova-iris.
-            Three acts on one full-screen pixel canvas:
+            Four beats on one full-screen pixel canvas:
               collapse — the page is swallowed edge→center into deep space while
                          a core brightens at the middle (anticipation);
+              the hold — a held breath: the core throbs twice over the still
+                         starfield, then sharply dims as the light gets pulled
+                         in (the in-suck before the blast);
               detonation — the core blows: a chunky additive diamond flash and a
                          decaying screen shake (transform on the canvas, so the
                          viewport never shows gaps);
-              burst — a bright shockwave front races center→out with the cosmic
-                         gas igniting + dissolving behind it, star flecks and
-                         plus-shaped sparkles riding the cloud, then it all
-                         clears to reveal the flipped page (onFlip fires under
-                         full cover at the end of the collapse). ---- */
+              burst — a bright shockwave front races center→out on its own,
+                         wilder noise field — ragged fingers, ejecta sparks
+                         hurled ahead of the ring — with the cosmic gas igniting
+                         + dissolving behind it (per-cell desynced flicker),
+                         then it all clears to reveal the flipped page (onFlip
+                         fires under full cover at the end of the collapse). ---- */
     function playSupernova(onFlip, onDone) {
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             if (onFlip) { onFlip(); }
@@ -264,11 +268,11 @@
         }
         var CELL = 18, wild = 1, bloom = 14, noise = 0.4;
         var ringDelay = 17, novaDur = 850, gasFill = 0.55, starPct = 0.07;
-        var collapseDur = 480, flashDur = 150, shockWin = 95, shakeDur = 380;
+        var collapseDur = 480, holdDur = 560, flashDur = 170, shockWin = 95, shakeDur = 420;
+        var detonateAt = collapseDur + holdDur;
         var W = window.innerWidth, Hh = window.innerHeight;
         var cols = Math.ceil(W / CELL), rows = Math.ceil(Hh / CELL), total = cols * rows;
         var cellW = W / cols, cellH = Hh / rows, cx = (cols - 1) / 2, cy = (rows - 1) / 2;
-        var grainMs = ringDelay * (0.6 + wild * 1.8);
         // noise-warped per-cell radius (angular tendrils + blobby corrosion)
         var HH = [], nH = 4 + Math.floor(Math.random() * 3), ampSum = 0;
         for (var k = 0; k < nH; k++) { var a = 0.4 + Math.random(); ampSum += a; HH.push({ f: 2 + Math.floor(Math.random() * 7), a: a, ph: Math.random() * 6.2832 }); }
@@ -278,18 +282,35 @@
         var tAmp = wild * 5, bAmp = wild * 4, eff = new Float64Array(total), maxEff = 0, idx = 0;
         for (var r1 = 0; r1 < rows; r1++) { for (var c1 = 0; c1 < cols; c1++) { var dx = c1 - cx, dy = r1 - cy; var dd = Math.hypot(dx, dy) + tendril(Math.atan2(dy, dx)) * tAmp + blob(c1, r1) * bAmp; if (dd < 0) { dd = 0; } eff[idx++] = dd; if (dd > maxEff) { maxEff = dd; } } }
         var maxRing = Math.round(maxEff);
+        // the burst gets its OWN, wilder noise field — the explosion shouldn't
+        // retrace the collapse: more/higher harmonics → ragged fingers
+        var HB = [], nB = 5 + Math.floor(Math.random() * 3), ampSumB = 0;
+        for (k = 0; k < nB; k++) { var aB = 0.5 + Math.random(); ampSumB += aB; HB.push({ f: 3 + Math.floor(Math.random() * 9), a: aB, ph: Math.random() * 6.2832 }); }
+        function tendrilB(th) { var s = 0; for (var t = 0; t < HB.length; t++) { s += HB[t].a * Math.sin(HB[t].f * th + HB[t].ph); } return s / ampSumB; }
+        var sA2 = Math.random() * 6.2832, sB2 = Math.random() * 6.2832, sC2 = Math.random() * 6.2832, bf2 = 0.2 + Math.random() * 0.22;
+        function blobB(c, r) { return (Math.sin(c * bf2 + sA2) * Math.cos(r * bf2 + sB2) + 0.6 * Math.sin((c + r) * bf2 * 0.7 + sC2)) / 1.6; }
         // collapse: outer ring covered first, crumbling inward; burst: center→out
-        var collapseAt = new Float64Array(total), delay = new Float64Array(total);
-        var cRD = collapseDur / (maxRing + 1);
-        for (var i = 0; i < total; i++) {
-            var ring = Math.round(eff[i]);
-            var ca = (maxRing - ring) * cRD + Math.random() * cRD * 2.2;
-            collapseAt[i] = ca < 0 ? 0 : ca;
-            var dl = ring * ringDelay + Math.random() * grainMs;
-            delay[i] = dl < 0 ? 0 : dl;
+        var collapseAt = new Float64Array(total), delay = new Float64Array(total), spikeOff = new Float64Array(total);
+        var cRD = collapseDur / (maxRing + 1), grainMsB = ringDelay * 4, maxDelay = 0;
+        idx = 0;
+        for (var r2 = 0; r2 < rows; r2++) {
+            for (var c2 = 0; c2 < cols; c2++) {
+                var i = idx++;
+                var ring = Math.round(eff[i]);
+                var ca = (maxRing - ring) * cRD + Math.random() * cRD * 2.2;
+                collapseAt[i] = ca < 0 ? 0 : ca;
+                var dxB = c2 - cx, dyB = r2 - cy;
+                var dB = Math.hypot(dxB, dyB) + tendrilB(Math.atan2(dyB, dxB)) * 9 + blobB(c2, r2) * 6;
+                if (dB < 0) { dB = 0; }
+                var dl = dB * ringDelay + Math.random() * grainMsB;
+                if (Math.random() < 0.02) { dl *= 0.35; }      // ejecta: sparks hurled ahead of the front
+                delay[i] = dl < 0 ? 0 : dl;
+                if (delay[i] > maxDelay) { maxDelay = delay[i]; }
+                spikeOff[i] = Math.random() * 0.1;             // desync the gas flicker between neighbours
+            }
         }
-        var burstStart = collapseDur + flashDur * 0.4;        // burst overlaps the flash tail
-        var DUR = novaDur, endT = burstStart + maxRing * ringDelay + grainMs + DUR + 80;
+        var burstStart = detonateAt + flashDur * 0.4;          // burst overlaps the flash tail
+        var DUR = novaDur, endT = burstStart + maxDelay + DUR + 80;
         var cellGlow = new Array(total), isFleck = new Uint8Array(total);
         for (var s2 = 0; s2 < total; s2++) { var bse = NOVA.gas[(Math.random() * NOVA.gas.length) | 0]; cellGlow[s2] = shadeColor(bse, ((Math.random() - 0.5) * 2 * noise * 120) | 0); isFleck[s2] = Math.random() < starPct ? 1 : 0; }
         var baseFill = NOVA.space;
@@ -315,14 +336,26 @@
                     if (isFleck[i2]) { fleckDot(i2, x, y); }          // stars wink on in the dark
                 }
                 var corePh = (t - collapseDur * 0.45) / (collapseDur * 0.55);
+                if (corePh > 1) { corePh = 1; }
+                var coreR = 2.5;
+                if (t > collapseDur) {                         // the held breath
+                    var ht = (t - collapseDur) / holdDur;      // 0..1 through the hold
+                    if (ht > 0.82) {
+                        corePh = 1.35 - (ht - 0.82) / 0.18 * 1.1;   // sharp dim — light pulled in
+                        coreR = 1.5;
+                    } else {
+                        corePh = 1 + 0.35 * Math.sin(ht * 12.566);  // two slow throbs
+                        coreR = 2.5 + (corePh - 1) * 4;             // ...that visibly swell
+                    }
+                }
                 if (corePh > 0) {
-                    if (corePh > 1) { corePh = 1; }
                     ctx.globalCompositeOperation = 'lighter';
                     for (i2 = 0; i2 < total; i2++) {
                         var dc = Math.abs((i2 % cols) - cx) + Math.abs(((i2 / cols) | 0) - cy);
-                        if (dc > 2.5) { continue; }
+                        if (dc > coreR) { continue; }
                         x = ((i2 % cols) * cellW) | 0; y = (((i2 / cols) | 0) * cellH) | 0;
-                        ctx.globalAlpha = (dc < 1 ? 0.9 : dc < 2 ? 0.5 : 0.22) * corePh * (0.75 + 0.25 * Math.random());
+                        var av = (dc < 1 ? 0.9 : dc < 2 ? 0.5 : 0.22) * corePh * (0.75 + 0.25 * Math.random());
+                        ctx.globalAlpha = av > 1 ? 1 : av < 0 ? 0 : av;
                         ctx.fillStyle = NOVA.flecks[(dc | 0) & 3]; ctx.fillRect(x, y, cw, ch);
                     }
                     ctx.globalCompositeOperation = 'source-over';
@@ -340,7 +373,8 @@
                         continue;
                     }
                     var ph = local / DUR, cover = ph < 0.55 ? 1 : 1 - (ph - 0.55) / 0.45;
-                    var spike = (ph >= 0.08 && ph < 0.20) || (ph >= 0.32 && ph < 0.44) || (ph >= 0.58 && ph < 0.68);
+                    var po = ph + spikeOff[i2];
+                    var spike = (po >= 0.08 && po < 0.20) || (po >= 0.32 && po < 0.44) || (po >= 0.58 && po < 0.68);
                     if (spike) {
                         var gc = cellGlow[i2];
                         ctx.globalCompositeOperation = 'screen';                  // gas, never white-out
@@ -372,11 +406,11 @@
                     }
                 }
             }
-            if (t >= collapseDur && t < collapseDur + flashDur) {
-                // ---- act 2: detonation — an expanding chunky diamond drawn LAST so it
+            if (t >= detonateAt && t < detonateAt + flashDur) {
+                // ---- detonation — an expanding chunky diamond drawn LAST so it
                 //      rides over the cover; capped additive (never a white-out) ----
-                var fph = (t - collapseDur) / flashDur;
-                var fr = 2 + fph * 7;
+                var fph = (t - detonateAt) / flashDur;
+                var fr = 2 + fph * 9;
                 ctx.globalCompositeOperation = 'lighter';
                 for (i2 = 0; i2 < total; i2++) {
                     var dxc = Math.abs((i2 % cols) - cx), dyc = Math.abs(((i2 / cols) | 0) - cy);
@@ -401,9 +435,9 @@
             var t = now - t0;
             if (t >= collapseDur) { doFlip(); }                       // restyle under full cover
             // detonation kick: decaying shake on the canvas itself (scale hides edges)
-            var st = t - collapseDur;
+            var st = t - detonateAt;
             if (st >= 0 && st < shakeDur) {
-                var kk = 1 - st / shakeDur, amp = 7 * kk * kk;
+                var kk = 1 - st / shakeDur, amp = 9 * kk * kk;
                 canvas.style.transform = 'scale(1.02) translate(' + ((Math.random() * 2 - 1) * amp).toFixed(1) + 'px,' + ((Math.random() * 2 - 1) * amp).toFixed(1) + 'px)';
             } else if (st >= shakeDur && canvas.style.transform) {
                 canvas.style.transform = '';
