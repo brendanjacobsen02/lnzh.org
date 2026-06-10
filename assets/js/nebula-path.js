@@ -399,6 +399,8 @@
 
     window.NebulaPath = {
         open: open,
+        close: close,
+        isOpen: function () { return !!overlay; },     // so the launcher can toggle it shut
         isUnlocked: isUnlocked,
         applyNebula: applyNebula,
         // re-fire the real ignition on demand (e.g. toggling nebula back on from the gear)

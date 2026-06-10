@@ -617,6 +617,11 @@
         (document.body || document.documentElement).appendChild(sc);
     }
     function onGameClick() {
+        // toggle: clicking the launcher again while the puzzle is open closes it
+        if (window.NebulaPath && window.NebulaPath.isOpen && window.NebulaPath.isOpen()) {
+            window.NebulaPath.close();
+            return;
+        }
         loadPuzzleOnce(function () { if (window.NebulaPath) { window.NebulaPath.open(); } });
     }
 
