@@ -30,7 +30,7 @@ Three roles, also variables:
 
 - `--header` = **Newsreader** (serif) — headers/wordmarks (`h1`–`h4`).
 - `--body` = **Spectral** (serif) — body, **subtitles**, lists, all reading prose.
-- `--mono` = **Archivo** — **ONLY** buttons and the smallest elements (HUD stat counters, keycaps, keyboard hints, micro-labels, per-item date eyebrows). Tabular figures keep number rows tidy.
+- `--mono` = **Recursive** (pinned to its casual + mono axes) — **ONLY** buttons and the smallest elements (HUD stat counters, keycaps, keyboard hints, micro-labels, per-item date eyebrows). True monospace keeps number rows tidy.
 
 **Never put `--mono` on a subtitle or any reading/larger text.** Subtitles are `--body` (e.g. `.writing-tag` is Spectral italic). Headings are `--header`.
 
