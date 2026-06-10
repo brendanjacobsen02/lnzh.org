@@ -70,25 +70,28 @@
   // bright flecks that ignites and dissolves at (cx,cy). Born at time `t`.
   function spawnFlare(t) {
     var cx = Math.random() * W, cy = Math.random() * H;
-    var R = 55 + Math.random() * 100;
+    var R = 60 + Math.random() * 120;
     var CELL = 12 + (Math.random() * 8 | 0);
     var cells = [];
     for (var y = cy - R; y < cy + R; y += CELL) {
       for (var x = cx - R; x < cx + R; x += CELL) {
         var d = Math.hypot(x - cx, y - cy) / R;
         if (d > 1) continue;
-        if (Math.random() > (1 - d * d) * 0.85 + 0.1) continue;   // dense core, ragged edge
+        if (Math.random() > (1 - d * d) * 0.9 + 0.1) continue;    // dense core, ragged edge
         cells.push({ x: x | 0, y: y | 0, s: CELL + 1, ring: d,
                      c: FLARE_GAS[(Math.random() * FLARE_GAS.length) | 0] });
       }
     }
-    var flk = [], nf = 3 + (Math.random() * 4 | 0);
+    var flk = [], nf = 6 + (Math.random() * 6 | 0);               // more, brighter flecks
     for (var i = 0; i < nf; i++) {
-      flk.push({ x: (cx + (Math.random() - 0.5) * R * 1.4) | 0,
-                 y: (cy + (Math.random() - 0.5) * R * 1.4) | 0,
+      flk.push({ x: (cx + (Math.random() - 0.5) * R * 1.5) | 0,
+                 y: (cy + (Math.random() - 0.5) * R * 1.5) | 0,
+                 s: 2 + (Math.random() * 2 | 0), ph: Math.random() * 6.2832,
                  c: FLECKS[(Math.random() * FLECKS.length) | 0] });
     }
-    flares.push({ cells: cells, flecks: flk, born: t, life: 1500 + Math.random() * 1100 });
+    flares.push({ cx: cx, cy: cy, R: R, cells: cells, flecks: flk, born: t,
+                  life: 1400 + Math.random() * 1000,
+                  flash: FLARE_GAS[(Math.random() * FLARE_GAS.length) | 0] });
   }
 
   function size() {
@@ -127,25 +130,50 @@
       var fl = flares[q];
       var e = (t - fl.born) / fl.life;
       if (e >= 1) { flares.splice(q, 1); continue; }
-      var env = e < 0.16 ? e / 0.16 : 1 - (e - 0.16) / 0.84;          // quick ignite, slow fade
+      var env = e < 0.12 ? e / 0.12 : 1 - (e - 0.12) / 0.88;          // fast ignite, slow fade
       if (env < 0) env = 0;
-      var spike = ((e > 0.10 && e < 0.20) || (e > 0.34 && e < 0.44)) ? 1.3 : 1; // nova flicker
+      // three hard flickers — the supernova's strobing detonation
+      var spike = ((e > 0.05 && e < 0.12) || (e > 0.20 && e < 0.28) || (e > 0.40 && e < 0.47)) ? 1.7 : 1;
+
+      // bright ignition FLASH — an additive bloom that pops then drops fast
+      var flash = e < 0.20 ? (1 - e / 0.20) : 0; flash *= flash;
+      if (flash > 0.01) {
+        ctx.globalCompositeOperation = 'lighter';
+        var fg = ctx.createRadialGradient(fl.cx, fl.cy, 0, fl.cx, fl.cy, fl.R * 1.15);
+        fg.addColorStop(0, '#fff4d6'); fg.addColorStop(0.35, fl.flash); fg.addColorStop(1, 'transparent');
+        ctx.globalAlpha = flash * 0.55; ctx.fillStyle = fg;
+        ctx.fillRect(fl.cx - fl.R * 1.15, fl.cy - fl.R * 1.15, fl.R * 2.3, fl.R * 2.3);
+      }
+
+      // nebula gas blocks (screen) + a luminous core pass (lighter) for punch
       ctx.globalCompositeOperation = 'screen';
       for (var ci = 0; ci < fl.cells.length; ci++) {
         var cc = fl.cells[ci];
-        ctx.globalAlpha = env * spike * (0.16 + (1 - cc.ring) * 0.34);
+        ctx.globalAlpha = env * spike * (0.22 + (1 - cc.ring) * 0.5);
         ctx.fillStyle = cc.c;
         ctx.fillRect(cc.x, cc.y, cc.s, cc.s);
       }
       ctx.globalCompositeOperation = 'lighter';
+      for (var ck = 0; ck < fl.cells.length; ck++) {
+        var c2 = fl.cells[ck];
+        if (c2.ring > 0.45) continue;
+        ctx.globalAlpha = env * spike * 0.16 * (1 - c2.ring);
+        ctx.fillStyle = c2.c;
+        ctx.fillRect(c2.x, c2.y, c2.s, c2.s);
+      }
+
+      // bright flecks — twinkling hard, with a fat star cross
       for (var fj = 0; fj < fl.flecks.length; fj++) {
         var ff = fl.flecks[fj];
-        ctx.globalAlpha = env * spike * 0.85;
+        var tw = 0.55 + 0.45 * Math.sin(t * 0.02 + ff.ph);
+        var fa = env * spike * tw;
+        if (fa < 0.02) continue;
+        ctx.globalAlpha = fa > 1 ? 1 : fa;
         ctx.fillStyle = ff.c;
-        ctx.fillRect(ff.x, ff.y, 2, 2);
-        ctx.globalAlpha = env * spike * 0.5;                    // star cross on the bright flecks
-        ctx.fillRect(ff.x - 2, ff.y, 5, 1);
-        ctx.fillRect(ff.x, ff.y - 2, 1, 5);
+        ctx.fillRect(ff.x, ff.y, ff.s, ff.s);
+        ctx.globalAlpha = (fa * 0.55) > 1 ? 1 : fa * 0.55;
+        ctx.fillRect(ff.x - ff.s * 2, ff.y, ff.s * 5, 1);
+        ctx.fillRect(ff.x, ff.y - ff.s * 2, 1, ff.s * 5);
       }
       ctx.globalCompositeOperation = 'source-over';
     }
