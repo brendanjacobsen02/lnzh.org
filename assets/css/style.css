@@ -1920,6 +1920,65 @@ footer a img {
     border-color: rgba(var(--text-rgb), 0.32);
 }
 
+/* On hover a thought wears the writing editor's corner brackets — the same
+   terminal frame device, sized down for a card. Two corners come from the
+   card's pseudos, two from the .card-corners span (built in thoughts-filter.js). */
+.thought::before,
+.thought::after,
+.thought .card-corners::before,
+.thought .card-corners::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    width: 11px;
+    height: 11px;
+    border: 0 solid rgba(var(--text-rgb), 0.55);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+}
+
+.thought::before {
+    top: -3px;
+    left: -3px;
+    border-top-width: 2px;
+    border-left-width: 2px;
+}
+
+.thought::after {
+    bottom: -3px;
+    right: -3px;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+}
+
+.thought .card-corners {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.thought .card-corners::before {
+    top: -3px;
+    right: -3px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+}
+
+.thought .card-corners::after {
+    bottom: -3px;
+    left: -3px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+}
+
+.thought:hover::before,
+.thought:hover::after,
+.thought:hover .card-corners::before,
+.thought:hover .card-corners::after {
+    opacity: 1;
+}
+
 .thought .date {
     font-family: var(--mono);
     font-size: 0.63rem;
@@ -2200,6 +2259,12 @@ footer a img {
     font-variant-numeric: tabular-nums;
 }
 
+/* numbers accented like the writing HUD */
+.thought-count b {
+    color: var(--link);
+    font-weight: 600;
+}
+
 /* Like container and button on each thought */
 .thought {
     position: relative;
@@ -2215,7 +2280,10 @@ footer a img {
 }
 
 .like-count {
-    font-size: 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
     color: var(--muted);
     font-weight: 500;
     min-width: 1.2rem;
@@ -2234,12 +2302,12 @@ footer a img {
 }
 
 .fav-btn:hover {
-    color: var(--ink);
+    color: var(--link);
     transform: scale(1.1);
 }
 
 .fav-btn.active {
-    color: var(--ink);
+    color: var(--link);
 }
 
 /* Reordering animation */
@@ -2309,11 +2377,23 @@ footer a img {
     transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
 }
 
-.thoughts-controls .filter-btn:hover,
+/* clicky controls carry the writing page's offset shadow + accent hover */
+.thoughts-controls .filter-btn,
+.thoughts-controls select {
+    box-shadow: 2px 2px 0 rgba(var(--shadow-rgb), 0.14);
+}
+
+.thoughts-controls .filter-btn:not(.active):not(:disabled):hover,
 .thoughts-controls select:hover {
-    border-color: rgba(var(--text-rgb), 0.5);
-    color: var(--ink);
+    border-color: var(--link);
+    color: var(--link);
     opacity: 1;
+    box-shadow: 2px 2px 0 color-mix(in srgb, var(--link) 55%, transparent);
+}
+
+.thoughts-controls .filter-btn:not(:disabled):active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 rgba(var(--shadow-rgb), 0.14);
 }
 
 .thoughts-controls .filter-btn.active {
@@ -2325,6 +2405,7 @@ footer a img {
 .thoughts-controls .filter-btn:disabled {
     opacity: 0.4;
     cursor: default;
+    box-shadow: none;
 }
 
 /* The reverse arrow stands outside the boxy family: a bare hand-drawn

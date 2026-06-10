@@ -42,8 +42,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const textEl = document.createElement('p');
         textEl.textContent = thought.text;
 
+        // hover frame: two corners come from .thought's pseudos, two from this span
+        const corners = document.createElement('span');
+        corners.className = 'card-corners';
+        corners.setAttribute('aria-hidden', 'true');
+
         el.appendChild(dateSpan);
         el.appendChild(textEl);
+        el.appendChild(corners);
 
         return {
             element: el,
@@ -259,14 +265,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500 + filtered.length * 30);
         }, 150);
 
-        // Update count
+        // Update count (numbers accented like the writing HUD). One wrapping
+        // span: the count element is a flex item and bare text nodes between
+        // flex children lose their surrounding spaces.
         const countEl = document.getElementById('thought-count');
         if (countEl) {
-            if (mode === 'random') {
-                countEl.textContent = `1 of ${thoughts.length}`;
-            } else {
-                countEl.textContent = `${filtered.length} of ${thoughts.length}`;
-            }
+            const shown = document.createElement('b');
+            shown.textContent = mode === 'random' ? 1 : filtered.length;
+            const total = document.createElement('b');
+            total.textContent = thoughts.length;
+            const label = document.createElement('span');
+            label.append(shown, ' of ', total);
+            countEl.replaceChildren(label);
         }
     }
 
