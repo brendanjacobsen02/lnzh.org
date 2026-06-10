@@ -670,6 +670,10 @@
     }
     function openPanel() {
         if (panelOpen) { return; }
+        // opening settings dismisses the puzzle if it's open (they shouldn't overlap)
+        if (window.NebulaPath && window.NebulaPath.isOpen && window.NebulaPath.isOpen()) {
+            window.NebulaPath.close();
+        }
         panelOpen = true;
         panel.hidden = false;
         gear.setAttribute('aria-expanded', 'true');
