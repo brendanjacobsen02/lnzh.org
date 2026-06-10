@@ -212,7 +212,7 @@
             /* Settings panel (opened by the gear) + accent swatches. */
             '.theme-settings-panel{',
             '  position:fixed;top:80px;right:16px;z-index:2147483646;',
-            '  width:204px;padding:14px;font-family:monospace;',
+            '  width:224px;padding:14px;font-family:monospace;',
             '  color:var(--ink,#000);background:var(--paper-raised,#fffdf4);',
             '  border:3px solid var(--line-strong,#000);',
             '  box-shadow:4px 4px 0 0 var(--line-strong,#000);',
@@ -243,13 +243,43 @@
             '  box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
             '.theme-swatch[aria-pressed="true"]{outline:3px solid var(--ink,#000);outline-offset:2px;}',
             '.theme-swatch:focus-visible{outline:3px solid var(--link,#119c36);outline-offset:2px;}',
-            /* nebula game icon — its own button just left of the gear, morphs on unlock */
+            /* puzzle launcher — its own button just left of the gear (always a game) */
             '.tt-game-btn{right:78px;}',
             '@media (max-width:600px){.tt-game-btn{right:62px;}}',
             '.tt-game-btn .tt-ic{display:flex;align-items:center;justify-content:center;pointer-events:none;}',
-            '.tt-game-btn.tt-game-on{background:var(--ink,#000);color:var(--paper,#f2f2e4);}',
-            '@keyframes tt-morph{0%{transform:scale(1) rotate(0)}45%{transform:scale(.12) rotate(170deg)}55%{transform:scale(.12) rotate(190deg)}100%{transform:scale(1) rotate(360deg)}}',
-            '.tt-game-btn.tt-morph .tt-ic{animation:tt-morph .52s cubic-bezier(.5,0,.3,1.3) both;}',
+
+            /* theme row: the light/dark control + the Nebula toggle, side by side */
+            '.tt-theme-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}',
+
+            /* Nebula toggle — animated + nebula-themed: a deep-space button with a
+               twinkling pixel starfield and a softly pulsing star. Colors are fixed
+               cosmic (theme-independent) since it always represents cosmic mode. */
+            '.tt-nebula-btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:6px;',
+            '  font-family:monospace;font-size:13px;cursor:pointer;padding:6px 9px;color:#ece7fa;',
+            '  background:radial-gradient(130% 150% at 22% -10%,#5a1556 0%,#2a0b46 34%,#0a0a20 64%,#06040f 100%);',
+            '  border:2px solid var(--line-strong,#000);box-shadow:2px 2px 0 0 var(--line-strong,#000);}',
+            '.tt-nebula-btn[hidden]{display:none;}',
+            '.tt-nebula-btn:hover{transform:translate(1px,1px);box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
+            '.tt-nebula-btn:focus-visible{outline:3px solid var(--link,#119c36);outline-offset:2px;}',
+            '.tt-nebula-btn::before{content:"";position:absolute;top:5px;left:7px;width:1px;height:1px;background:#fff4d6;',
+            '  box-shadow:7px 1px 0 0 #cfe8ff,18px 9px 0 0 #ffd9a0,30px 3px 0 0 #fff4d6,43px 11px 0 0 #cfe8ff,',
+            '  56px 5px 0 0 #ffe9b3,12px 13px 0 0 #fff4d6,38px 15px 0 0 #cfe8ff,64px 13px 0 0 #ffd9a0,25px 12px 0 0 #fff4d6;',
+            '  pointer-events:none;animation:tt-neb-twinkle 2.6s steps(2) infinite;}',
+            '.tt-nebula-btn::after{content:"";position:absolute;top:9px;left:14px;width:1px;height:1px;background:#cfe8ff;',
+            '  box-shadow:9px -3px 0 0 #fff4d6,26px 6px 0 0 #cfe8ff,49px -1px 0 0 #ffe9b3,5px 4px 0 0 #ffd9a0,34px 9px 0 0 #fff4d6;',
+            '  pointer-events:none;animation:tt-neb-twinkle 1.9s steps(2) infinite .6s;}',
+            '@keyframes tt-neb-twinkle{0%,100%{opacity:.9}50%{opacity:.22}}',
+            '.tt-nebula-btn .tt-neb-star{position:relative;z-index:1;display:flex;color:#fff4d6;',
+            '  filter:drop-shadow(0 0 3px rgba(255,236,180,.65));animation:tt-neb-pulse 2.8s ease-in-out infinite;}',
+            '.tt-nebula-btn .tt-neb-text{position:relative;z-index:1;}',
+            '@keyframes tt-neb-pulse{0%,100%{transform:scale(1) rotate(0);opacity:.9}50%{transform:scale(1.16) rotate(8deg);opacity:1}}',
+            '.tt-nebula-btn.tt-neb-on{box-shadow:2px 2px 0 0 var(--line-strong,#000),0 0 9px 1px rgba(164,140,240,.6);}',
+            '.tt-nebula-btn.tt-neb-on .tt-neb-star{color:#fff;}',
+            '@keyframes tt-neb-in{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}',
+            '.tt-nebula-btn.tt-neb-in{animation:tt-neb-in .42s cubic-bezier(.5,0,.3,1.3) both;}',
+            '@media (prefers-reduced-motion: reduce){',
+            '  .tt-nebula-btn::before,.tt-nebula-btn::after,.tt-nebula-btn .tt-neb-star,.tt-nebula-btn.tt-neb-in{animation:none;}',
+            '}',
 
             /* The iris transition is a <canvas> created + styled inline in
                irisCloseIn (no CSS needed here). Reduced motion: skip the canvas
@@ -549,7 +579,7 @@
         if (ic) { ic.textContent = themeIcon(theme); }
         var tx = themeBtn.querySelector('.tt-text');
         if (tx) { tx.textContent = isDark ? 'Dark' : 'Light'; }
-        updateGameIcon();        // theme/palette changes also refresh the nebula icon
+        updateNebulaBtn();       // theme/palette changes also refresh the nebula toggle
     }
     function updateSwatches(accent) {
         for (var i = 0; i < swatches.length; i++) {
@@ -558,13 +588,14 @@
         }
     }
 
-    /* ---- nebula game icon (its own button, top-right next to the gear) ----
-            Before unlock it's a one-stroke "puzzle" glyph that opens the game; on
-            solve it MORPHS into a nebula star that toggles the cosmic palette on/off.
-            The puzzle (nebula-path.js, lazy-loaded) persists 'nebula-unlocked' and
-            fires a 'nebula-unlocked' event on solve. ---- */
+    /* ---- the puzzle launcher (game icon, just left of the gear) ----
+            ALWAYS a one-stroke "puzzle" glyph that opens the game — it never changes
+            and never becomes the nebula control. Solving the puzzle (nebula-path.js,
+            lazy-loaded) persists 'nebula-unlocked' and fires a 'nebula-unlocked'
+            event; that REVEALS the Nebula toggle inside the settings panel (below).
+            The game stays a game so you can replay it for a fresh random pattern. ---- */
     var GAME_GLYPH = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/><rect x="4" y="4" width="7" height="7" fill="currentColor" stroke="none"/></svg>';
-    var NEBULA_GLYPH = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1.5 L13.9 9.4 L21.5 12 L13.9 14.6 L12 22.5 L10.1 14.6 L2.5 12 L10.1 9.4 Z"/></svg>';
+    var NEBULA_GLYPH = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 1.5 L13.9 9.4 L21.5 12 L13.9 14.6 L12 22.5 L10.1 14.6 L2.5 12 L10.1 9.4 Z"/></svg>';
     function nebulaUnlocked() {
         try { return localStorage.getItem('nebula-unlocked') === '1'; } catch (e) { return false; }
     }
@@ -584,46 +615,43 @@
         };
         (document.body || document.documentElement).appendChild(sc);
     }
-    function setGlyph() {
-        var ic = gameBtn && gameBtn.querySelector('.tt-ic');
-        if (ic) { ic.innerHTML = nebulaUnlocked() ? NEBULA_GLYPH : GAME_GLYPH; }
-    }
-    function updateGameIcon(animate) {
-        if (!gameBtn) { return; }
-        var unlocked = nebulaUnlocked();
-        var active = currentPalette() === 'cosmic';
-        gameBtn.classList.toggle('tt-game-on', unlocked && active);
-        gameBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-        gameBtn.setAttribute('aria-label', unlocked
-            ? (active ? 'Turn off nebula mode' : 'Turn on nebula mode')
-            : 'Play the one-stroke puzzle to unlock nebula mode');
-        gameBtn.title = unlocked ? 'Nebula' : 'Puzzle';
-        if (animate) {                                  // unlock moment → morph glyph
-            gameBtn.classList.remove('tt-morph'); void gameBtn.offsetWidth;
-            gameBtn.classList.add('tt-morph');
-            window.setTimeout(setGlyph, 230);           // swap glyph mid-flip
-            window.setTimeout(function () { gameBtn.classList.remove('tt-morph'); }, 540);
-        } else {
-            setGlyph();
-        }
-    }
     function onGameClick() {
-        if (nebulaUnlocked()) {
-            // toggle the palette behind a supernova burst — both on AND off. The
-            // flip happens under the burst's cover; the burst then clears to reveal
-            // whichever side we landed on.
-            var goingCosmic = currentPalette() !== 'cosmic';
-            loadPuzzleOnce(function () {
-                var flip = function () { applyPalette(goingCosmic ? 'cosmic' : null); };
-                if (window.NebulaPath && window.NebulaPath.supernova) {
-                    window.NebulaPath.supernova(flip);
-                } else {
-                    flip();
-                }
-            });
-        } else {
-            loadPuzzleOnce(function () { if (window.NebulaPath) { window.NebulaPath.open(); } });
-        }
+        loadPuzzleOnce(function () { if (window.NebulaPath) { window.NebulaPath.open(); } });
+    }
+
+    /* ---- the Nebula toggle — lives INSIDE the settings panel, next to the theme
+            control. Hidden until the puzzle is solved; then it toggles the cosmic
+            palette on/off behind a supernova burst (both directions). It's its own
+            animated, nebula-themed control (a twinkling starfield + pulsing star). ---- */
+    var nebulaBtn;
+    function updateNebulaBtn() {
+        if (!nebulaBtn) { return; }
+        nebulaBtn.hidden = !nebulaUnlocked();
+        var active = currentPalette() === 'cosmic';
+        nebulaBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        nebulaBtn.classList.toggle('tt-neb-on', active);
+        var lbl = active ? 'Turn off nebula mode' : 'Turn on nebula mode';
+        nebulaBtn.setAttribute('aria-label', lbl);
+        nebulaBtn.title = lbl;
+    }
+    function revealNebulaBtn() {     // the unlock moment → show it with a little entrance
+        if (!nebulaBtn) { return; }
+        updateNebulaBtn();
+        nebulaBtn.classList.remove('tt-neb-in'); void nebulaBtn.offsetWidth;
+        nebulaBtn.classList.add('tt-neb-in');
+    }
+    function onNebulaClick() {
+        // toggle the cosmic palette behind a supernova — both on AND off. The flip
+        // happens under the burst's cover; the burst clears to reveal either side.
+        var goingCosmic = currentPalette() !== 'cosmic';
+        loadPuzzleOnce(function () {
+            var flip = function () { applyPalette(goingCosmic ? 'cosmic' : null); };
+            if (window.NebulaPath && window.NebulaPath.supernova) {
+                window.NebulaPath.supernova(flip);
+            } else {
+                flip();
+            }
+        });
     }
 
     /* ---- panel open/close + accessibility ---- */
@@ -673,15 +701,18 @@
             if (panelOpen) { closePanel(); } else { openPanel(); }
         });
 
-        // Nebula game icon — its own button, just left of the gear. Locked = puzzle
-        // glyph (opens the game); on solve it morphs into a nebula star that toggles
-        // the cosmic palette.
+        // Puzzle launcher — its own button, just left of the gear. ALWAYS the
+        // one-stroke "puzzle" glyph that opens the game (replayable for a fresh
+        // random pattern); it never changes into the nebula control.
         gameBtn = document.createElement('button');
         gameBtn.type = 'button';
         gameBtn.className = 'theme-toggle-btn tt-game-btn';
+        gameBtn.setAttribute('aria-label', 'Play the one-stroke puzzle');
+        gameBtn.title = 'Puzzle';
         var gic = document.createElement('span');
         gic.className = 'tt-ic';
         gic.setAttribute('aria-hidden', 'true');
+        gic.innerHTML = GAME_GLYPH;
         gameBtn.appendChild(gic);
         gameBtn.addEventListener('click', onGameClick);
 
@@ -711,8 +742,31 @@
             var next = currentTheme() === 'dark' ? 'light' : 'dark';
             applyTheme(next, true);
         });
+
+        // Nebula toggle — sits next to the light/dark control, hidden until unlocked.
+        // Its own animated, nebula-themed control (twinkling starfield + pulsing star).
+        nebulaBtn = document.createElement('button');
+        nebulaBtn.type = 'button';
+        nebulaBtn.className = 'tt-nebula-btn';
+        nebulaBtn.hidden = true;
+        var nStar = document.createElement('span');
+        nStar.className = 'tt-neb-star';
+        nStar.setAttribute('aria-hidden', 'true');
+        nStar.innerHTML = NEBULA_GLYPH;
+        var nText = document.createElement('span');
+        nText.className = 'tt-neb-text';
+        nText.textContent = 'Nebula';
+        nebulaBtn.appendChild(nStar);
+        nebulaBtn.appendChild(nText);
+        nebulaBtn.addEventListener('click', onNebulaClick);
+
+        var themeRow = document.createElement('div');
+        themeRow.className = 'tt-theme-row';
+        themeRow.appendChild(themeBtn);
+        themeRow.appendChild(nebulaBtn);
+
         themeSec.appendChild(themeLbl);
-        themeSec.appendChild(themeBtn);
+        themeSec.appendChild(themeRow);
 
         // Accent section
         var accentSec = document.createElement('div');
@@ -783,8 +837,8 @@
         // If theme-init.js booted us into the special palette, the glint script
         // isn't on the page yet — load it (it self-starts from its observer).
         if (currentPalette()) { loadGlintOnce(); }
-        // The puzzle fires this on solve → morph the game icon into the nebula star.
-        document.addEventListener('nebula-unlocked', function () { updateGameIcon(true); });
+        // The puzzle fires this on solve → reveal the Nebula toggle in the panel.
+        document.addEventListener('nebula-unlocked', function () { revealNebulaBtn(); });
         // Programmatic entry point for the puzzle/"game" (and for testing live:
         // lnzhPalette.set('cosmic') / lnzhPalette.clear()). No visible control —
         // the special mode is unlocked, not offered.

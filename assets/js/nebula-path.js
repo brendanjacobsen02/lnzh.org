@@ -199,8 +199,16 @@
         path = [board.start]; onPath = {}; onPath[board.start] = true; solved = false;
         redraw();
     }
+    // pick a RANDOM board (a fresh pattern every open / "new"), never repeating the
+    // one currently shown so "new" always visibly changes.
+    function pickBoard(exclude) {
+        if (BOARDS.length <= 1) { return 0; }
+        var i;
+        do { i = Math.floor(Math.random() * BOARDS.length); } while (i === exclude);
+        return i;
+    }
     function nextBoard() {
-        boardIndex = (boardIndex + 1) % BOARDS.length;
+        boardIndex = pickBoard(boardIndex);
         try { localStorage.setItem(ROT_KEY, String(boardIndex)); } catch (e) {}
         loadBoard(boardIndex);
     }
@@ -311,7 +319,8 @@
         if (overlay) { return; }
         injectStyles();
         lastFocus = document.activeElement;
-        try { boardIndex = Math.max(0, parseInt(localStorage.getItem(ROT_KEY), 10) || 0) % BOARDS.length; } catch (e) { boardIndex = 0; }
+        boardIndex = pickBoard(-1);     // a random pattern every time the puzzle opens
+        try { localStorage.setItem(ROT_KEY, String(boardIndex)); } catch (e) {}
 
         overlay = document.createElement('div'); overlay.className = 'np-backdrop';
         overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true');
