@@ -56,11 +56,11 @@ function renderSummary(data) {
     const drinkKey = (data.drink || '').toLowerCase();
     let clipartSrc = null;
     if (drinkKey === 'espresso') {
-        clipartSrc = '../../assets/clipart/espressoclip.png';
+        clipartSrc = '../../../assets/clipart/espressoclip.png';
     } else if (drinkKey === 'latte') {
-        clipartSrc = '../../assets/clipart/latteclip.png';
+        clipartSrc = '../../../assets/clipart/latteclip.png';
     } else if (drinkKey === 'americano') {
-        clipartSrc = '../../assets/clipart/americanoclip.png';
+        clipartSrc = '../../../assets/clipart/americanoclip.png';
     }
     if (clipartSrc) {
         const clipart = document.createElement('img');

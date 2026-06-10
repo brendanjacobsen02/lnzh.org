@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+"""Serve this static site locally.
+
+Usage:
+    ./serve            # serve on http://localhost:8000 and open the browser
+    ./serve 3000       # serve on a specific port
+    ./serve --no-open  # don't open the browser automatically
+
+If the chosen port is busy, the next free one is used. Stop with Ctrl-C.
+"""
+import argparse
+import functools
+import http.server
+import socket
+import threading
+import webbrowser
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+DEFAULT_PORT = 8000
+
+
+def find_free_port(preferred):
+    """Return the preferred port if free, otherwise the next available one."""
+    for port in range(preferred, preferred + 100):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                sock.bind(("", port))
+                return port
+            except OSError:
+                continue
+    raise SystemExit(f"No free port found near {preferred}.")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Serve this static site locally.")
+    parser.add_argument("port", nargs="?", type=int, default=DEFAULT_PORT,
+                        help=f"port to serve on (default {DEFAULT_PORT})")
+    parser.add_argument("--no-open", action="store_true",
+                        help="do not open the browser automatically")
+    args = parser.parse_args()
+
+    port = find_free_port(args.port)
+    if port != args.port:
+        print(f"Port {args.port} is busy — using {port} instead.")
+
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler,
+                                directory=str(ROOT))
+    httpd = http.server.ThreadingHTTPServer(("", port), handler)
+
+    url = f"http://localhost:{port}/"
+    print(f"\n  Serving {ROOT}")
+    print(f"  → {url}")
+    print("  Press Ctrl-C to stop.\n")
+
+    if not args.no_open:
+        threading.Timer(0.5, lambda: webbrowser.open(url)).start()
+
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\nStopped.")
+    finally:
+        httpd.server_close()
+
+
+if __name__ == "__main__":
+    main()

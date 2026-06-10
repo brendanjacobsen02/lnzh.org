@@ -1,0 +1,9 @@
+{
+    "name": "lnzh-dev-harness",
+    "private": true,
+    "description": "Dev-only deps for the verification harness (verify-matrix.mjs). Not part of the site.",
+    "type": "module",
+    "dependencies": {
+        "playwright": "^1.50.0"
+    }
+}

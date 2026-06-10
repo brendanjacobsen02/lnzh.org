@@ -1,5 +1,5 @@
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;600&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap');
 
 /* ==========================================================================
    Theme tokens
@@ -19,13 +19,16 @@
     --text-rgb: 51, 51, 51;  /* base channels for translucent text/lines */
     --muted: #666;        /* secondary text */
     --faint: #999;        /* faint / disabled text */
-    --backdrop: #111;     /* opaque near-black fill (redaction blackout) */
-    --accent: #111;       /* form control accent (checkbox tick) */
     --redact: #111;       /* blackout redaction bar — legible in both themes */
 
     /* UI chrome face (writing page labels, HUD, buttons). Proportional sans that
        pairs with Newsreader; tabular figures keep the scoreboard tidy. */
     --mono: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+
+    /* Reading typography. Newsreader sets headers/wordmarks; Spectral is the
+       secondary face doing the long-form work — body text, subtitles, prose. */
+    --header: 'Newsreader', Georgia, serif;
+    --body: 'Spectral', Georgia, serif;
 
     /* Lines */
     --line: #ccc;            /* default hairline */
@@ -37,7 +40,7 @@
     --inset-highlight: rgba(255, 255, 255, 0.75);
 
     /* Links */
-    --link: #119c36;
+    --link: #0d782a;      /* forest green, AA on both paper surfaces (was #119c36 @ 3.2:1) */
     --link-hover: #0a4a1a;
 
     /* Category / accent palette (header tones) */
@@ -49,9 +52,9 @@
     --cat-green: #3d8c57;   /* forest green */
 
     /* Category / accent palette (deeper link tones) */
-    --cat-amber-deep: #a16a2e;   /* darker amber */
+    --cat-amber-deep: #94622a;   /* darker amber (AA on paper; = the amber accent) */
     --cat-coral-deep: #8a3f3b;   /* darker coral */
-    --cat-olive-deep: #857b2d;   /* darker olive */
+    --cat-olive-deep: #756c28;   /* darker olive (AA on paper) */
     --cat-violet-deep: #5f4770;  /* darker violet */
     --cat-teal-deep: #3a6270;    /* darker teal */
     --cat-green-deep: #2d6940;   /* darker green */
@@ -59,9 +62,9 @@
 
 html[data-theme="dark"] {
     /* Surfaces */
-    --paper: #16150F;
-    --paper-raised: #211F16;
-    --paper-raised-rgb: 33, 31, 22;
+    --paper: #100E0A;
+    --paper-raised: #1B1811;
+    --paper-raised-rgb: 27, 24, 17;
 
     /* Text */
     --ink: #F2F2E4;
@@ -70,8 +73,6 @@ html[data-theme="dark"] {
     --text-rgb: 216, 214, 200;
     --muted: #A8A596;
     --faint: #6F6D5F;
-    --backdrop: #211F16;
-    --accent: #C9C6B0;
     --redact: #C9C6B0;
 
     /* Lines */
@@ -111,7 +112,7 @@ html[data-theme="dark"] {
 }
 
 body {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     line-height: 1.6;
     color: var(--text);
     background-color: var(--paper);
@@ -129,7 +130,13 @@ nav {
     width: 20%;
     height: 100vh;
     padding: 40px 20px 40px 60px;
-    overflow-y: auto;
+    overflow: visible;
+}
+
+/* Very short viewports: restore scrolling so a long expanded menu stays reachable
+   (accepts horizontal clip only in this rare case). */
+@media (max-height: 640px) {
+    nav { overflow-y: auto; }
 }
 
 nav ul {
@@ -178,13 +185,8 @@ nav img {
     object-position: left center;
 }
 
-/* Size variations for different letter heights */
-nav img.size-0 {
-    height: 1.15rem;  /* Extra short/tiny letters */
-    margin-top: 0.5rem;
-    margin-bottom: 1.609375rem;  /* padding factor: 1.125, split with constant top */
-}
-
+/* Size variations for different letter heights (scale runs 1–6; the unused
+   end rungs 0 and 7 were pruned 2026-06-10) */
 nav img.size-1 {
     height: 1.55rem;  /* Short, flat letters (e.g., "one") */
     margin-top: 0.5rem;
@@ -221,12 +223,6 @@ nav img.size-6 {
     margin-bottom: 0.40625rem;
 }
 
-nav img.size-7 {
-    height: 4.5rem;
-    margin-top: 0.34375rem;
-    margin-bottom: 0.34375rem;
-}
-
 /* Default size (no class) */
 nav img:not([class*="size-"]) {
     margin-top: 0.5rem;
@@ -240,33 +236,106 @@ nav img:not([class*="size-"]) {
     line-height: 0;
     display: flex;
     align-items: center;
+    /* Room between the hr and the 4-star toggle. The hr's own margin-bottom is
+       capped by the catch-all `nav img:not([class*="size-"])` rule, so the gap lives
+       here, above the stars. Reset in the tablet/mobile (horizontal) nav below. */
+    margin-top: 1.125rem;   /* hr→4-star gap ≈ 36px (18px divider + 18px) */
 }
 
+/* 4-star dropdown toggle. nav-dropdown.js swaps the <img> for a flex row of four
+   background-sliced <span class="nav-star">, so each star animates on its own.
+   --star-src / --star-aspect are set by the JS from the source PNG (asset-swappable,
+   like the .drawn-* kit). The bare-<img> rules below are the no-JS fallback. */
 .nav-dropdown-toggle {
-    width: auto;
     height: 1.25rem;
+    width: auto;
     display: block;
     object-fit: contain;
     object-position: left center;
-    transition: transform 0.6s cubic-bezier(0.68, -0.4, 0.265, 1.35);
 }
 
-.dropdown-trigger.active .nav-dropdown-toggle {
-    transform: rotate(180deg) scale(1.1);
+.fourstar.nav-dropdown-toggle {
+    display: flex;
+    width: calc(1.25rem * var(--star-aspect, 2.2419));
 }
 
-/* Sidebar attention glow — triggered by the homepage "explore the sidebar!" link */
-@keyframes navGlow {
-    0%, 100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }
-    22% {
-        background-color: color-mix(in srgb, var(--link) 26%, transparent);
-        box-shadow: 0 0 34px 6px color-mix(in srgb, var(--link) 55%, transparent);
-    }
+.nav-star {
+    flex: 1;
+    height: 100%;
+    background-image: var(--star-src);
+    background-repeat: no-repeat;
+    background-size: 400% 100%;                         /* strip = 4× one slice */
+    background-position-x: calc(var(--i) * 33.3333%);   /* 0 / 33.33 / 66.67 / 100% */
+    background-position-y: center;
+    transform-origin: bottom center;
 }
 
-nav.nav-glow {
-    animation: navGlow 0.9s ease-out 2;
-    border-radius: 0 16px 16px 0;
+/* Open: a springy squash-and-stretch hop rippling left→right across the stars. */
+@keyframes navStarBounce {
+    0%   { transform: translateY(0)     scaleY(1); }
+    28%  { transform: translateY(-10px) scaleY(1.18); }
+    52%  { transform: translateY(0)     scaleY(0.8); }
+    72%  { transform: translateY(-3px)  scaleY(1.07); }
+    100% { transform: translateY(0)     scaleY(1); }
+}
+
+/* Gated on .nav-anim-open (set only on a click-to-open, never on the
+   expanded-by-default restore) so the bounce never auto-plays on page load. */
+.dropdown-trigger.nav-anim-open .nav-star {
+    animation: navStarBounce 0.56s cubic-bezier(0.3, 1.2, 0.5, 1) backwards;
+    animation-delay: calc(var(--i) * 70ms);
+}
+
+/* At rest (collapsed): a gentle periodic wave inviting the click. Loops, but the
+   global prefers-reduced-motion catch-all near the end of this file neutralizes it. */
+@keyframes navStarIdle {
+    0%, 70%, 100% { transform: translateY(0); }
+    78% { transform: translateY(-4px)   scaleY(1.07); }
+    85% { transform: translateY(0)      scaleY(0.98); }
+    92% { transform: translateY(-1.5px); }
+}
+
+.dropdown-trigger:not(.active) .nav-star {
+    animation: navStarIdle 3.8s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.07s);
+}
+
+/* Hover (while collapsed): a quick one-hop across the row. More specific than the
+   idle rule, so it wins on hover. */
+@keyframes navStarHop {
+    0%   { transform: translateY(0); }
+    40%  { transform: translateY(-8px) scaleY(1.14); }
+    100% { transform: translateY(0); }
+}
+
+.dropdown-trigger:not(.active):hover .nav-star {
+    animation: navStarHop 0.45s ease;
+    animation-delay: calc(var(--i) * 0.05s);
+}
+
+/* Sidebar attention jiggle — the homepage "explore the sidebar!" link ripples a
+   playful hand-drawn wobble top→down through every nav element (logo, stars, words).
+   Per-element animation-delay is set in nav-dropdown.js so the cascade follows DOM
+   order no matter how the markup nests. Reduced-motion neutralizes it via the
+   global animation-duration catch-all near the end of this file. */
+@keyframes navJiggle {
+    0%   { transform: rotate(0deg)    translateY(0)    scale(1); }
+    16%  { transform: rotate(-6deg)   translateY(-3px) scale(1.06); }
+    34%  { transform: rotate(5deg)    translateY(0)    scale(1.04); }
+    52%  { transform: rotate(-3.5deg) translateY(-1px) scale(1.02); }
+    70%  { transform: rotate(2deg)    translateY(0)    scale(1.01); }
+    85%  { transform: rotate(-1deg)   translateY(0)    scale(1); }
+    100% { transform: rotate(0deg)    translateY(0)    scale(1); }
+}
+
+.nav-jiggling {
+    animation: navJiggle 0.62s cubic-bezier(0.34, 1.25, 0.5, 1) both;
+    transform-origin: left center;
+}
+
+/* Stars pivot from their footing, like the idle/hop animations. */
+.nav-star.nav-jiggling {
+    transform-origin: bottom center;
 }
 
 /* ==========================================================================
@@ -403,6 +472,12 @@ body.critters-calm .critter-motion--sway {
     list-style: none;
     display: flex;
     flex-direction: column;
+    /* No flex gap on purpose. Each menu word is a hand-drawn image scaled (via its
+       size-N class) so every word reads the same OPTICAL size — a taller/longer word
+       gets a bigger image and, by design, a smaller margin, so the visual rhythm
+       between the ink stays even. That size-aware spacing lives on the per-size
+       `nav img.size-N` "padding factor" margins; a uniform gap here flattens it.
+       Let the per-size margins own the vertical spacing. */
     padding: 0;
     margin: 0;
 }
@@ -411,55 +486,47 @@ body.critters-calm .critter-motion--sway {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    opacity: 0;
-    transform: translateX(-10px);
-    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.3, 0.64, 1);
+    opacity: 0;                 /* hidden until the menu opens */
 }
 
+/* Menu spacing is owned by the per-size `nav img.size-N` margins (the "padding
+   factor" system) so every hand-drawn word reads the same optical size with an even
+   rhythm — do NOT zero them here or add a uniform gap on .dropdown-list. */
+
+/* Breathing room between the four-star toggle and the first menu word. */
+.dropdown-trigger {
+    margin-bottom: 1.15rem;
+}
+
+/* Open: each word drops in with a small bounce, echoing the stars.
+   `both` fill holds opacity:0 during the stagger delay and opacity:1 after. */
+@keyframes navItemBounce {
+    0%   { opacity: 0; transform: translateY(-10px) scale(0.96); }
+    60%  { opacity: 1; transform: translateY(3px)   scale(1.02); }
+    100% { opacity: 1; transform: translateY(0)     scale(1); }
+}
+
+/* Visible whenever the menu is open — including the expanded-by-default restore,
+   which has no .nav-anim-open and therefore no bounce. */
 .dropdown-content.active .dropdown-item {
     opacity: 1;
-    transform: translateX(0);
 }
 
-.dropdown-content.active .dropdown-item:nth-child(1) {
-    transition-delay: 0.05s;
+/* Bounce in only on a user-initiated open. */
+.dropdown-content.nav-anim-open .dropdown-item {
+    animation: navItemBounce 0.42s cubic-bezier(0.3, 1.3, 0.5, 1) both;
 }
 
-.dropdown-content.active .dropdown-item:nth-child(2) {
-    transition-delay: 0.1s;
-}
-
-.dropdown-content.active .dropdown-item:nth-child(3) {
-    transition-delay: 0.15s;
-}
-
-.dropdown-content.active .dropdown-item:nth-child(4) {
-    transition-delay: 0.2s;
-}
-
-.dropdown-content.active .dropdown-item:nth-child(5) {
-    transition-delay: 0.25s;
-}
-
-.dropdown-content.active .dropdown-item:nth-child(6) {
-    transition-delay: 0.3s;
-}
-
-.dropdown-content.active .dropdown-item:nth-child(7) {
-    transition-delay: 0.35s;
-}
-
-.dropdown-content.active .dropdown-item:nth-child(8) {
-    transition-delay: 0.4s;
-}
-
-.dropdown-content.active .dropdown-item:nth-child(9) {
-    transition-delay: 0.45s;
-}
-
-.dropdown-content.active .dropdown-item:nth-child(10) {
-    transition-delay: 0.5s;
-}
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(1)  { animation-delay: 0.12s; }
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(2)  { animation-delay: 0.19s; }
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(3)  { animation-delay: 0.26s; }
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(4)  { animation-delay: 0.33s; }
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(5)  { animation-delay: 0.40s; }
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(6)  { animation-delay: 0.47s; }
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(7)  { animation-delay: 0.54s; }
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(8)  { animation-delay: 0.61s; }
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(9)  { animation-delay: 0.68s; }
+.dropdown-content.nav-anim-open .dropdown-item:nth-child(10) { animation-delay: 0.75s; }
 
 .dropdown-item a {
     display: block;
@@ -484,6 +551,7 @@ main {
 
 /* Main Content Area */
 main {
+    flex: 1 0 auto;   /* grow to push the footer to the bottom on short pages */
     margin-left: 20%;
     margin-right: 7.5%;
     padding: 60px 20px 60px 20px;
@@ -494,6 +562,7 @@ main {
 
 /* Typography */
 h1, h2, h3, h4 {
+    font-family: var(--header);
     margin-bottom: 1rem;
 }
 
@@ -573,7 +642,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .filter-btn {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
     border: 1px solid var(--line-strong);
@@ -625,7 +694,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     text-decoration: none;
     color: inherit;
     padding: 1rem;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
 }
 
 #orders-panel table {
@@ -688,10 +757,9 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .writing-tag {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
+    font-family: var(--body);
+    font-style: italic;
+    font-size: 1.1rem;
     color: var(--muted);
     margin: 0.15rem 0 0;
 }
@@ -789,65 +857,6 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     color: transparent;
 }
 
-.sentence-stream {
-    min-height: 13rem;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 1.4rem 1.5rem;
-    border: 1px solid rgba(var(--text-rgb), 0.28);
-    border-radius: 12px;
-    background:
-        radial-gradient(rgba(var(--text-rgb), 0.06) 1px, transparent 1.6px) 0 0 / 16px 16px,
-        var(--paper-raised);
-    line-height: 1.7;
-    white-space: normal;
-    cursor: text;
-    box-shadow: inset 0 1px 0 var(--inset-highlight);
-    caret-color: var(--link);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.sentence-stream:focus-within {
-    border-color: var(--link);
-    box-shadow: inset 0 1px 0 var(--inset-highlight),
-        0 0 0 3px color-mix(in srgb, var(--link) 16%, transparent);
-}
-
-.sentence-input-inline {
-    display: inline;
-    outline: none;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    caret-color: var(--link);
-}
-
-/* Give the empty editor a caret target so the native caret stays visible
-   between sentences (an empty inline box collapses and hides it otherwise). */
-.sentence-input-inline:empty {
-    display: inline-block;
-    min-width: 0.4em;
-}
-
-.sentence-input-inline:empty::before {
-    content: attr(data-placeholder);
-    color: rgba(var(--text-rgb), 0.38);
-    pointer-events: none;
-}
-
-.sentence-stream.has-sentences .sentence-input-inline:empty::before {
-    content: "";
-}
-
-/* Native accent caret is the fallback; block-caret.js hides it (.has-block-caret)
-   and overlays a terminal block. Hide the placeholder once the field is focused. */
-.sentence-input-inline:focus:empty::before {
-    content: "";
-}
-
-.sentence-input-inline.has-block-caret {
-    caret-color: transparent;
-}
-
 /* Terminal-style block cursor in the accent color, measured via a mirror
    (block-caret.js). Native caret is hidden while it's active (.has-block-caret). */
 .block-caret {
@@ -862,34 +871,6 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 @keyframes blockCaretBlink {
     50% { opacity: 0; }
-}
-
-.sentence-fragment {
-    display: inline;
-    white-space: pre-wrap;
-}
-
-.sentence-fragment.is-pending {
-    color: rgba(var(--text-rgb), 0.5);
-}
-
-.sentence-fragment.is-kept {
-    color: var(--ink);
-}
-
-/* blackout / redaction — legible bars in BOTH themes via --redact */
-/* Blackout: redact completed sentences only — the line you're currently writing
-   stays visible. Each fragment keeps its trailing whitespace, so the bar is
-   continuous across a line instead of broken into separate chunks. */
-.sentence-stream.is-blackout .sentence-fragment {
-    color: transparent;
-    background: var(--redact);
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-}
-
-.sentence-stream.is-blackout .sentence-input-inline:empty {
-    background: transparent;
 }
 
 /* HUD scoreboard */
@@ -1160,7 +1141,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     background: transparent;
     border: 0;
     cursor: pointer;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     color: var(--ink);
 }
@@ -1375,12 +1356,11 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 }
 
 .writing-summary-sub {
-    margin: 0.2rem 0 0;
+    margin: 0.25rem 0 0;
     text-align: center;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+    font-family: var(--body);
+    font-style: italic;
+    font-size: 0.95rem;
     color: var(--muted);
 }
 
@@ -1554,10 +1534,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     object-fit: contain;
 }
 
-.card-title img.size-0 {
-        max-height: 1.2rem;
-    }
-    .card-title img.size-1 {
+.card-title img.size-1 {
         max-height: 1.4rem;
     }
 
@@ -1581,9 +1558,6 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
         max-height: 3.2rem;
     }
 
-    .card-title img.size-7 {
-        max-height: 3.6rem;
-    }
 
 .card-image {
     width: 100%;
@@ -1649,13 +1623,14 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     margin-left: 1.5rem;
 }
 
-/* Rainbow colors for dropdown headers */
-.list-dropdown-trigger:nth-of-type(1) { color: var(--cat-coral); }  /* muted coral */
-.list-dropdown-trigger:nth-of-type(2) { color: var(--cat-amber); }  /* warm amber */
-.list-dropdown-trigger:nth-of-type(3) { color: var(--cat-olive); }  /* olive gold */
-.list-dropdown-trigger:nth-of-type(4) { color: var(--cat-green); }  /* forest green */
-.list-dropdown-trigger:nth-of-type(5) { color: var(--cat-teal); }  /* dusty teal */
-.list-dropdown-trigger:nth-of-type(6) { color: var(--cat-violet); }  /* muted violet */
+/* Rainbow colors for dropdown headers — the -deep rainbow, so every hue reads
+   AA on paper (the base cat-* values sit at 2.6–4.4:1 for body-size text) */
+.list-dropdown-trigger:nth-of-type(1) { color: var(--cat-coral-deep); }  /* muted coral */
+.list-dropdown-trigger:nth-of-type(2) { color: var(--cat-amber-deep); }  /* warm amber */
+.list-dropdown-trigger:nth-of-type(3) { color: var(--cat-olive-deep); }  /* olive gold */
+.list-dropdown-trigger:nth-of-type(4) { color: var(--cat-green-deep); }  /* forest green */
+.list-dropdown-trigger:nth-of-type(5) { color: var(--cat-teal-deep); }  /* dusty teal */
+.list-dropdown-trigger:nth-of-type(6) { color: var(--cat-violet-deep); }  /* muted violet */
 
 /* Darker link colors matching parent headers */
 .list-dropdown-content:nth-of-type(1) a { color: var(--cat-coral-deep); }  /* darker coral */
@@ -1810,6 +1785,8 @@ main a:has(.content-divider):hover {
 
 /* Footer */
 footer {
+    flex-shrink: 0;
+    margin-top: 2.5rem;
     margin-left: 20%;
     margin-right: 10%;
     padding: 20px 40px 60px 40px;
@@ -1846,6 +1823,9 @@ footer a img {
 /* Thoughts Page Styles */
 .thoughts-container {
     max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
 }
 
 .thoughts-container h2 {
@@ -1860,24 +1840,24 @@ footer a img {
     margin-top: 0;
 }
 
-.month-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
 .thought {
-    padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: 1px dotted var(--line);
+    position: relative;
+    padding: 1.2rem 1.4rem;
+    background: var(--paper-raised);
+    border: 1px solid rgba(var(--text-rgb), 0.16);
+    box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.05);
+    transition: border-color 0.18s ease;
 }
 
-.thought:last-child {
-    border-bottom: none;
+.thought:hover {
+    border-color: rgba(var(--text-rgb), 0.32);
 }
 
 .thought .date {
-    font-size: 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
     color: var(--muted);
     display: block;
     margin-bottom: 0.5rem;
@@ -1887,6 +1867,9 @@ footer a img {
     margin-bottom: 0;
     white-space: pre-wrap;
     text-align: left;
+    font-size: 1.02rem;
+    line-height: 1.68;
+    color: var(--text);
 }
 
 /* Thoughts Controls */
@@ -1949,12 +1932,23 @@ footer a img {
     transform: rotate(280deg);
 }
 
+/* Intro lede above the controls */
+.thoughts-intro {
+    max-width: 800px;
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 1.25rem;
+}
+
+/* (Controls styled authoritatively below, after the base input/select rules.) */
+
 .thoughts-controls input[type="text"],
 .thoughts-controls input[type="password"],
 .thoughts-controls input[type="email"] {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
+    color: var(--text);          /* UA default is black — invisible on dark paper */
     border: 1px solid var(--line-strong);
     background: transparent;
     width: 140px;
@@ -1977,6 +1971,7 @@ footer a img {
 .thoughts-controls input[type="password"]:focus,
 .thoughts-controls input[type="email"]:focus {
     outline: none;
+    border-color: var(--link);   /* keyboard focus must stay visible */
 }
 
 .thoughts-controls input[type="text"]::placeholder,
@@ -1986,9 +1981,10 @@ footer a img {
 }
 
 #coffee-comment-form textarea {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
+    color: var(--text);          /* UA default is black — invisible on dark paper */
     border: 1px solid var(--line-strong);
     background: transparent;
     width: 100%;
@@ -1997,8 +1993,13 @@ footer a img {
     box-sizing: border-box;
 }
 
+#coffee-comment-form textarea::placeholder {
+    color: var(--muted);
+}
+
 #coffee-comment-form textarea:focus {
     outline: none;
+    border-color: var(--link);   /* keyboard focus must stay visible */
 }
 
 #coffee-comment-form {
@@ -2108,7 +2109,7 @@ footer a img {
 }
 
 .thoughts-controls select {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--body);
     font-size: 0.9rem;
     padding: 0.4rem 0.65rem;
     border: 1px solid var(--line-strong);
@@ -2123,23 +2124,25 @@ footer a img {
 }
 
 .thought-count {
-    font-size: 1rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
     color: var(--muted);
     display: flex;
-    align-items: left;
+    align-items: center;
     padding: 0.4rem 0;
+    font-variant-numeric: tabular-nums;
 }
 
 /* Like container and button on each thought */
 .thought {
     position: relative;
-    padding-top: 0.5rem;
 }
 
 .like-container {
     position: absolute;
-    top: 0.5rem;
-    right: 0;
+    top: 1.05rem;
+    right: 1.3rem;
     display: flex;
     align-items: center;
     gap: 0.3rem;
@@ -2202,6 +2205,92 @@ footer a img {
     }
 }
 
+/* ============================================================
+   Thoughts controls — one cohesive boxy family on paper-raised
+   surfaces with soft hairline borders and consistent heights.
+   Declared after the base input/select rules so it is authoritative.
+   ============================================================ */
+.thoughts-controls {
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 1.75rem;
+}
+
+.thoughts-filters,
+.thoughts-sort {
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.thoughts-controls .filter-btn,
+.thoughts-controls select,
+.thoughts-controls input[type="text"],
+.thoughts-controls .reverse-btn {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: lowercase;
+    height: 2.1rem;
+    padding: 0 0.8rem;
+    border: 1px solid rgba(var(--text-rgb), 0.2);
+    border-radius: 0;
+    background: var(--paper-raised);
+    color: var(--text);
+    box-shadow: none;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
+}
+
+.thoughts-controls .filter-btn:hover,
+.thoughts-controls select:hover,
+.thoughts-controls .reverse-btn:hover {
+    border-color: rgba(var(--text-rgb), 0.5);
+    color: var(--ink);
+    opacity: 1;
+}
+
+.thoughts-controls .filter-btn.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+}
+
+.thoughts-controls .filter-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.thoughts-controls .reverse-btn {
+    width: 2.1rem;
+    padding: 0;
+    justify-content: center;
+}
+
+.thoughts-controls .reverse-btn img {
+    height: 0.7rem;
+    opacity: 0.85;
+}
+
+.thoughts-controls input[type="text"] {
+    text-transform: none;
+    letter-spacing: 0;
+    width: 170px;
+    cursor: text;
+}
+
+.thoughts-controls input[type="text"]::placeholder {
+    color: var(--muted);
+}
+
+.thoughts-controls input[type="text"]:focus,
+.thoughts-controls select:focus {
+    outline: none;
+    border-color: var(--link);
+}
+
 /* Responsive Design */
 /* Medium width (tablets) - single line nav at top */
 @media (max-width: 1024px) and (min-width: 769px) {
@@ -2246,10 +2335,6 @@ footer a img {
     }
 
     /* Slightly smaller sizes for tablets */
-    nav img.size-0 {
-        height: 1.035rem;
-    }
-
     nav img.size-1 {
         height: 1.35rem;
     }
@@ -2274,14 +2359,13 @@ footer a img {
         height: 3.5rem;
     }
 
-    nav img.size-7 {
-        height: 4rem;
-    }
 
     /* Adjust dropdown for tablets */
     .dropdown-trigger {
         height: auto;
         overflow: visible;
+        margin-top: 0;     /* horizontal top bar: no hr→4star gap */
+        margin-bottom: 0;  /* desktop adds room below the stars; the top bar doesn't want it */
     }
 
     .dropdown-content {
@@ -2328,9 +2412,6 @@ footer a img {
     }
 
 
-    .card-title img.size-0 {
-        max-height: 1.2rem;
-    }
     .card-title img.size-1 {
         max-height: 1.4rem;
     }
@@ -2355,9 +2436,6 @@ footer a img {
         max-height: 3.2rem;
     }
 
-    .card-title img.size-7 {
-        max-height: 3.6rem;
-    }
 }
 
 /* Mobile - wrapping nav at top */
@@ -2399,10 +2477,6 @@ footer a img {
     }
 
     /* Proportionally smaller sizes for mobile */
-    nav img.size-0 {
-        height: 0.92rem;
-    }
-
     nav img.size-1 {
         height: 1.25rem;
     }
@@ -2427,15 +2501,14 @@ footer a img {
         height: 3.2rem;
     }
 
-    nav img.size-7 {
-        height: 3.6rem;
-    }
 
     /* Adjust dropdown for mobile */
     .dropdown-trigger {
         height: auto;
         overflow: visible;
         width: 100%;  /* Force dropdown to start on new row */
+        margin-top: 0;
+        margin-bottom: 0;
     }
 
     .dropdown-content {
@@ -2479,9 +2552,6 @@ footer a img {
         padding: 0;
     }
 
-    .card-title img.size-0 {
-        max-height: 1.2rem;
-    }
     .card-title img.size-1 {
         max-height: 1.4rem;
     }
@@ -2506,9 +2576,6 @@ footer a img {
         max-height: 3.2rem;
     }
 
-    .card-title img.size-7 {
-        max-height: 3.6rem;
-    }
 
     /* Thoughts controls mobile */
     .thoughts-controls {

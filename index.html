@@ -6,7 +6,6 @@
     <meta name="description" content="Essays and aphorisms, photographs and recipes by Leon Zhou">
     <meta name="author" content="Leon Zhou">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self';">
     <meta name="referrer" content="no-referrer-when-downgrade">
     <title>lnzhHome</title>
@@ -33,7 +32,7 @@
                     <li class="dropdown-item"><a href="writing/" class="nav-temp-link">writing</a></li>
                     <li class="dropdown-item"><a href="list/"><img src="assets/images/content/list.png" alt="list" class="size-3"></a></li>
                     <li class="dropdown-item"><a href="about/"><img src="assets/images/content/about.png" alt="about" class="size-1"></a></li>
-                    <li class="dropdown-item"><a href="time/"><img src="assets/images/content/time.svg" alt="time" class="size-2"></a></li>
+                    <li class="dropdown-item"><a href="time/" class="nav-temp-link">time</a></li>
                     <li class="dropdown-item"><a href="archive/" class="nav-temp-link">archive</a></li>
                 </ul>
             </li>
@@ -45,7 +44,7 @@
             <h1>l[eo]n zh[ou] [dot] org (beta)</h1>
         </header>
 
-        <a href="index.html"><img src="assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
+        <a href="index.html" aria-label="home"><img src="assets/images/ui/3starbig.png" alt="" class="content-divider"></a>
 
         <section class="content drawn-frame" data-guide="welcome frame" style="--frame-pad: 0;">
             <!-- Homepage content -->
@@ -55,6 +54,7 @@
              <p>or some of <a href="list/">my favourite things</a>?</p>
              <p>if you're curious about <a href="time/">time</a>, explore the <a id="open-sidebar" href="#">sidebar</a>!</p>
              <p>and try my <a href="blog/">blog</a> (i practice writing here).</p>
+             <p>like things just so? <a id="open-settings" href="#">customize your experience</a>.</p>
              <p>enjoy your stay!</p>
              <div class="drawn-slot" data-guide="a little creature" style="--slot-ratio: 3 / 2; max-width: 220px;"></div>
         </section>
@@ -71,17 +71,7 @@
         </div>
     </footer>
 
-    <script>
-        // Placeholder critters on the pilot home page — swap the sprites once drawn.
-        window.CRITTERS = [
-            { id: 'cat', anchor: 'background', motion: 'sway', size: 88,
-              at: { right: '4vw', bottom: '5vh' },
-              frames: ['../critters/cat-placeholder.svg'] },
-            { id: 'frog', anchor: 'edge', target: '.drawn-frame', corner: 'top-right',
-              motion: 'bob', size: 42,
-              frames: ['../critters/frog-placeholder.svg'] }
-        ];
-    </script>
+    <script src="assets/js/critters-home.js"></script>
     <script src="assets/js/critters.js"></script>
 </body>
 </html>

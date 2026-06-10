@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>nav-star toggle — DOM harness</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  body{padding:2rem;font-family:system-ui}
+  #report{margin-top:1rem;font:14px/1.7 ui-monospace,monospace;white-space:pre}
+  .pass{color:#1a7f37}.fail{color:#c00;font-weight:bold}
+</style>
+</head>
+<body>
+  <!-- minimal nav so enhanceStarToggle() has a target to upgrade -->
+  <nav>
+    <ul>
+      <li class="dropdown-trigger">
+        <img src="../assets/images/ui/4star.png" alt="more" class="nav-dropdown-toggle">
+      </li>
+      <li class="dropdown-content" style="display:none">
+        <ul class="dropdown-list">
+          <li class="dropdown-item"><a href="#">blog</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <h1>nav-star toggle — DOM harness</h1>
+  <p>Loads the real <code>nav-dropdown.js</code> and checks the 4-star toggle gets sliced.
+     Open in a browser; every line should be green.</p>
+  <div id="report">running…</div>
+
+  <script src="../assets/js/nav-dropdown.js"></script>
+  <script>
+    const check = (name, cond) => ({name, ok: !!cond});
+    window.addEventListener('load', () => setTimeout(() => {
+      const trigger = document.querySelector('.dropdown-trigger');
+      const star = trigger.querySelector('.nav-dropdown-toggle');
+      const slices = trigger.querySelectorAll('.nav-star');
+      const aspect = star && getComputedStyle(star).getPropertyValue('--star-aspect').trim();
+      const src = star && getComputedStyle(star).getPropertyValue('--star-src');
+      const results = [
+        check('toggle is a sliced container (.fourstar)', star && star.classList.contains('fourstar')),
+        check('original <img> was replaced', !trigger.querySelector('img.nav-dropdown-toggle')),
+        check('has exactly 4 .nav-star slices', slices.length === 4),
+        check('slices indexed --i 0..3', [...slices].every((s,i) => s.style.getPropertyValue('--i').trim() === String(i))),
+        check('role=img preserved', star && star.getAttribute('role') === 'img'),
+        check('aria-label = "more"', star && star.getAttribute('aria-label') === 'more'),
+        check('--star-src points at 4star', src && src.includes('4star')),
+        check('--star-aspect is a positive number', aspect && parseFloat(aspect) > 0),
+      ];
+      const report = document.getElementById('report');
+      const failed = results.filter(r => !r.ok).length;
+      report.innerHTML = results.map(r =>
+        `<span class="${r.ok ? 'pass' : 'fail'}">${r.ok ? '✓ PASS' : '✗ FAIL'}  ${r.name}</span>`).join('\n')
+        + `\n\n${failed ? '✗ ' + failed + ' FAILED' : '✓ all ' + results.length + ' checks passed'}`;
+      console[failed ? 'error' : 'log'](`nav-star harness: ${results.length - failed}/${results.length} passed`);
+    }, 200));
+  </script>
+</body>
+</html>

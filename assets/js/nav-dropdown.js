@@ -22,21 +22,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const nav = document.querySelector('nav');
             const navTrigger = document.querySelector('nav .dropdown-trigger');
             const navContent = navTrigger ? navTrigger.nextElementSibling : null;
-            // Make sure the dropdown is open, then glow the sidebar to draw the eye.
+            // Make sure the dropdown is open so every word is visible, then ripple a
+            // jiggle through the whole sidebar to draw the eye.
             if (navTrigger && navContent && navContent.classList.contains('dropdown-content')
                 && !navContent.classList.contains('active')) {
                 navTrigger.click();
             }
-            if (nav) {
-                nav.classList.remove('nav-glow');
-                void nav.offsetWidth; // restart the animation if clicked again
-                nav.classList.add('nav-glow');
-                nav.addEventListener('animationend', () => nav.classList.remove('nav-glow'), { once: true });
-            }
+            if (nav) jiggleSidebar(nav);
         });
     }
 
     dropdownTriggers.forEach((dropdownTrigger, index) => {
+        enhanceStarToggle(dropdownTrigger);
         const dropdownContent = dropdownTrigger.nextElementSibling;
 
         if (dropdownContent && dropdownContent.classList.contains('dropdown-content')) {
@@ -59,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dropdownContent.style.maxHeight = 'none';
                 dropdownContent.classList.add('active');
                 dropdownTrigger.classList.add('active');
+                // NB: no .nav-anim-open here — the restore must not play the bounce.
 
                 // Re-enable transitions after a brief delay
                 setTimeout(() => {
@@ -76,6 +74,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Collapse - remove active first for reverse animation
                     dropdownContent.classList.remove('active');
                     dropdownTrigger.classList.remove('active');
+                    dropdownContent.classList.remove('nav-anim-open');
+                    dropdownTrigger.classList.remove('nav-anim-open');
 
                     // Wait for item animations to complete, then collapse height
                     setTimeout(() => {
@@ -93,6 +93,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         dropdownContent.classList.add('active');
                         dropdownTrigger.classList.add('active');
+                        // user-initiated open → play the bounce (never set on restore)
+                        dropdownContent.classList.add('nav-anim-open');
+                        dropdownTrigger.classList.add('nav-anim-open');
                     }, 10);
 
                     localStorage.setItem(storageKey, 'true');
@@ -151,6 +154,85 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initCursorSprite();
 });
+
+// Ripple a playful wobble top→down through every sidebar element. CSS owns the
+// keyframes (.nav-jiggling); we own the ordering + per-element stagger so the
+// cascade follows DOM order across the nav's nested lists.
+function jiggleSidebar(nav) {
+    const logo = nav.querySelector('ul:first-of-type img');
+    const targets = [
+        logo,
+        ...nav.querySelectorAll('.nav-star'),       // the four stars, each on its own
+        ...nav.querySelectorAll('.dropdown-item')   // blog … archive
+    ].filter(Boolean);
+    if (!targets.length) return;
+
+    // A click-to-open just played the open bounce; clear it so the jiggle wins.
+    nav.querySelectorAll('.nav-anim-open').forEach(el => el.classList.remove('nav-anim-open'));
+
+    // Reset any in-flight jiggle so a repeat click restarts cleanly.
+    targets.forEach(el => {
+        el.classList.remove('nav-jiggling');
+        el.style.animationDelay = '';
+    });
+    void nav.offsetWidth; // force reflow → restart the animations
+
+    targets.forEach((el, i) => {
+        el.style.animationDelay = (i * 45) + 'ms';
+        el.classList.add('nav-jiggling');
+    });
+
+    // The last (most-delayed) element finishes last — clean up after it.
+    targets[targets.length - 1].addEventListener('animationend', () => {
+        targets.forEach(el => {
+            el.classList.remove('nav-jiggling');
+            el.style.animationDelay = '';
+        });
+    }, { once: true });
+}
+
+// Replace the single 4-star <img> toggle with four background-sliced <span>s so
+// each star can animate on its own. --star-src / --star-aspect are read from the
+// source PNG, keeping the toggle asset-swappable (e.g. four hand-drawn stars later).
+function enhanceStarToggle(trigger) {
+    const img = trigger.querySelector('img.nav-dropdown-toggle');
+    if (!img) return;
+
+    const src = img.getAttribute('src');
+    // Resolve to an ABSOLUTE URL before stashing it in --star-src. A relative
+    // url() inside a custom property resolves against the STYLESHEET that
+    // consumes it (assets/css/style.css), NOT this page — so a page-relative
+    // path becomes assets/css/assets/... and 404s on every page whose depth
+    // differs from the stylesheet's (e.g. the homepage). Absolute sidesteps that
+    // and lets theme-toggle.js match/swap it for the dark variant.
+    const absSrc = new URL(src, document.baseURI).href;
+    const label = img.getAttribute('alt') || 'more';
+
+    const star = document.createElement('span');
+    star.className = 'nav-dropdown-toggle fourstar';
+    star.setAttribute('role', 'img');
+    star.setAttribute('aria-label', label);
+    star.style.setProperty('--star-src', `url("${absSrc}")`);
+    star.style.setProperty('--star-aspect', '2.2419'); // fallback until natural size is known
+
+    for (let i = 0; i < 4; i++) {
+        const slice = document.createElement('span');
+        slice.className = 'nav-star';
+        slice.style.setProperty('--i', i);
+        star.appendChild(slice);
+    }
+
+    img.replaceWith(star);
+
+    // Refine the aspect ratio from the real asset so sizing survives a redraw.
+    const probe = new Image();
+    probe.onload = () => {
+        if (probe.naturalWidth && probe.naturalHeight) {
+            star.style.setProperty('--star-aspect', (probe.naturalWidth / probe.naturalHeight).toFixed(4));
+        }
+    };
+    probe.src = absSrc;
+}
 
 function initCursorSprite() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
