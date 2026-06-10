@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function flashCommand(message, x, y, kind) {
         const flash = document.createElement('span');
-        flash.className = kind === 'continue' ? 'writing-flash is-continue' : 'writing-flash';
+        flash.className = 'writing-flash' + (kind ? ' is-' + kind : '');
         flash.textContent = message;
         flash.style.left = x + 'px';
         flash.style.top = y + 'px';
@@ -319,6 +319,57 @@ document.addEventListener('DOMContentLoaded', () => {
             || event.inputType === 'insertParagraph'
             || event.inputType === 'insertFromPaste';
     }
+
+    /* ---------- the lock is real: text before reviewedUpTo is sealed ---------- */
+    // Backward deletes reach left of the caret; how far depends on the kind.
+    function backwardDeleteStart(inputType, caret) {
+        const value = textarea.value;
+        if (inputType === 'deleteContentBackward') {
+            return caret - 1;
+        }
+        if (inputType === 'deleteWordBackward') {
+            let i = caret;
+            while (i > 0 && /\s/.test(value.charAt(i - 1))) {
+                i -= 1;
+            }
+            while (i > 0 && !/\s/.test(value.charAt(i - 1))) {
+                i -= 1;
+            }
+            return i;
+        }
+        if (inputType === 'deleteSoftLineBackward' || inputType === 'deleteHardLineBackward') {
+            return value.lastIndexOf('\n', caret - 1) + 1;
+        }
+        return caret;
+    }
+
+    let lockedFlashAt = 0;
+    function flashLocked() {
+        const now = Date.now();
+        if (now - lockedFlashAt < 700) {
+            return;
+        }
+        lockedFlashAt = now;
+        const coords = caretCoords(Math.min(textarea.selectionStart, reviewedUpTo));
+        const rect = textarea.getBoundingClientRect();
+        flashCommand('locked', rect.left + coords.left - textarea.scrollLeft,
+            rect.top + coords.top - textarea.scrollTop, 'locked');
+    }
+
+    // Block any edit that would touch locked text (selecting/copying stays free).
+    textarea.addEventListener('beforeinput', (event) => {
+        if (!confirmationToggle.checked || reviewedUpTo === 0) {
+            return;
+        }
+        const collapsed = textarea.selectionStart === textarea.selectionEnd;
+        const start = collapsed && event.inputType.indexOf('delete') === 0
+            ? backwardDeleteStart(event.inputType, textarea.selectionStart)
+            : textarea.selectionStart;
+        if (start < reviewedUpTo) {
+            event.preventDefault();
+            flashLocked();
+        }
+    });
 
     /* ---------- drafts ---------- */
     function renderDrafts() {

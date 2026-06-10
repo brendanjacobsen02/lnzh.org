@@ -1237,6 +1237,11 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     color: var(--cat-amber-deep);
 }
 
+/* denial blip when an edit hits sealed text */
+.writing-flash.is-locked {
+    color: var(--muted);
+}
+
 @keyframes writingFlash {
     0% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
     25% { opacity: 1; }
