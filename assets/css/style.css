@@ -843,16 +843,15 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
         radial-gradient(rgba(var(--text-rgb), 0.055) 1px, transparent 1.7px) 0 0 / 18px 18px,
         linear-gradient(180deg, rgba(var(--text-rgb), 0.035), transparent 3.5rem),
         var(--paper-raised);
-    box-shadow: inset 0 1px 0 var(--inset-highlight),
-        6px 6px 0 rgba(var(--text-rgb), 0.09);
+    /* no drop shadow: the corner brackets are the frame device, and an offset
+       plate fights them at the corners */
+    box-shadow: inset 0 1px 0 var(--inset-highlight);
     overflow: hidden;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease;
 }
 
 .editor:focus-within {
     border-color: var(--link);
-    box-shadow: inset 0 1px 0 var(--inset-highlight),
-        6px 6px 0 color-mix(in srgb, var(--link) 28%, transparent);
 }
 
 /* Identical metrics so the textarea and its backdrop wrap/align the same. */
