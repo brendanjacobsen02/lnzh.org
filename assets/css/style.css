@@ -767,9 +767,65 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 
 /* editor surface + faint pixel grid */
 /* Framed editor with terminal-style corner brackets (the brackets live on the
-   frame, outside the scroll area, so they don't scroll with the text). */
+   frame, outside the scroll area, so they don't scroll with the text). Two
+   corners come from the frame's pseudos, two from the .frame-corners span. */
 .writing-frame {
     position: relative;
+}
+
+.writing-frame::before,
+.writing-frame::after,
+.frame-corners::before,
+.frame-corners::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    width: 15px;
+    height: 15px;
+    border: 0 solid rgba(var(--text-rgb), 0.55);
+    pointer-events: none;
+    transition: border-color 0.2s ease;
+}
+
+.writing-frame::before {
+    top: -4px;
+    left: -4px;
+    border-top-width: 2px;
+    border-left-width: 2px;
+}
+
+.writing-frame::after {
+    bottom: -4px;
+    right: -4px;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+}
+
+.frame-corners {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.frame-corners::before {
+    top: -4px;
+    right: -4px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+}
+
+.frame-corners::after {
+    bottom: -4px;
+    left: -4px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+}
+
+.writing-frame:focus-within::before,
+.writing-frame:focus-within::after,
+.writing-frame:focus-within .frame-corners::before,
+.writing-frame:focus-within .frame-corners::after {
+    border-color: var(--link);
 }
 
 /* ---- Textarea editor: the reliable foundation (native caret/newlines/typing).
@@ -777,13 +833,14 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
    redaction aligned behind it. ---- */
 .editor {
     position: relative;
-    border: 1.5px solid rgba(var(--text-rgb), 0.16);
+    border: 1px solid rgba(var(--text-rgb), 0.3);
     border-radius: 0;
     background:
-        radial-gradient(rgba(var(--text-rgb), 0.05) 1px, transparent 1.7px) 0 0 / 18px 18px,
+        radial-gradient(rgba(var(--text-rgb), 0.055) 1px, transparent 1.7px) 0 0 / 18px 18px,
+        linear-gradient(180deg, rgba(var(--text-rgb), 0.035), transparent 3.5rem),
         var(--paper-raised);
     box-shadow: inset 0 1px 0 var(--inset-highlight),
-        0 3px 16px rgba(var(--shadow-rgb), 0.06);
+        6px 6px 0 rgba(var(--text-rgb), 0.09);
     overflow: hidden;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -791,8 +848,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
 .editor:focus-within {
     border-color: var(--link);
     box-shadow: inset 0 1px 0 var(--inset-highlight),
-        0 3px 16px rgba(var(--shadow-rgb), 0.06),
-        0 0 0 3px color-mix(in srgb, var(--link) 16%, transparent);
+        6px 6px 0 color-mix(in srgb, var(--link) 28%, transparent);
 }
 
 /* Identical metrics so the textarea and its backdrop wrap/align the same. */
@@ -1107,8 +1163,8 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     gap: 0.25rem;
 }
 
-/* keep / cut popover */
-.sentence-keep-popover {
+/* lock / continue popover */
+.sentence-lock-popover {
     position: fixed;
     z-index: 40;
     transform: translate(-50%, calc(-100% - 0.5rem));
@@ -1122,11 +1178,11 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     box-shadow: 0 10px 28px rgba(var(--shadow-rgb), 0.2);
 }
 
-.sentence-keep-popover[hidden] {
+.sentence-lock-popover[hidden] {
     display: none;
 }
 
-.skp-q {
+.slp-q {
     font-family: var(--mono);
     font-size: 0.58rem;
     letter-spacing: 0.1em;
@@ -1134,7 +1190,7 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     color: var(--muted);
 }
 
-.skp-opt {
+.slp-opt {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
@@ -1147,21 +1203,23 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     color: var(--ink);
 }
 
-.skp-opt:hover {
+.slp-opt:hover {
     opacity: 0.7;
 }
 
-.skp-keep .kc {
+.slp-lock .kc,
+.slp-lock .slp-glyph {
     border-color: var(--link);
     color: var(--link);
 }
 
-.skp-cut .kc {
-    border-color: var(--cat-coral);
-    color: var(--cat-coral);
+.slp-continue .kc,
+.slp-continue .slp-glyph {
+    border-color: var(--cat-amber-deep);
+    color: var(--cat-amber-deep);
 }
 
-/* command flash (kept ✓ / cut ✗) */
+/* command flash (locked ✓ / keep going ✎) */
 .writing-flash {
     position: fixed;
     z-index: 45;
@@ -1175,8 +1233,8 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     animation: writingFlash 0.9s ease-out forwards;
 }
 
-.writing-flash.is-cut {
-    color: var(--cat-coral);
+.writing-flash.is-continue {
+    color: var(--cat-amber-deep);
 }
 
 @keyframes writingFlash {
@@ -2675,13 +2733,13 @@ footer a img {
     box-shadow: 1px 1px 0 color-mix(in srgb, var(--link) 50%, transparent);
 }
 
-.skp-opt:hover {
+.slp-opt:hover {
     opacity: 1;
     color: var(--link);
 }
 
-.skp-cut:hover {
-    color: var(--cat-coral);
+.slp-continue:hover {
+    color: var(--cat-amber-deep);
 }
 
 /* Summary buttons: "back" (keep writing) far left, save far right. */

@@ -5,9 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const highlights = document.getElementById('editor-highlights');
     const blackoutToggle = document.getElementById('blackout-toggle');
     const confirmationToggle = document.getElementById('confirmation-toggle');
-    const keepPopover = document.getElementById('sentence-keep-popover');
-    const acceptButton = document.getElementById('sentence-accept');
-    const rejectButton = document.getElementById('sentence-reject');
+    const lockPopover = document.getElementById('sentence-lock-popover');
+    const lockButton = document.getElementById('sentence-lock');
+    const continueButton = document.getElementById('sentence-continue');
     const kbdConfirmHint = document.getElementById('writing-kbd-confirm');
     const copyButton = document.getElementById('copy-writing');
     const downloadButton = document.getElementById('download-writing');
@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const sumContinue = document.getElementById('sum-continue');
 
     const required = [
-        form, editor, textarea, highlights, blackoutToggle, confirmationToggle, keepPopover,
-        acceptButton, rejectButton, kbdConfirmHint, copyButton, downloadButton, clearButton,
+        form, editor, textarea, highlights, blackoutToggle, confirmationToggle, lockPopover,
+        lockButton, continueButton, kbdConfirmHint, copyButton, downloadButton, clearButton,
         clearDraftsButton, settingsToggle, settingsPanel, draftsSection, draftList, toast,
         hudWords, hudSentences,
         hudRead, summary, summaryClose, sumWords, sumSentences, sumRead, sumPreview, sumSave,
@@ -51,8 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let toastTimer;
     let clearArmTimer;
     let clearDraftsArmTimer;
-    let reviewedUpTo = 0;       // chars before this index are decided (kept)
-    let awaiting = null;        // { start, end } of a sentence locked for review
+    let reviewedUpTo = 0;       // chars before this index are decided (locked in)
+    let awaiting = null;        // { start, end } of a sentence held for review
+    let snoozed = false;        // "continue" chosen: don't re-ask until a sentence ends again
 
     function prefersReducedMotion() {
         return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -130,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function flashCommand(message, x, y, kind) {
         const flash = document.createElement('span');
-        flash.className = kind === 'cut' ? 'writing-flash is-cut' : 'writing-flash';
+        flash.className = kind === 'continue' ? 'writing-flash is-continue' : 'writing-flash';
         flash.textContent = message;
         flash.style.left = x + 'px';
         flash.style.top = y + 'px';
@@ -211,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         highlights.style.transform = 'translateY(' + (-textarea.scrollTop) + 'px)';
     }
 
-    /* ---------- caret geometry (for the keep/cut popover) ---------- */
+    /* ---------- caret geometry (for the lock/continue popover) ---------- */
     function caretCoords(position) {
         const computed = window.getComputedStyle(textarea);
         const div = document.createElement('div');
@@ -250,66 +251,73 @@ document.addEventListener('DOMContentLoaded', () => {
         return { top: top, left: left, height: height };
     }
 
-    /* ---------- keep / cut lock ---------- */
-    function positionKeepPopover() {
+    /* ---------- lock / continue gate ---------- */
+    function positionLockPopover() {
         if (!awaiting) {
-            keepPopover.hidden = true;
+            lockPopover.hidden = true;
             return;
         }
-        keepPopover.hidden = false;
+        lockPopover.hidden = false;
         const coords = caretCoords(awaiting.end);
         const rect = textarea.getBoundingClientRect();
-        const half = keepPopover.offsetWidth / 2;
+        const half = lockPopover.offsetWidth / 2;
         let x = rect.left + coords.left - textarea.scrollLeft;
         x = Math.max(half + 8, Math.min(x, window.innerWidth - half - 8));
         let y = rect.top + coords.top - textarea.scrollTop;
         y = Math.max(rect.top + 4, Math.min(y, rect.bottom - 4));
-        keepPopover.style.left = x + 'px';
-        keepPopover.style.top = y + 'px';
+        lockPopover.style.left = x + 'px';
+        lockPopover.style.top = y + 'px';
     }
 
     function checkForPending() {
-        if (awaiting || !confirmationToggle.checked) {
+        if (awaiting || snoozed || !confirmationToggle.checked) {
             return;
         }
         const tail = textarea.value.slice(reviewedUpTo);
         const parsed = core.extractSentences(tail);
         if (parsed.sentences.length > 0) {
             awaiting = { start: reviewedUpTo, end: reviewedUpTo + parsed.sentences[0].length };
-            window.requestAnimationFrame(positionKeepPopover);
+            window.requestAnimationFrame(positionLockPopover);
         }
     }
 
-    function keepSentence() {
+    function lockSentence() {
         if (!awaiting) {
             return;
         }
-        const rect = keepPopover.getBoundingClientRect();
+        const rect = lockPopover.getBoundingClientRect();
         spawnSparkle(rect.left + rect.width / 2, rect.top);
-        flashCommand('kept ✓', rect.left + rect.width / 2, rect.top, 'keep');
+        flashCommand('locked ✓', rect.left + rect.width / 2, rect.top, 'lock');
         reviewedUpTo = awaiting.end;
         awaiting = null;
-        keepPopover.hidden = true;
+        lockPopover.hidden = true;
         textarea.focus();
         renderBackdrop();
         updateControls();
+        checkForPending();   // more finished sentences may be queued behind this one
     }
 
-    function cutSentence() {
+    function continueSentence() {
         if (!awaiting) {
             return;
         }
-        const rect = keepPopover.getBoundingClientRect();
-        flashCommand('cut ✗', rect.left + rect.width / 2, rect.top, 'cut');
-        const value = textarea.value;
-        textarea.value = value.slice(0, awaiting.start) + value.slice(awaiting.end);
-        textarea.selectionStart = awaiting.start;
-        textarea.selectionEnd = awaiting.start;
+        const rect = lockPopover.getBoundingClientRect();
+        flashCommand('keep going ✎', rect.left + rect.width / 2, rect.top, 'continue');
         awaiting = null;
-        keepPopover.hidden = true;
+        snoozed = true;
+        lockPopover.hidden = true;
         textarea.focus();
-        renderBackdrop();
-        updateControls();
+    }
+
+    // After "continue", stay quiet until the writer signals the sentence is
+    // done again: end punctuation typed, a line break, or a paste.
+    function sentenceEndedAgain(event) {
+        if (event.data && /[.!?;:]/.test(event.data)) {
+            return true;
+        }
+        return event.inputType === 'insertLineBreak'
+            || event.inputType === 'insertParagraph'
+            || event.inputType === 'insertFromPaste';
     }
 
     /* ---------- drafts ---------- */
@@ -390,7 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
         textarea.value = '';
         reviewedUpTo = 0;
         awaiting = null;
-        keepPopover.hidden = true;
+        snoozed = false;
+        lockPopover.hidden = true;
         updateControls();
         renderBackdrop();
     }
@@ -420,9 +429,12 @@ document.addEventListener('DOMContentLoaded', () => {
         completeDraft();
     });
 
-    textarea.addEventListener('input', () => {
+    textarea.addEventListener('input', (event) => {
         if (reviewedUpTo > textarea.value.length) {
             reviewedUpTo = textarea.value.length;
+        }
+        if (snoozed && sentenceEndedAgain(event)) {
+            snoozed = false;
         }
         checkForPending();
         updateControls();
@@ -432,24 +444,24 @@ document.addEventListener('DOMContentLoaded', () => {
     textarea.addEventListener('scroll', () => {
         syncScroll();
         if (awaiting) {
-            positionKeepPopover();
+            positionLockPopover();
         }
     });
 
     textarea.addEventListener('keydown', (event) => {
-        // While a sentence is locked for review, input is gated until you decide.
+        // While a sentence is held for review, input is gated until you decide.
         if (awaiting) {
             if (event.metaKey || event.ctrlKey || event.altKey) {
                 return;
             }
             if (event.key === 'y' || event.key === 'Y') {
                 event.preventDefault();
-                keepSentence();
+                lockSentence();
                 return;
             }
             if (event.key === 'n' || event.key === 'N') {
                 event.preventDefault();
-                cutSentence();
+                continueSentence();
                 return;
             }
             if (event.key.length === 1 || event.key === 'Enter'
@@ -471,16 +483,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    acceptButton.addEventListener('click', keepSentence);
-    rejectButton.addEventListener('click', cutSentence);
-    [acceptButton, rejectButton].forEach((button) => {
+    lockButton.addEventListener('click', lockSentence);
+    continueButton.addEventListener('click', continueSentence);
+    [lockButton, continueButton].forEach((button) => {
         button.addEventListener('mousedown', (event) => event.preventDefault());
     });
 
     confirmationToggle.addEventListener('change', () => {
+        snoozed = false;
         if (!confirmationToggle.checked) {
             awaiting = null;
-            keepPopover.hidden = true;
+            lockPopover.hidden = true;
         } else {
             reviewedUpTo = 0;
             checkForPending();
@@ -576,12 +589,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('resize', () => {
         if (awaiting) {
-            positionKeepPopover();
+            positionLockPopover();
         }
     });
     window.addEventListener('scroll', () => {
         if (awaiting) {
-            positionKeepPopover();
+            positionLockPopover();
         }
     }, true);
 
