@@ -26,105 +26,105 @@
     // ax/ay: anchor in [-1..1] of the viewport (hand-scattered, never a grid)
 
     var ERAS = [
-        { id: 0, label: 'school after school',            to: 2400 },
-        { id: 1, label: 'stevenson — the writing wakes',  to: 6000 },
-        { id: 2, label: 'lnzh.org & its little machines', to: 9000 },
-        { id: 3, label: 'the threshold',                  to: 12000 }
+        { id: 0, label: 'the early part',      to: 2400 },
+        { id: 1, label: 'the middle distance', to: 6000 },
+        { id: 2, label: 'the busy years',      to: 9000 },
+        { id: 3, label: 'what comes next',     to: 12000 }
     ];
 
     var MEMORIES = [
         { form: 'title', depth0: -150, ax: 0, ay: -0.05, layer: 0, era: 0,
           title: 'time', blurb: '', year: '', guide: '', huge: true },
 
-        // era 0 — far apart, palest (the new kid keeps his distance)
+        // era 0 — far apart, palest. ALL FILLER below: real content comes later.
         { form: 'blob', depth0: 900, ax: -0.45, ay: -0.15, layer: 2, era: 0, huge: true,
-          year: '≈2012', title: 'hong kong',
-          blurb: 'my cup of tea, and the smithfield road mcdonald’s.',
-          href: null, src: null, ratio: '1 / 1', guide: 'hong kong — my cup of tea' },
+          year: '≈2010', title: 'a first place',
+          blurb: 'somewhere it began.',
+          href: null, src: null, ratio: '1 / 1', guide: 'placeholder: a first place' },
         { form: 'scrap', depth0: 1700, ax: 0.5, ay: 0.2, layer: 1, era: 0, tilt: 2.5,
-          year: '≈2017', title: 'palo alto',
-          blurb: 'the bayland preserve, and the waverley street 7-eleven.',
-          href: null, src: null, ratio: '3 / 2', guide: 'palo alto — the baylands' },
+          year: '≈2013', title: 'another town',
+          blurb: 'a stand-in for a photograph.',
+          href: null, src: null, ratio: '3 / 2', guide: 'placeholder: a town' },
         { form: 'whisper', depth0: 2150, ax: -0.35, ay: 0.3, layer: 2, era: 0,
-          year: '≈2020', title: 'the new kid, again',
-          blurb: 'a rather inconspicuous role, each time.',
-          href: '../blog/gossip/', src: null, ratio: '1 / 1', guide: 'a small portrait, half turned away' },
+          year: '≈2016', title: 'a quiet year',
+          blurb: 'a line that will mean something later.',
+          href: null, src: null, ratio: '1 / 1', guide: 'placeholder: a small portrait' },
 
-        // era 1 — the drift fills up (this is the heart)
+        // era 1 — the drift fills up
         { form: 'scrap', depth0: 2750, ax: 0.4, ay: -0.25, layer: 0, era: 1, tilt: -2, huge: true,
-          year: '2024', title: 'arriving at stevenson',
-          blurb: 'a boarding school by the sea.',
-          href: null, src: null, ratio: '4 / 5', guide: 'stevenson, the sea fog' },
+          year: '2018', title: 'a new school',
+          blurb: 'placeholder for an arrival.',
+          href: null, src: null, ratio: '4 / 5', guide: 'placeholder: an arrival' },
         { form: 'note', depth0: 3150, ax: -0.55, ay: -0.05, layer: 1, era: 1,
-          year: '2025', title: 'the philosophers',
-          blurb: 'camus, schopenhauer, wittgenstein — a shelf.',
-          href: '../list/', src: null, ratio: '16 / 9', guide: 'a shelf of paperback spines' },
+          year: '2019', title: 'a shelf of books',
+          blurb: 'titles to be filled in.',
+          href: null, src: null, ratio: '16 / 9', guide: 'placeholder: a shelf' },
         { form: 'blob', depth0: 3500, ax: 0.3, ay: 0.35, layer: 3, era: 1,
-          year: '2025', title: 'tending the ferments',
-          blurb: 'fermented beans, in any form.',
-          href: null, src: null, ratio: '1 / 1', guide: 'a ferment jar, mid-bubble' },
+          year: '2019', title: 'something fermenting',
+          blurb: 'a warm placeholder.',
+          href: null, src: null, ratio: '1 / 1', guide: 'placeholder: a jar' },
         { form: 'note', depth0: 3850, ax: -0.4, ay: -0.3, layer: 1, era: 1,
-          year: '2025', title: 'leonzhou7',
-          blurb: 'white to play, somehow worse.',
-          href: 'https://www.chess.com/member/leonzhou7', src: null, ratio: '1 / 1', guide: 'a chess position' },
+          year: '2020', title: 'a game elsewhere',
+          blurb: 'one move, to be decided.',
+          href: null, src: null, ratio: '1 / 1', guide: 'placeholder: a game' },
         { form: 'neon', depth0: 4200, ax: 0.45, ay: 0.05, layer: 0, era: 1, tilt: 1.5,
-          year: '2026', title: 'on existence',
-          blurb: 'the first essay. the rest followed.',
-          href: '../blog/existence/', src: null, ratio: '3 / 4', guide: 'an essay page, close up' },
+          year: '2021', title: 'a bright one',
+          blurb: 'placeholder, but the important kind.',
+          href: null, src: null, ratio: '3 / 4', guide: 'placeholder: a bright page' },
         { form: 'whisper', depth0: 4550, ax: -0.3, ay: 0.15, layer: 2, era: 1,
-          year: '2026', title: 'times i cried with you',
-          blurb: 'the tender register.',
-          href: '../blog/times-i-cried/', src: null, ratio: '3 / 4', guide: 'two cups of tea' },
+          year: '2022', title: 'a tender one',
+          blurb: 'the softest placeholder.',
+          href: null, src: null, ratio: '3 / 4', guide: 'placeholder: something tender' },
         { form: 'scrap', depth0: 4900, ax: 0.55, ay: -0.2, layer: 1, era: 1, tilt: -4, crooked: true,
-          year: '2026', title: 'my tomato sandwich',
-          blurb: 'a sandwich, unreasonably considered.',
-          href: '../blog/tomato/', src: null, ratio: '4 / 3', guide: 'a tomato sandwich' },
+          year: '2022', title: 'a crooked one',
+          blurb: 'it hangs wrong on purpose.',
+          href: null, src: null, ratio: '4 / 3', guide: 'placeholder: hang me straight' },
         { form: 'scrap', depth0: 5250, ax: -0.5, ay: -0.35, layer: 0, era: 1, tilt: 1.8,
-          year: '2026', title: 'first photographs',
-          blurb: 'a newer way of fixing things in place.',
-          href: null, src: null, ratio: '3 / 2', guide: 'a still photograph' },
+          year: '2023', title: 'some photographs',
+          blurb: 'stand-ins, for now.',
+          href: null, src: null, ratio: '3 / 2', guide: 'placeholder: a photograph' },
         { form: 'blob', depth0: 5650, ax: 0.25, ay: 0.3, layer: 2, era: 1,
-          year: '2026', title: 'graduation',
-          blurb: 'defeated by college applications; graduated anyway.',
-          href: null, src: null, ratio: '1 / 1', guide: 'a cap, thrown' },
+          year: '2023', title: 'a celebration',
+          blurb: 'confetti to be drawn.',
+          href: null, src: null, ratio: '1 / 1', guide: 'placeholder: confetti' },
 
         // era 2 — busiest; the one glowing window
         { form: 'window', depth0: 6250, ax: -0.45, ay: 0.1, layer: 1, era: 2, huge: true,
-          year: '2026', title: 'lnzh.org',
-          blurb: 'hand-drawn, square-cornered. a home, not a portfolio.',
-          href: '../', src: null, ratio: '16 / 10', guide: 'this site, from outside' },
+          year: '2024', title: 'a little window',
+          blurb: 'a site lives here eventually.',
+          href: null, src: null, ratio: '16 / 10', guide: 'placeholder: a screenshot' },
         { form: 'scrap', depth0: 6650, ax: 0.5, ay: 0.3, layer: 2, era: 2, tilt: 3,
-          year: '2026', title: 'the coffee project',
-          blurb: 'espresso, americano, latte — real orders, no storefront.',
-          href: '../archive/coffee/', src: null, ratio: '4 / 3', guide: 'a latte, mid-pour' },
+          year: '2024', title: 'a project',
+          blurb: 'filler for something made.',
+          href: null, src: null, ratio: '4 / 3', guide: 'placeholder: something made' },
         { form: 'note', depth0: 7050, ax: -0.55, ay: -0.2, layer: 1, era: 2, redact: true,
-          year: '2026', title: 'the writing tool',
-          blurb: 'one sentence at a time. no going back.',
-          href: '../writing/', src: null, ratio: '4 / 3', guide: 'the editor, mid-redaction' },
+          year: '2025', title: 'a writing thing',
+          blurb: 'one sentence at a time.',
+          href: null, src: null, ratio: '4 / 3', guide: 'placeholder: an editor' },
         { form: 'note', depth0: 7450, ax: 0.35, ay: -0.05, layer: 2, era: 2, caret: true,
-          year: '2026', title: 'the instagram worker',
-          blurb: 'a little machine that fetches my photographs.',
-          href: null, src: null, ratio: '16 / 9', guide: 'a tangle of wires, neatly labeled' },
+          year: '2025', title: 'a small machine',
+          blurb: 'it fetches things.',
+          href: null, src: null, ratio: '16 / 9', guide: 'placeholder: a machine' },
         { form: 'neon', depth0: 7850, ax: -0.25, ay: 0.25, layer: 0, era: 2, tilt: -1, nova: true,
-          year: '2026', title: 'the one-stroke puzzle',
+          year: '2025', title: 'the one-stroke puzzle',
           blurb: 'one stroke unlocks the cosmos.',
-          href: null, src: null, ratio: '1 / 1', guide: 'a constellation, traced' },
+          href: null, src: null, ratio: '1 / 1', guide: 'placeholder: a constellation' },
 
         // era 3 — the field thins
         { form: 'scrap', depth0: 9500, ax: 0.4, ay: -0.1, layer: 0, era: 3, tilt: 0,
           year: '2026', title: 'the empty frame',
           blurb: 'reserved.',
-          href: null, src: null, ratio: '4 / 5', guide: 'whatever happens next' },
+          href: null, src: null, ratio: '4 / 5', guide: 'placeholder: whatever happens next' },
 
         // the futures — dashed, brightest, receding (never arrived at)
         { form: 'ghost', depth0: 10350, ax: -0.5, ay: -0.05, layer: 0, era: 3, huge: true,
-          year: 'someday', title: 'chef · philosopher · writer', blurb: 'still becoming.' },
+          year: 'someday', title: 'a first path', blurb: 'still forming.' },
         { form: 'ghost', depth0: 10650, ax: 0, ay: -0.15, layer: 0, era: 3, huge: true,
-          year: 'someday', title: 'ai / ml research', blurb: 'a thread, being pulled.' },
+          year: 'someday', title: 'a second path', blurb: 'being pulled.' },
         { form: 'ghost', depth0: 10500, ax: 0.5, ay: 0, layer: 0, era: 3, huge: true,
-          year: 'someday', title: 'getxd.app', blurb: 'under construction.' },
+          year: 'someday', title: 'a third path', blurb: 'under construction.' },
         { form: 'ghost', depth0: 11050, ax: 0.08, ay: 0.32, layer: 0, era: 3, small: true,
-          year: 'someday', title: '(no good at any of the above)', blurb: 'building anyway.' }
+          year: 'someday', title: '(and a footnote)', blurb: 'to be written.' }
     ];
 
     /* ======================= constants ======================= */
@@ -138,6 +138,7 @@
         window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
     var drift, field, eraEl, railFill, grainCanvas, curtain, hint, whisperEl, museum;
+    var fogA, fogB, tooth;
     var floaters = [];
     var travel = 0, targetTravel = 0, glide = 0, travelEff = 0, tideW = 0;
     var raf = null, t0 = 0, prevT = 0, eraNow = -1, hintDone = false;
@@ -365,12 +366,12 @@
             dots.setAttribute('aria-hidden', 'true');
             var wt = document.createElement('span');
             wt.className = 'win-title';
-            wt.textContent = 'lnzh.org';
+            wt.textContent = 'untitled';
             bar.appendChild(dots);
             bar.appendChild(wt);
             var addr = document.createElement('div');
             addr.className = 'win-addr';
-            addr.textContent = 'https://lnzh.org/';
+            addr.textContent = 'https://…';
             win.appendChild(bar);
             win.appendChild(addr);
             win.appendChild(art);
@@ -543,9 +544,26 @@
         railFill.style.transform = 'scaleY(' + (travel / TRAVEL_MAX).toFixed(4) + ')';
     }
 
+    /* ---- the space itself moves: fog strata and the paper tooth slide with
+            travel at depth-graded rates, so drifting reads as YOU moving
+            through the weather, not things filing past. Transform-only on
+            constant-filter layers — compositor work, no repaints. ---- */
+    function moveBackground(now) {
+        if (!fogA) { return; }
+        var w1 = reduced ? 0 : Math.sin(now / 23000);
+        var w2 = reduced ? 0 : Math.cos(now / 17000);
+        fogA.style.transform = 'translate3d(' + (w1 * 22).toFixed(1) + 'px, ' +
+            (-travelEff * 0.030 + w2 * 14).toFixed(1) + 'px, 0)';
+        fogB.style.transform = 'translate3d(' + (w2 * -18).toFixed(1) + 'px, ' +
+            (-travelEff * 0.017 + w1 * 11).toFixed(1) + 'px, 0)';
+        // the noise tile wraps on its own 240px period — seamless, unbounded
+        tooth.style.transform = 'translate3d(0, ' +
+            (-((travelEff * 0.08) % 240)).toFixed(1) + 'px, 0)';
+    }
+
     /* ---- grain: motes + static + toner streaks on one canvas; yields to
             nebula-glint in cosmic mode ---- */
-    var grain = { ctx: null, motes: [], on: true, w: 0, h: 0, dpr: 1, frame: 0, ink: '51,51,51', neon: '240,70,140' };
+    var grain = { ctx: null, motes: [], on: true, w: 0, h: 0, dpr: 1, frame: 0, ink: '51,51,51', neon: '240,70,140', lastT: 0 };
 
     function grainColors() {
         var cs = getComputedStyle(document.documentElement);
@@ -585,11 +603,16 @@
         if (!reduced && grain.frame % 3 !== 0) { return; }   // film, not video
         var ctx = grain.ctx, i, m, tw;
         ctx.clearRect(0, 0, grain.w, grain.h);
-        // drifting motes
+        // your motion streams the dust past you (near/big motes stream faster)
+        var flow = travelEff - grain.lastT;
+        grain.lastT = travelEff;
+        if (flow > 60 || flow < -60) { flow = 0; }   // deep-link jumps don't whoosh
         for (i = 0; i < grain.motes.length; i++) {
             m = grain.motes[i];
             m.y -= m.v * ((dt * 3) / 1000);
+            m.y += flow * 0.00022 * (0.4 + m.s * 0.3);
             if (m.y < -0.02) { m.y = 1.02; m.x = Math.random(); }
+            if (m.y > 1.02) { m.y = -0.02; m.x = Math.random(); }
             tw = 0.6 + 0.4 * Math.sin(t / 900 + m.ph);
             ctx.globalAlpha = m.a * tw;
             ctx.fillStyle = 'rgb(' + (m.neon ? grain.neon : grain.ink) + ')';
@@ -667,6 +690,7 @@
 
         updateEra();
         updateRail();
+        moveBackground(now);
         drawGrain(now, dt);
         dismissHintIfDrifting();
         idleWhisper(now);
@@ -687,6 +711,7 @@
         }
         updateEra();
         updateRail();
+        moveBackground(0);
         dismissHintIfDrifting();
     }
 
@@ -924,6 +949,9 @@
         if (!museum) { return; }
         drift = museum.querySelector('.drift');
         field = museum.querySelector('.field');
+        fogA = museum.querySelector('.fog-a');
+        fogB = museum.querySelector('.fog-b');
+        tooth = museum.querySelector('.tooth');
         eraEl = museum.querySelector('.museum-era');
         railFill = museum.querySelector('.museum-rail-fill');
         grainCanvas = museum.querySelector('.dust');

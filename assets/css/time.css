@@ -131,59 +131,51 @@ body.museum-on .drift {
     touch-action: none;
 }
 
-/* photocopy tooth: one static turbulence tile, costs nothing per frame */
-body.museum-on .drift::before {
-    content: '';
+/* photocopy tooth: one turbulence tile, slid by JS on its own 240px period so
+   the paper itself streams past as you drift (transform-only, no repaint) */
+body.museum-on .tooth {
     position: absolute;
-    inset: 0;
+    inset: -260px 0;
     pointer-events: none;
     opacity: 0.05;
     background-image: url("/assets/images/time/noise.svg");
     background-size: 240px 240px;
 }
 
-/* the fog: huge blurred era-hued blobs, drifting like weather. Colors step
-   per era (a single cheap repaint); motion is transform-only. */
+/* the fog: huge blurred era-hued strata. JS slides each at its own rate with
+   travel (plus a slow weather sway), so drifting deeper feels like moving
+   THROUGH the weather. Constant blur + transform-only = compositor work. */
 .fog {
     position: absolute;
-    inset: -12%;
+    inset: 0;
     pointer-events: none;
 }
 
-.fog::before,
-.fog::after {
-    content: '';
+.fog-a,
+.fog-b {
     position: absolute;
-    inset: 0;
+    inset: -42% -16%;
     filter: blur(40px);
 }
 
-.fog::before {
+.fog-a {
     background:
         radial-gradient(46% 38% at 30% 36%,
             color-mix(in srgb, var(--haze-a) var(--haze-d), transparent), transparent 72%),
         radial-gradient(38% 44% at 74% 62%,
-            color-mix(in srgb, var(--haze-b) calc(var(--haze-d) * 0.7), transparent), transparent 74%);
-    animation: fogDriftA 90s ease-in-out infinite alternate;
+            color-mix(in srgb, var(--haze-b) calc(var(--haze-d) * 0.7), transparent), transparent 74%),
+        radial-gradient(30% 26% at 52% 88%,
+            color-mix(in srgb, var(--haze-a) calc(var(--haze-d) * 0.5), transparent), transparent 75%);
 }
 
-.fog::after {
+.fog-b {
     background:
         radial-gradient(32% 30% at 56% 22%,
             color-mix(in srgb, var(--haze-b) calc(var(--haze-d) * 0.5), transparent), transparent 75%),
         radial-gradient(40% 36% at 22% 76%,
-            color-mix(in srgb, var(--haze-a) calc(var(--haze-d) * 0.6), transparent), transparent 70%);
-    animation: fogDriftB 70s ease-in-out infinite alternate;
-}
-
-@keyframes fogDriftA {
-    from { transform: translate3d(-3%, -2%, 0); }
-    to   { transform: translate3d(3%, 2%, 0); }
-}
-
-@keyframes fogDriftB {
-    from { transform: translate3d(2%, 3%, 0); }
-    to   { transform: translate3d(-2%, -3%, 0); }
+            color-mix(in srgb, var(--haze-a) calc(var(--haze-d) * 0.6), transparent), transparent 70%),
+        radial-gradient(26% 30% at 84% 12%,
+            color-mix(in srgb, var(--haze-b) calc(var(--haze-d) * 0.4), transparent), transparent 72%);
 }
 
 /* era atmosphere — felt, never built */
@@ -193,7 +185,7 @@ body.museum-on .drift::before {
 .drift[data-era="3"] { --haze-a: var(--cat-violet); --haze-b: var(--cat-teal);   --haze-d: 15%; }
 
 .drift.is-cosmic .fog,
-.drift.is-cosmic::before {
+.drift.is-cosmic .tooth {
     display: none;            /* nebula-glint owns the ambience there */
 }
 
