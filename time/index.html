@@ -45,24 +45,26 @@
         <a class="museum-exit" href="../">&larr; back home</a>
         <p class="museum-era" aria-live="polite"></p>
 
-        <div class="stage">
-            <div class="world"></div>
+        <div class="drift">
+            <div class="fog" aria-hidden="true"></div>
+            <div class="field"></div>
         </div>
 
         <canvas class="dust" aria-hidden="true"></canvas>
         <div class="museum-rail" aria-hidden="true"><span class="museum-rail-fill"></span></div>
-        <p class="museum-hint">scroll to walk &middot; tab visits each piece</p>
+        <p class="museum-hint">scroll to drift deeper &middot; tab to touch each one</p>
+        <p class="museum-whisper" aria-hidden="true"></p>
 
         <div class="museum-curtain" aria-hidden="true">
             <div>
                 <p class="curtain-title">time</p>
-                <p class="curtain-line">come in &mdash; i hung some things.</p>
-                <p class="curtain-hint">scroll, swipe, or arrow your way in</p>
+                <p class="curtain-line">come in &mdash; you&rsquo;re drifting in something i kept.</p>
+                <p class="curtain-hint">scroll, swipe, or arrow &mdash; there&rsquo;s no bottom</p>
             </div>
         </div>
 
         <!-- the whole collection, as a quiet list (no-JS and reader path;
-             hidden once the hall is built by time-museum.js) -->
+             hidden once the field is built by time-drift.js) -->
         <nav class="museum-list" aria-label="all exhibits, in order">
             <ol>
                 <li><span class="list-year">&approx;2012</span> <span class="list-title">hong kong</span> &mdash; <span class="list-blurb">my cup of tea, and the smithfield road mcdonald&rsquo;s.</span></li>
@@ -102,6 +104,7 @@
     </footer>
 
     <script src="../assets/js/drawn-kit.js"></script>
-    <script src="../assets/js/time-museum.js"></script>
+    <script src="../assets/js/time-audio.js"></script>
+    <script src="../assets/js/time-drift.js"></script>
 </body>
 </html>

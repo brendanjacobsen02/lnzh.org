@@ -1,30 +1,30 @@
 /* ==========================================================================
-   /time/ — the long gallery.
-   A CSS-3D museum corridor: life on the walls, era-tinted air, a dashed fork
-   of futures at the end. Loaded ONLY by time/index.html, after style.css;
+   /time/ — adrift.
+   A flat field pretending to be infinite: depth is blur + scale + opacity +
+   drift-rate parallax, never geometry. Warm paper fog, photocopy static,
+   dithered scraps, one neon. Loaded ONLY by time/index.html after style.css;
    reads the site tokens, defines nothing global. Without JS the page stays a
    plain readable list (body.museum-on gates every immersive rule).
    ========================================================================== */
 
-/* ---- scene knobs ---- */
+/* ---- the page's own tokens ---- */
 .museum {
-    --hw: min(42vw, 560px);        /* corridor half-width */
-    --floor-drop: 34vh;            /* eye height above the parquet */
-    --lift: 0%;                    /* how much the night lifts surfaces off the dark */
-    --lamp: 20%;                   /* picture-light strength */
-    /* daylight: distance dissolves into paper haze */
-    --fog: radial-gradient(28% 24% at 50% 45%,
-        color-mix(in srgb, var(--paper) 72%, transparent), transparent 68%);
-    --vignette-a: 0.07;
+    /* the ONE neon — scoped here, never global */
+    --time-neon: #f0468c;
+    --time-neon-text: #b3275f;
+    --time-neon-rgb: 240, 70, 140;
 }
 
 html[data-theme="dark"] .museum {
-    --lift: 7%;
-    --lamp: 32%;
-    /* night: dusk pools at the vanishing point */
-    --fog: radial-gradient(32% 28% at 50% 45%,
-        rgba(var(--shadow-rgb), 0.42), transparent 72%);
-    --vignette-a: 0.22;
+    --time-neon: #ff5da2;
+    --time-neon-text: #ff7ab5;
+    --time-neon-rgb: 255, 93, 162;
+}
+
+html[data-palette="cosmic"] .museum {
+    --time-neon: #ff5ce0;
+    --time-neon-text: #ff8de9;
+    --time-neon-rgb: 255, 92, 224;
 }
 
 /* ==========================================================================
@@ -64,14 +64,16 @@ html[data-theme="dark"] .museum {
     color: var(--text);
 }
 
-/* immersive chrome stays out of the way until JS builds the hall */
-.museum .stage,
+/* immersive chrome stays out of the way until JS builds the field */
+.museum .drift,
 .museum .dust,
 .museum .museum-rail,
 .museum .museum-era,
 .museum .museum-hint,
+.museum .museum-whisper,
 .museum .museum-curtain,
-.museum .museum-exit {
+.museum .museum-exit,
+.museum .time-hum {
     display: none;
 }
 
@@ -88,13 +90,12 @@ html[data-theme="dark"] .museum {
 }
 
 /* ==========================================================================
-   Museum mode (JS on): the page becomes the building.
+   Drift mode (JS on): the page becomes the static.
    ========================================================================== */
 body.museum-on {
     overflow: hidden;
 }
 
-/* the rest of the site waits outside */
 body.museum-on nav,
 body.museum-on footer {
     display: none;
@@ -109,264 +110,414 @@ body.museum-on .museum {
     inset: 0;
     overflow: hidden;
     background: var(--paper);
+    /* main's column layout must not box the void */
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    max-width: none;
 }
 
-/* in cosmic mode the corridor floats in the nebula (glint shows through) */
+/* cosmic: the field floats in the nebula (glint shows through) */
 html[data-palette="cosmic"] body.museum-on .museum {
     background: transparent;
 }
 
-/* fog at the vanishing point + a soft edge vignette */
-body.museum-on .museum::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 6;
-    background:
-        var(--fog),
-        radial-gradient(120% 100% at 50% 50%, transparent 62%, rgba(var(--shadow-rgb), var(--vignette-a)) 100%);
-    transition: opacity 1.2s ease;
-}
-
-/* the fog lifts as you reach the stars */
-body.museum-on .museum.is-deep::after {
-    opacity: 0.3;
-}
-
-/* ---- the 3D scene ---- */
-body.museum-on .stage {
+/* ---- the field ---- */
+body.museum-on .drift {
     display: block;
     position: absolute;
     inset: 0;
     z-index: 1;
-    perspective: 1200px;
-    perspective-origin: 50% 45%;
     touch-action: none;
 }
 
-.world {
+/* photocopy tooth: one static turbulence tile, costs nothing per frame */
+body.museum-on .drift::before {
+    content: '';
     position: absolute;
     inset: 0;
-    transform-style: preserve-3d;
-    will-change: transform;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("/assets/images/time/noise.svg");
+    background-size: 240px 240px;
 }
 
-.plane {
+/* the fog: huge blurred era-hued blobs, drifting like weather. Colors step
+   per era (a single cheap repaint); motion is transform-only. */
+.fog {
+    position: absolute;
+    inset: -12%;
+    pointer-events: none;
+}
+
+.fog::before,
+.fog::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    filter: blur(40px);
+}
+
+.fog::before {
+    background:
+        radial-gradient(46% 38% at 30% 36%,
+            color-mix(in srgb, var(--haze-a) var(--haze-d), transparent), transparent 72%),
+        radial-gradient(38% 44% at 74% 62%,
+            color-mix(in srgb, var(--haze-b) calc(var(--haze-d) * 0.7), transparent), transparent 74%);
+    animation: fogDriftA 90s ease-in-out infinite alternate;
+}
+
+.fog::after {
+    background:
+        radial-gradient(32% 30% at 56% 22%,
+            color-mix(in srgb, var(--haze-b) calc(var(--haze-d) * 0.5), transparent), transparent 75%),
+        radial-gradient(40% 36% at 22% 76%,
+            color-mix(in srgb, var(--haze-a) calc(var(--haze-d) * 0.6), transparent), transparent 70%);
+    animation: fogDriftB 70s ease-in-out infinite alternate;
+}
+
+@keyframes fogDriftA {
+    from { transform: translate3d(-3%, -2%, 0); }
+    to   { transform: translate3d(3%, 2%, 0); }
+}
+
+@keyframes fogDriftB {
+    from { transform: translate3d(2%, 3%, 0); }
+    to   { transform: translate3d(-2%, -3%, 0); }
+}
+
+/* era atmosphere — felt, never built */
+.drift[data-era="0"] { --haze-a: var(--cat-olive);  --haze-b: var(--cat-teal);   --haze-d: 14%; }
+.drift[data-era="1"] { --haze-a: var(--cat-amber);  --haze-b: var(--cat-coral);  --haze-d: 20%; }
+.drift[data-era="2"] { --haze-a: var(--cat-green);  --haze-b: var(--cat-amber);  --haze-d: 26%; }
+.drift[data-era="3"] { --haze-a: var(--cat-violet); --haze-b: var(--cat-teal);   --haze-d: 15%; }
+
+.drift.is-cosmic .fog,
+.drift.is-cosmic::before {
+    display: none;            /* nebula-glint owns the ambience there */
+}
+
+.field {
+    position: absolute;
+    inset: 0;
+}
+
+/* ==========================================================================
+   The memories — bodies in the fog.
+   ========================================================================== */
+.mem {
     position: absolute;
     left: 50%;
     top: 50%;
+    opacity: 0;
+    transition: filter 0.35s ease;
+    cursor: default;
 }
 
-/* walls: one segment per era (JS sets --seg-c); plaster dot-grid, baseboard,
-   picture rail, tops dissolving into the sky. Square, hand-set — a gallery. */
-.wall {
-    height: 68vh;
-    background-color: color-mix(in srgb, var(--seg-c, var(--link)) 12%,
-        color-mix(in srgb, var(--ink) var(--lift), var(--paper)));
-    background-image:
-        radial-gradient(rgba(var(--text-rgb), 0.05) 1px, transparent 1.7px);
-    background-size: 18px 18px;
-    border-bottom: 3px solid rgba(var(--text-rgb), 0.16);
-    -webkit-mask-image: linear-gradient(to top, black 82%, transparent 100%);
-    mask-image: linear-gradient(to top, black 82%, transparent 100%);
+/* quantized blur — constant within a bucket so rasters stay cached */
+.b0 { filter: none; }
+.b1 { filter: blur(1.5px); }
+.b2 { filter: blur(3px); }
+.b3 { filter: blur(5px); }
+.b4 { filter: blur(8px); }
+
+.mem.is-held {
+    z-index: 6;
+    filter: drop-shadow(0 0 22px color-mix(in srgb, var(--era-c, var(--link)) 40%, transparent));
 }
 
-.floor {
-    width: calc(2 * var(--hw));
-    background-color: color-mix(in srgb, var(--text) 6%,
-        color-mix(in srgb, var(--ink) var(--lift), var(--paper)));
-    background-image:
-        repeating-linear-gradient(90deg,
-            rgba(var(--text-rgb), 0.08) 0 1px, transparent 1px 130px);
+/* per-era lamp color */
+.mem[data-era="0"] { --era-c: var(--cat-olive); }
+.mem[data-era="1"] { --era-c: var(--cat-amber); }
+.mem[data-era="2"] { --era-c: var(--cat-green); }
+.mem[data-era="3"] { --era-c: var(--cat-violet); }
+
+.mem:focus-visible {
+    outline: none;
 }
 
-.floor-line {
+.mem:focus-visible .face {
+    outline: 3px solid var(--link);
+    outline-offset: 5px;
+}
+
+.mem.is-neon:focus-visible .face {
+    outline-color: var(--time-neon);
+}
+
+/* ---- form: the zeroth memory ---- */
+.mem-title {
+    pointer-events: none;
+}
+
+.face-title {
+    font-family: var(--header);
+    font-weight: 300;
+    font-size: clamp(4rem, 12vw, 7rem);
+    letter-spacing: 0.02em;
+    line-height: 1;
+    color: var(--muted);
+}
+
+/* ---- form: photo-scrap (dithered, torn, tilted) ---- */
+.mem-scrap { width: clamp(170px, 16vw, 280px); }
+
+.scrap-face {
+    position: relative;
+    background: var(--paper-raised);
+    padding: 4.5%;
+    box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.06);
+}
+
+.scrap-dither {
     position: absolute;
+    inset: 4.5%;
+    width: 91%;
+    height: 91%;
+    image-rendering: pixelated;
+}
+
+.museum .drawn-slot {
+    display: block;            /* a hanging place even while empty */
+    position: absolute;
+    inset: 4.5%;
+    width: 91%;
+    height: 91%;
+}
+
+.museum .drawn-slot:not(.has-art)::after {
+    content: attr(data-cap);
+    position: absolute;
+    inset: auto 6% 6% 6%;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--muted);
+    text-align: center;
+    background: color-mix(in srgb, var(--paper-raised) 80%, transparent);
+    padding: 0.15rem 0.2rem;
+}
+
+.museum .drawn-slot.has-art {
+    background: var(--slot-src) center / cover no-repeat;
+}
+
+html[data-theme="dark"] .museum .drawn-slot.has-art {
+    background-image: var(--slot-src-dark, var(--slot-src));
+}
+
+.museum .drawn-slot.has-art ~ .scrap-dither {
+    display: none;
+}
+
+/* one hangs crooked; holding it straightens it (you fixed it) */
+.mem.is-crooked .face {
+    transform: rotate(-2.4deg);
+    transition: transform 0.45s cubic-bezier(0.3, 1.25, 0.5, 1);
+}
+
+.mem.is-crooked.is-held .face,
+.mem.is-crooked:focus-within .face {
+    transform: rotate(0deg);
+}
+
+/* ---- form: neon dithered still (the struck matches) ---- */
+.mem-neon { width: clamp(160px, 15vw, 260px); }
+
+.mem-neon .scrap-face {
+    border: 1px solid color-mix(in srgb, var(--time-neon) 70%, transparent);
+}
+
+.mem-neon .scrap-face::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(0deg,
+            rgba(var(--time-neon-rgb), 0.10) 0 1px, transparent 1px 3px),
+        radial-gradient(80% 60% at 50% 30%,
+            rgba(var(--time-neon-rgb), 0.12), transparent 75%);
+}
+
+.mem-neon.is-held .scrap-face {
+    box-shadow: 0 0 18px rgba(var(--time-neon-rgb), 0.35);
+}
+
+/* ---- form: .txt note (typewritten on fog) ---- */
+.mem-note { width: clamp(200px, 18vw, 300px); }
+
+.face-note {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.7rem 0.85rem;
+    background: color-mix(in srgb, var(--paper-raised) 92%, transparent);
+    border: 1px solid rgba(var(--text-rgb), 0.14);
+    font-family: var(--mono);
+}
+
+.note-line {
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    text-transform: lowercase;
+    color: var(--ink-soft);
+}
+
+.note-body {
+    color: var(--text);
+    font-size: 0.72rem;
+}
+
+.note-redact::after {
+    content: '';
+    display: inline-block;
+    width: 3.2em;
+    height: 0.72em;
+    margin-left: 0.35em;
+    vertical-align: baseline;
+    background: var(--redact);
+}
+
+.note-caret {
+    display: inline-block;
+    width: 0.5em;
+    height: 0.95em;
+    background: var(--link);
+    animation: noteBlink 1.05s steps(1) infinite;
+}
+
+@keyframes noteBlink {
+    50% { opacity: 0; }
+}
+
+/* ---- form: color blob (a planet or a mote — who can say) ---- */
+.mem-blob {
+    width: clamp(180px, 17vw, 300px);
+}
+
+.face-blob {
+    aspect-ratio: 1;
+    background:
+        radial-gradient(closest-side circle at 50% 46%,
+            color-mix(in srgb, var(--era-c, var(--link)) 52%, transparent),
+            color-mix(in srgb, var(--era-c, var(--link)) 22%, transparent) 52%,
+            transparent 96%);
+}
+
+/* ---- form: the one browser window ---- */
+.mem-window { width: clamp(200px, 17vw, 270px); }
+
+.win {
+    background: var(--paper-raised);
+    border: 1px solid rgba(var(--text-rgb), 0.4);
+    box-shadow: 2px 2px 0 rgba(var(--shadow-rgb), 0.12);
+}
+
+.win-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.4rem;
+    border-bottom: 1px solid rgba(var(--text-rgb), 0.25);
+}
+
+.win-dots {
+    width: 5px;
+    height: 5px;
+    background: var(--text);
+    box-shadow: 8px 0 0 0 rgba(var(--text-rgb), 0.55), 16px 0 0 0 rgba(var(--text-rgb), 0.3);
+}
+
+.win-title {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    margin-left: 0.5rem;
+}
+
+.win-addr {
+    font-family: var(--mono);
+    font-size: 0.52rem;
+    color: var(--muted);
+    padding: 0.2rem 0.45rem;
+    border-bottom: 1px solid rgba(var(--text-rgb), 0.18);
+}
+
+.win .scrap-face {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    box-shadow: none;
+    padding: 0;
+}
+
+.win .scrap-dither,
+.win .drawn-slot {
     inset: 0;
     width: 100%;
     height: 100%;
 }
 
-.floor-line .line-past {
-    stroke: rgba(var(--text-rgb), 0.62);
-}
+/* ---- form: whisper (Caveat, barely there) ---- */
+.mem-whisper { max-width: 340px; }
 
-.floor-line .line-future {
-    stroke: var(--link);
-    opacity: 0.85;
-}
-
-/* the far end: a luminous violet haze full of small square stars */
-.endcap {
-    width: 150vw;
-    height: 130vh;
-    background: radial-gradient(38% 34% at 50% 48%,
-        color-mix(in srgb, var(--cat-violet) 24%, var(--paper)),
-        color-mix(in srgb, var(--cat-violet) 7%, var(--paper)) 58%,
-        var(--paper) 78%);
-}
-
-.endcap-stars {
-    position: absolute;
-    left: 50%;
-    top: 46%;
-    width: 4px;
-    height: 4px;
-    color: var(--ink);
-    background: currentColor;
-    box-shadow:
-        -340px -150px 0 0, -210px 60px 0 -1px, -130px -210px 0 0,
-        -60px 90px 0 -1px, 40px -120px 0 0, 130px 40px 0 -1px,
-        230px -190px 0 0, 320px -40px 0 -1px, 390px 120px 0 0,
-        -390px -10px 0 -1px, -280px 190px 0 0, 90px 210px 0 -1px,
-        180px 160px 0 0, -160px -60px 0 -1px, 280px 220px 0 0,
-        0px -260px 0 -1px;
-    animation: endcapTwinkle 3.4s steps(2) infinite;
-}
-
-@keyframes endcapTwinkle {
-    0%, 100% { opacity: 0.9; }
-    50% { opacity: 0.55; }
-}
-
-/* ==========================================================================
-   Exhibits — hung on the walls, angled politely toward the visitor.
-   ========================================================================== */
-.exhibit {
-    position: absolute;
-    left: 50%;
-    top: 46%;
-    width: clamp(190px, 17vw, 320px);
-    transform:
-        translate(-50%, -50%)
-        translateX(var(--ex-x))
-        translateZ(var(--ex-z))
-        rotateY(var(--ex-yaw))
-        translateZ(var(--ex-lift, 0px));
-    transition: transform 0.35s cubic-bezier(0.3, 1.1, 0.4, 1);
-    cursor: default;
-}
-
-.exhibit[data-wall="left"] {
-    --ex-x: calc(-1 * var(--hw) + 36px);
-    --ex-yaw: 62deg;
-}
-
-.exhibit[data-wall="right"] {
-    --ex-x: calc(var(--hw) - 36px);
-    --ex-yaw: -62deg;
-}
-
-/* step closer: the piece lifts off the wall and turns to meet you */
-.exhibit:hover,
-.exhibit:focus-within {
-    --ex-lift: 26px;
-}
-
-.exhibit[data-wall="left"]:hover,
-.exhibit[data-wall="left"]:focus-within {
-    --ex-yaw: 47deg;
-}
-
-.exhibit[data-wall="right"]:hover,
-.exhibit[data-wall="right"]:focus-within {
-    --ex-yaw: -47deg;
-}
-
-.exhibit:focus-visible {
-    outline: none;
-}
-
-.exhibit:focus-visible .exhibit-frame {
-    outline: 3px solid var(--link);
-    outline-offset: 4px;
-}
-
-/* per-era lamp color (each room keeps its own light) */
-.exhibit[data-era="0"] { --era-c: var(--cat-olive); }
-.exhibit[data-era="1"] { --era-c: var(--cat-amber); }
-.exhibit[data-era="2"] { --era-c: var(--cat-green); }
-.exhibit[data-era="3"] { --era-c: var(--cat-violet); }
-
-/* picture light: a soft pool from above, in the era's color */
-.exhibit::before {
-    content: '';
-    position: absolute;
-    inset: -16% -6% 34% -6%;
-    z-index: -1;
-    pointer-events: none;
-    background: radial-gradient(56% 72% at 50% 8%,
-        color-mix(in srgb, var(--era-c, var(--link)) var(--lamp), transparent),
-        transparent 70%);
-}
-
-/* the frame: raised-paper mat + double hairline molding, square corners */
-.exhibit-frame {
-    position: relative;
-    background: color-mix(in srgb, var(--ink) var(--lift), var(--paper-raised));
-    padding: 7%;
-    border: 1px solid rgba(var(--text-rgb), 0.5);
-    box-shadow:
-        0 0 0 5px color-mix(in srgb, var(--ink) var(--lift), var(--paper-raised)),
-        0 0 0 6px rgba(var(--text-rgb), 0.28);
-}
-
-/* hanging wire up to the picture rail */
-.exhibit-frame::after {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    width: 1px;
-    height: 46px;
-    margin-bottom: 6px;
-    background: rgba(var(--text-rgb), 0.32);
-}
-
-/* one piece hangs crooked; visiting it straightens it (you fixed it) */
-.exhibit.is-crooked .exhibit-frame {
-    transform: rotateZ(-2.4deg);
-    transition: transform 0.45s cubic-bezier(0.3, 1.25, 0.5, 1);
-}
-
-.exhibit.is-crooked:hover .exhibit-frame,
-.exhibit.is-crooked:focus-within .exhibit-frame {
-    transform: rotateZ(0deg);
-}
-
-/* the art itself — drawn-kit slot; placeholders must look intentional */
-.museum .drawn-slot {
-    display: block;            /* drawn-kit collapses empty slots; a gallery hangs them */
-}
-
-.exhibit-frame.is-placeholder .drawn-slot {
-    position: relative;
-    background:
-        radial-gradient(rgba(var(--text-rgb), 0.055) 1px, transparent 1.7px) 0 0 / 18px 18px,
-        linear-gradient(180deg, rgba(var(--text-rgb), 0.04), transparent 3.2rem),
-        color-mix(in srgb, var(--ink) 4%, var(--paper-raised));
-    box-shadow: inset 0 0 36px rgba(var(--shadow-rgb), 0.1);
-}
-
-.exhibit-frame.is-placeholder .drawn-slot::after {
-    content: attr(data-cap);
-    position: absolute;
-    inset: auto 8% 8% 8%;
-    font-family: var(--mono);
-    font-size: 0.56rem;
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
+.face-whisper {
+    font-family: 'Caveat', cursive;
+    font-weight: 500;
+    font-size: clamp(1.6rem, 2.6vw, 2rem);
+    line-height: 1.2;
     color: var(--muted);
+    opacity: 0.55;
     text-align: center;
+    transition: opacity 0.3s ease;
 }
 
-/* ---- the plaque ---- */
+.mem-whisper.is-held .face-whisper,
+.mem-whisper:focus-within .face-whisper {
+    opacity: 1;
+    color: var(--text);
+}
+
+/* ---- form: dashed ghost (the futures) ---- */
+.mem-ghost { width: clamp(170px, 15vw, 260px); }
+
+.ghost-pane {
+    aspect-ratio: 4 / 5;
+    border: 1.5px dashed color-mix(in srgb, var(--time-neon) 80%, transparent);
+    background: radial-gradient(70% 60% at 50% 40%,
+        rgba(var(--time-neon-rgb), 0.10), transparent 75%);
+}
+
+.mem-ghost .plaque {
+    border-style: dashed;
+    opacity: 1;                 /* the futures speak unprompted */
+    transform: translateX(-50%);
+    pointer-events: auto;
+}
+
+.mem-ghost .plaque-year {
+    color: var(--time-neon-text);
+}
+
+.mem-ghost .plaque-title {
+    font-style: italic;
+    font-weight: 400;
+}
+
+.mem-small { width: clamp(130px, 11vw, 190px); }
+
+/* ---- the plaque: surfaces when held ---- */
 .plaque {
-    margin: 0.85rem auto 0;
-    width: fit-content;
-    max-width: 100%;
-    padding: 0.5rem 0.75rem;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    margin-top: 0.6rem;
+    min-width: 150px;
+    max-width: 230px;
+    padding: 0.5rem 0.7rem;
     background: var(--paper-raised);
     border: 1px solid rgba(var(--text-rgb), 0.2);
     box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.05);
@@ -374,6 +525,18 @@ body.museum-on .stage {
     flex-direction: column;
     gap: 0.12rem;
     text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.mem.is-held .plaque,
+.mem:focus-within .plaque {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+    transition: opacity 0.28s cubic-bezier(0.3, 1.1, 0.4, 1),
+                transform 0.28s cubic-bezier(0.3, 1.1, 0.4, 1);
 }
 
 .plaque-year {
@@ -388,14 +551,14 @@ body.museum-on .stage {
 .plaque-title {
     font-family: var(--header);
     font-weight: 500;
-    font-size: 1rem;
+    font-size: 0.98rem;
     line-height: 1.25;
     color: var(--ink);
 }
 
 .plaque-blurb {
     font-family: var(--body);
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     line-height: 1.45;
     color: var(--text);
 }
@@ -414,10 +577,13 @@ body.museum-on .stage {
     align-self: center;
 }
 
+.mem.is-neon .plaque-read {
+    color: var(--time-neon-text);
+}
+
 .plaque-read:hover,
 .plaque-read:focus-visible {
     text-decoration: underline;
-    color: var(--link-hover);
 }
 
 .plaque-read:focus-visible {
@@ -426,67 +592,7 @@ body.museum-on .stage {
 }
 
 /* ==========================================================================
-   The fork — dashed ghosts of futures, hung in open air.
-   ========================================================================== */
-.ghost {
-    position: absolute;
-    left: 50%;
-    top: 45%;
-    width: clamp(170px, 14vw, 260px);
-    transform:
-        translate(-50%, -50%)
-        translateX(var(--gx, 0px))
-        translateZ(var(--ex-z))
-        rotateY(var(--gyaw, 0deg));
-}
-
-.ghost[data-lane="left"]  { --gx: calc(-0.6 * var(--hw)); --gyaw: 18deg; }
-.ghost[data-lane="right"] { --gx: calc(0.6 * var(--hw));  --gyaw: -18deg; }
-.ghost[data-lane="mid"]   { top: 42%; }
-
-/* the footnote ghost: a small note, hung low (no frame — it isn't a plan,
-   it's a disclaimer) */
-.ghost--small {
-    width: clamp(120px, 10vw, 185px);
-    top: 60%;
-}
-
-.ghost--small .ghost-frame {
-    display: none;
-}
-
-.ghost-frame {
-    aspect-ratio: 4 / 5;
-    border: 1.5px dashed color-mix(in srgb, var(--cat-violet-deep) 80%, transparent);
-    background: radial-gradient(70% 60% at 50% 40%,
-        color-mix(in srgb, var(--cat-violet) 14%, transparent), transparent 75%);
-}
-
-.ghost .plaque {
-    border-style: dashed;
-    background: color-mix(in srgb, var(--paper-raised) 88%, transparent);
-}
-
-.ghost .plaque-title {
-    font-style: italic;
-    font-weight: 400;
-}
-
-.ghost .plaque-year {
-    color: var(--cat-violet-deep);
-}
-
-.ghost:focus-visible {
-    outline: none;
-}
-
-.ghost:focus-visible .ghost-frame {
-    outline: 3px solid var(--link);
-    outline-offset: 4px;
-}
-
-/* ==========================================================================
-   Chrome: exit, era label, rail, hint, dust.
+   Chrome: exit, hum, era label, rail, hints, grain canvas.
    ========================================================================== */
 body.museum-on .museum-exit {
     display: inline-flex;
@@ -513,6 +619,35 @@ body.museum-on .museum-exit:hover {
 }
 
 body.museum-on .museum-exit:focus-visible {
+    outline: 3px solid var(--link);
+    outline-offset: 3px;
+}
+
+body.museum-on .time-hum {
+    display: inline-flex;
+    align-items: center;
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 40;
+    height: 2.1rem;
+    padding: 0 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: lowercase;
+    color: var(--text);
+    background: var(--paper-raised);
+    border: 1px solid rgba(var(--text-rgb), 0.2);
+    cursor: pointer;
+}
+
+body.museum-on .time-hum:hover {
+    border-color: rgba(var(--text-rgb), 0.5);
+    color: var(--ink);
+}
+
+body.museum-on .time-hum:focus-visible {
     outline: 3px solid var(--link);
     outline-offset: 3px;
 }
@@ -553,7 +688,7 @@ body.museum-on .museum-rail-fill {
     display: block;
     width: 100%;
     height: 100%;
-    background: var(--link);
+    background: var(--time-neon);
     transform: scaleY(0);
     transform-origin: top;
 }
@@ -579,6 +714,27 @@ body.museum-on .museum-hint.is-done {
     pointer-events: none;
 }
 
+body.museum-on .museum-whisper {
+    display: block;
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    margin: 0;
+    font-family: 'Caveat', cursive;
+    font-weight: 500;
+    font-size: 1.6rem;
+    color: var(--muted);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.4s ease;
+}
+
+body.museum-on .museum-whisper.is-on {
+    opacity: 0.6;
+}
+
 body.museum-on .dust {
     display: block;
     position: fixed;
@@ -591,7 +747,7 @@ body.museum-on .dust {
 }
 
 /* ==========================================================================
-   The curtain — "come in"
+   The curtain — it doesn't slide away; it becomes the fog.
    ========================================================================== */
 body.museum-on .museum-curtain {
     display: grid;
@@ -602,16 +758,16 @@ body.museum-on .museum-curtain {
     background: var(--paper);
     text-align: center;
     cursor: pointer;
-    clip-path: inset(0 0 0 0);
-    transition: clip-path 0.72s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.9s ease, filter 0.9s ease;
 }
 
 body.museum-on .museum-curtain.is-lifting {
-    clip-path: inset(50% 50% 50% 50%);
+    opacity: 0;
+    filter: blur(20px) brightness(1.06);
+    pointer-events: none;
 }
 
-/* the hidden attribute must win over the display:grid above (reduced motion
-   skips the lift entirely — without this the curtain never leaves) */
+/* hidden must win over display:grid (reduced motion skips the lift) */
 body.museum-on .museum-curtain[hidden] {
     display: none;
 }
@@ -646,9 +802,12 @@ body.museum-on .museum-curtain[hidden] {
     animation: fadeIn 0.9s ease-out 0.6s both;
 }
 
-/* fingers need bigger doors: real touch targets on coarse pointers */
+/* ==========================================================================
+   Fingers need bigger doors.
+   ========================================================================== */
 @media (pointer: coarse) {
-    body.museum-on .museum-exit {
+    body.museum-on .museum-exit,
+    body.museum-on .time-hum {
         min-height: 44px;
     }
 
@@ -659,43 +818,20 @@ body.museum-on .museum-curtain[hidden] {
 }
 
 /* ==========================================================================
-   Small screens: pieces step off the walls and meet you in the middle.
+   Small screens: the same fog, closer in.
    ========================================================================== */
 @media (max-width: 600px) {
-    .museum {
-        --hw: 46vw;
-    }
+    .mem-scrap,
+    .mem-neon { width: clamp(150px, 44vw, 210px); }
+    .mem-note { width: clamp(180px, 56vw, 240px); }
+    .mem-blob { width: clamp(150px, 46vw, 220px); }
+    .mem-window { width: clamp(180px, 52vw, 230px); }
+    .mem-ghost { width: clamp(150px, 44vw, 210px); }
+    .mem-whisper { max-width: 260px; }
 
-    body.museum-on .stage {
-        perspective: 850px;
+    .face-title {
+        font-size: clamp(3rem, 18vw, 4.5rem);
     }
-
-    .exhibit,
-    .exhibit[data-wall="left"],
-    .exhibit[data-wall="right"] {
-        width: clamp(180px, 54vw, 280px);
-        top: 45%;
-    }
-
-    .exhibit[data-wall="left"] {
-        --ex-x: -11vw;
-        --ex-yaw: 12deg;
-    }
-
-    .exhibit[data-wall="right"] {
-        --ex-x: 11vw;
-        --ex-yaw: -12deg;
-    }
-
-    .exhibit[data-wall="left"]:hover,
-    .exhibit[data-wall="left"]:focus-within,
-    .exhibit[data-wall="right"]:hover,
-    .exhibit[data-wall="right"]:focus-within {
-        --ex-yaw: 0deg;
-    }
-
-    .ghost[data-lane="left"]  { --gx: calc(-0.5 * var(--hw)); }
-    .ghost[data-lane="right"] { --gx: calc(0.5 * var(--hw)); }
 
     body.museum-on .museum-era {
         top: 70px;
