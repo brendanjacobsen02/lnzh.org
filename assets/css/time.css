@@ -138,6 +138,7 @@ body.museum-on .tooth {
     inset: -260px 0;
     pointer-events: none;
     opacity: 0.05;
+    will-change: transform;     /* its own layer: per-frame slide stays compositor-only */
     background-image: url("/assets/images/time/noise.svg");
     background-size: 240px 240px;
 }
@@ -158,6 +159,10 @@ body.museum-on .tooth {
 .fog-b {
     position: absolute;
     inset: -42% -16%;
+    /* promoted on purpose: without a layer each per-frame transform repaints
+       a ~2.4-viewport gradient (this was the sub-12fps bug after the blur,
+       which had been promoting them implicitly, was removed) */
+    will-change: transform;
 }
 
 .fog-a {
@@ -204,8 +209,15 @@ body.museum-on .tooth {
     left: 50%;
     top: 50%;
     opacity: 0;
-    transition: filter 0.35s ease;
+    /* no filter transition here: with 23 pieces crossing blur buckets during
+       a scroll there is ALWAYS some transition running, and each one
+       re-rasterizes its element every frame. Buckets step instantly; only
+       the held sharpen (below) eases. */
     cursor: default;
+}
+
+.mem.is-held {
+    transition: filter 0.28s ease;
 }
 
 /* quantized blur — constant within a bucket so rasters stay cached */
