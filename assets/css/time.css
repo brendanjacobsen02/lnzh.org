@@ -739,7 +739,8 @@ body.museum-on .dust {
 }
 
 /* ==========================================================================
-   The curtain — it doesn't slide away; it becomes the fog.
+   The curtain — a held threshold. It waits, breathing, with the fog drifting
+   faintly behind the veil, until the visitor scrolls. Then it becomes the fog.
    ========================================================================== */
 body.museum-on .museum-curtain {
     display: grid;
@@ -747,7 +748,8 @@ body.museum-on .museum-curtain {
     position: fixed;
     inset: 0;
     z-index: 60;
-    background: var(--paper);
+    /* a veil, not a wall: the living field shows through */
+    background: color-mix(in srgb, var(--paper) 58%, transparent);
     text-align: center;
     cursor: pointer;
     transition: opacity 0.9s ease, filter 0.9s ease;
@@ -764,7 +766,46 @@ body.museum-on .museum-curtain[hidden] {
     display: none;
 }
 
+/* while the threshold holds, the field's own hints stay out of the veil */
+body.museum-on .museum:has(.museum-curtain:not([hidden])) .museum-hint,
+body.museum-on .museum:has(.museum-curtain:not([hidden])) .museum-whisper {
+    opacity: 0;
+}
+
+/* the text sits on solid ground even while the veil is sheer */
+.curtain-inner {
+    position: relative;
+    padding: 5.5rem 7rem;
+    background: radial-gradient(closest-side,
+        var(--paper) 58%,
+        color-mix(in srgb, var(--paper) 72%, transparent) 82%,
+        transparent 100%);
+}
+
+/* a slow warm halo behind the word — the inviting, unexplained light */
+.curtain-inner::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 38%;
+    width: 130%;
+    aspect-ratio: 5 / 3;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    background: radial-gradient(closest-side,
+        color-mix(in srgb, var(--cat-amber) 16%, transparent),
+        color-mix(in srgb, var(--cat-olive) 7%, transparent) 55%,
+        transparent 100%);
+    animation: curtainHalo 8s ease-in-out infinite;
+}
+
+@keyframes curtainHalo {
+    0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(0.94); }
+    50%      { opacity: 0.95; transform: translate(-50%, -50%) scale(1.08); }
+}
+
 .curtain-title {
+    position: relative;
     font-family: var(--header);
     font-weight: 300;
     font-size: clamp(3.2rem, 9vw, 5.5rem);
@@ -772,10 +813,17 @@ body.museum-on .museum-curtain[hidden] {
     letter-spacing: 0.02em;
     color: var(--ink);
     margin: 0 0 1.1rem;
-    animation: fadeIn 0.9s ease-out both;
+    animation: fadeIn 0.9s ease-out both,
+        curtainBreathe 7s ease-in-out 0.9s infinite;
+}
+
+@keyframes curtainBreathe {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.025); opacity: 0.88; }
 }
 
 .curtain-line {
+    position: relative;
     font-family: var(--body);
     font-style: italic;
     font-size: 1.1rem;
@@ -785,13 +833,26 @@ body.museum-on .museum-curtain[hidden] {
 }
 
 .curtain-hint {
+    position: relative;
     font-family: var(--mono);
     font-size: 0.62rem;
     letter-spacing: 0.1em;
     text-transform: lowercase;
     color: var(--muted);
     margin: 0;
-    animation: fadeIn 0.9s ease-out 0.6s both;
+    animation: fadeIn 0.9s ease-out 0.6s both,
+        curtainBeckon 3.4s ease-in-out 1.5s infinite;
+}
+
+@keyframes curtainBeckon {
+    0%, 100% { opacity: 1; transform: translateY(0); }
+    50%      { opacity: 0.45; transform: translateY(2px); }
+}
+
+@media (max-width: 600px) {
+    .curtain-inner {
+        padding: 4rem 2.5rem;
+    }
 }
 
 /* ==========================================================================

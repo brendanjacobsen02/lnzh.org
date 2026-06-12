@@ -33,7 +33,9 @@
     ];
 
     var MEMORIES = [
-        { form: 'title', depth0: -150, ax: 0, ay: -0.05, layer: 0, era: 0,
+        // the zeroth memory: a faint echo of the title, offset so it reads as
+        // an afterimage behind the held title page, never a double
+        { form: 'title', depth0: -240, ax: -0.18, ay: 0.16, layer: 0, era: 0,
           title: 'time', blurb: '', year: '', guide: '', huge: true },
 
         // era 0 — far apart, palest. ALL FILLER below: real content comes later.
@@ -890,9 +892,10 @@
 
     /* ======================= curtain / hints ======================= */
 
+    var hintBase = -1;               // set when the veil lifts
     function dismissHintIfDrifting() {
-        if (hintDone || !hint) { return; }
-        if (travel > 260) {
+        if (hintDone || !hint || hintBase < 0) { return; }
+        if (travel > hintBase + 600) {
             hintDone = true;
             hint.classList.add('is-done');
         }
@@ -927,6 +930,7 @@
     function liftNow() {
         if (lifted || !curtain) { return; }
         lifted = true;
+        hintBase = travel;           // the walk-hint clock starts at the threshold
         if (reduced) {
             curtain.hidden = true;
             return;
@@ -937,8 +941,9 @@
 
     function wireCurtain() {
         if (!curtain) { return; }
-        if (reduced) { curtain.hidden = true; return; }
-        window.setTimeout(liftNow, 1400);
+        // the title page persists — it waits, breathing, until a gesture
+        // (scroll / key / tap) parts the veil. Reduced motion keeps the page
+        // too; its lift is simply instant.
         curtain.addEventListener('click', firstGesture);
     }
 
