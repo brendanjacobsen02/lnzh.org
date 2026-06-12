@@ -50,14 +50,19 @@
     "class": "flat"
   },
   {
-    "source": "assets/images/content/about.png",
-    "variant": "assets/images/content/about-dark.png",
-    "class": "flat"
-  },
-  {
     "source": "assets/images/content/americano.png",
     "variant": "assets/images/content/americano-dark.png",
     "class": "shaded"
+  },
+  {
+    "source": "assets/images/content/archive.png",
+    "variant": "assets/images/content/archive-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/artifacts.png",
+    "variant": "assets/images/content/artifacts-dark.png",
+    "class": "flat"
   },
   {
     "source": "assets/images/content/blog0.png",
@@ -115,6 +120,11 @@
     "class": "flat"
   },
   {
+    "source": "assets/images/content/self.png",
+    "variant": "assets/images/content/self-dark.png",
+    "class": "flat"
+  },
+  {
     "source": "assets/images/content/the-world-inside-my-head.png",
     "variant": "assets/images/content/the-world-inside-my-head-dark.png",
     "class": "flat"
@@ -122,6 +132,11 @@
   {
     "source": "assets/images/content/thoughts.png",
     "variant": "assets/images/content/thoughts-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/content/time.png",
+    "variant": "assets/images/content/time-dark.png",
     "class": "flat"
   },
   {
@@ -187,6 +202,11 @@
   {
     "source": "assets/images/ui/4star.png",
     "variant": "assets/images/ui/4star-dark.png",
+    "class": "flat"
+  },
+  {
+    "source": "assets/images/ui/arrow-sort.png",
+    "variant": "assets/images/ui/arrow-sort-dark.png",
     "class": "flat"
   },
   {

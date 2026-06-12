@@ -29,6 +29,8 @@
         ? document.currentScript.src
         : window.location.href;
     var assetsRoot = new URL('../', scriptUrl).href; // .../assets/
+    // Hand-drawn gear, masked with currentColor in the settings button.
+    var gearMaskUrl = new URL('images/content/gear.png', assetsRoot).href;
 
     /* ---- recolor manifest: source paths (relative to repo) that have a
             -dark sibling. Mirrors tools/recolor_manifest.json. Listing the
@@ -44,8 +46,9 @@
         'assets/clipart/times-i-criedclip.png',
         'assets/clipart/tomatoclip.png',
         'assets/images/content/AI.png',
-        'assets/images/content/about.png',
         'assets/images/content/americano.png',
+        'assets/images/content/archive.png',
+        'assets/images/content/artifacts.png',
         'assets/images/content/blog0.png',
         'assets/images/content/coffee.png',
         'assets/images/content/espresso.png',
@@ -57,8 +60,10 @@
         'assets/images/content/on-existence.png',
         'assets/images/content/on-gossip.png',
         'assets/images/content/on-identity.png',
+        'assets/images/content/self.png',
         'assets/images/content/the-world-inside-my-head.png',
         'assets/images/content/thoughts.png',
+        'assets/images/content/time.png',
         'assets/images/content/times-i-cried-with-you.png',
         'assets/images/content/tomato.png',
         'assets/images/content/upload.png',
@@ -196,7 +201,16 @@
             /* visible focus ring (keyboard) */
             '.theme-toggle-btn:focus-visible{',
             '  outline:3px solid var(--link,#119c36);outline-offset:3px;}',
-            '.theme-toggle-btn .tt-icon{pointer-events:none;display:block;}',
+            /* The gear icon: the hand-drawn gear.png as an alpha mask painted
+               with currentColor, so it follows --ink in both themes (and any
+               accent/cosmic palette) without a -dark sibling. Absolute URL —
+               a relative one would resolve against the page, not assets/. */
+            '.theme-toggle-btn .tt-gear{',
+            '  pointer-events:none;width:28px;height:28px;',
+            '  background:currentColor;',
+            '  -webkit-mask:url("' + gearMaskUrl + '") center/contain no-repeat;',
+            '  mask:url("' + gearMaskUrl + '") center/contain no-repeat;',
+            '}',
             /* One-shot pulse to send the eye to the gear when the panel is
                opened from elsewhere on the page (e.g. the homepage link). */
             '@keyframes tt-pulse{',
@@ -208,6 +222,7 @@
             '.theme-toggle-btn.tt-pulse{animation:tt-pulse .5s steps(4) 2;}',
             '@media (max-width:600px){',
             '  .theme-toggle-btn{width:44px;height:44px;font-size:18px;top:10px;right:10px;}',
+            '  .theme-toggle-btn .tt-gear{width:23px;height:23px;}',
             '}',
 
             /* Settings panel (opened by the gear) + accent swatches. */
@@ -704,9 +719,8 @@
         gear.setAttribute('aria-haspopup', 'true');
         gear.setAttribute('aria-expanded', 'false');
         var gi = document.createElement('span');
-        gi.className = 'tt-icon';
+        gi.className = 'tt-gear';
         gi.setAttribute('aria-hidden', 'true');
-        gi.textContent = '⚙';
         gear.appendChild(gi);
         gear.addEventListener('click', function () {
             if (panelOpen) { closePanel(); } else { openPanel(); }

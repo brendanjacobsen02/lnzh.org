@@ -1,5 +1,5 @@
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Recursive:CASL,MONO,wght@1,1,300..800&family=Caveat:wght@500;600&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Recursive:CASL,MONO,wght@1,1,300..800&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap');
 
 /* ==========================================================================
    Theme tokens
@@ -161,20 +161,6 @@ nav a {
 
 nav a:hover {
     opacity: 0.6;
-}
-
-/* Placeholder for the not-yet-hand-drawn "writing" wordmark: a handwriting face
-   so it reads like the other hand-drawn nav items instead of plain text.
-   Swap for a PNG (like blog0.png) when it's drawn. */
-.nav-temp-link {
-    font-family: 'Caveat', cursive;
-    color: var(--text);
-    font-size: 2.1rem;
-    font-weight: 600;
-    line-height: 1;
-    margin-top: 0.35rem;
-    margin-bottom: 0.95rem;
-    text-decoration: none;
 }
 
 /* Navigation Images - variable sizing */
@@ -2484,12 +2470,6 @@ footer a img {
         margin-bottom: 0;
     }
 
-    .nav-temp-link {
-        font-size: 1.85rem;
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-
     /* Slightly smaller sizes for tablets */
     nav img.size-1 {
         height: 1.35rem;
@@ -2627,12 +2607,6 @@ footer a img {
 
     /* Reset all image margins for mobile */
     nav img {
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-
-    .nav-temp-link {
-        font-size: 1.75rem;
         margin-top: 0;
         margin-bottom: 0;
     }
