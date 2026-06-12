@@ -706,6 +706,13 @@ a[href^="http"]:not([href*="lnzh.org"]):not(footer a)::after {
     border-collapse: collapse;
 }
 
+/* The order log is wide; on narrow screens scroll the table inside its own
+   wrapper instead of letting it pan the whole page sideways. */
+#orders-panel div:has(> table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 #orders-panel th,
 #orders-panel td {
     padding: 0.3rem 0.6rem;
@@ -2513,8 +2520,10 @@ footer a img {
     .dropdown-trigger {
         height: auto;
         overflow: visible;
-        margin-top: 0;     /* horizontal top bar: no hr→4star gap */
-        margin-bottom: 0;  /* desktop adds room below the stars; the top bar doesn't want it */
+        /* padding + matching negative margin = finger-sized tap target (the li
+           takes the click) with the drawn stars exactly where they were */
+        padding: 0.75rem;
+        margin: -0.75rem;  /* horizontal top bar: no hr→4star gap, no room below */
     }
 
     .dropdown-content {
@@ -2531,11 +2540,13 @@ footer a img {
 
     main {
         margin-left: 0;
+        margin-right: 0;   /* the desktop 7.5% gutter otherwise survives and skews the page right */
         padding: 20px 20px 40px 20px;
     }
 
     footer {
         margin-left: 0;
+        margin-right: 0;
         padding: 20px;
     }
 
@@ -2656,10 +2667,12 @@ footer a img {
     .dropdown-trigger {
         height: auto;
         overflow: visible;
-        width: fit-content;  /* hitbox = just the four stars; the menu's own
+        width: fit-content;  /* hitbox = the four stars + padding; the menu's own
                                 width:100% (below) still forces it onto a new row */
-        margin-top: 0;
-        margin-bottom: 0;
+        /* padding + matching negative margin = finger-sized tap target (the li
+           takes the click) with the drawn stars exactly where they were */
+        padding: 0.75rem;
+        margin: -0.75rem;
     }
 
     .dropdown-content {
@@ -2676,11 +2689,13 @@ footer a img {
 
     main {
         margin-left: 0;
+        margin-right: 0;   /* the desktop 7.5% gutter otherwise survives and skews the page right */
         padding: 20px 20px 40px 20px;
     }
 
     footer {
         margin-left: 0;
+        margin-right: 0;
         padding: 20px;
     }
 
@@ -2750,8 +2765,16 @@ footer a img {
         flex-shrink: 0;
     }
 
-    .thoughts-controls input[type="text"] {
+    .thoughts-controls input[type="text"],
+    .thoughts-controls input[type="email"] {
         width: 100%;
+    }
+
+    /* Justified prose in a ~40-char column gets gappy; hyphenation keeps the
+       print feel without the rivers. */
+    .content p {
+        -webkit-hyphens: auto;
+        hyphens: auto;
     }
 
     .thoughts-controls select {
@@ -2785,6 +2808,16 @@ footer a img {
 
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
     .cursor-sprite {
+        display: none;
+    }
+}
+
+/* Touch devices: the writing page's keyboard hints describe keys that don't
+   exist — drop them (the buttons themselves cover every action). */
+@media (pointer: coarse) {
+    .writing-kbd-hint,
+    .writing-shortcuts,
+    .writing-actions .filter-btn .kbd {
         display: none;
     }
 }
