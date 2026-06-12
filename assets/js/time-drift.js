@@ -183,13 +183,15 @@
         return m ? parseFloat(m[1]) / parseFloat(m[2]) : 1;
     }
 
-    function inkRGB() {
-        var v = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+    function cssColorRGB(varName) {
+        var v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
         var c = document.createElement('canvas').getContext('2d');
         c.fillStyle = v || '#000';
         var s = c.fillStyle;                       // normalized #rrggbb
         return [parseInt(s.slice(1, 3), 16), parseInt(s.slice(3, 5), 16), parseInt(s.slice(5, 7), 16)];
     }
+
+    function inkRGB() { return cssColorRGB('--ink'); }
 
     function drawDither(canvas, seed) {
         var w = canvas.width, h = canvas.height;
@@ -546,6 +548,56 @@
         railFill.style.transform = 'scaleY(' + (travel / TRAVEL_MAX).toFixed(4) + ')';
     }
 
+    /* ---- the air recolors continuously: era hues are resolved to RGB once,
+            then blended along travel between era midpoints and written to the
+            fog as ready-mixed colors (~8x/sec). No boundary, no sudden jump —
+            you drift through the color the way you drift through the fog. ---- */
+    var ERA_PAL = [
+        { a: '--cat-olive',  b: '--cat-teal',  d: 14 },
+        { a: '--cat-amber',  b: '--cat-coral', d: 20 },
+        { a: '--cat-green',  b: '--cat-amber', d: 26 },
+        { a: '--cat-violet', b: '--cat-teal',  d: 15 }
+    ];
+    var ERA_KNOTS = [1200, 4200, 7500, 10200];   // era midpoints along travel
+    var eraHues = [];                             // [{a:[r,g,b], b:[r,g,b], d}]
+    var fogColorT = 0, fogLastKey = '';
+
+    function resolveHues() {
+        eraHues = ERA_PAL.map(function (p) {
+            return { a: cssColorRGB(p.a), b: cssColorRGB(p.b), d: p.d };
+        });
+        fogLastKey = '';                          // force a rewrite
+    }
+
+    function lerp3(c1, c2, t) {
+        return [
+            Math.round(c1[0] + (c2[0] - c1[0]) * t),
+            Math.round(c1[1] + (c2[1] - c1[1]) * t),
+            Math.round(c1[2] + (c2[2] - c1[2]) * t)
+        ];
+    }
+
+    function updateFogColors(now, force) {
+        if (!eraHues.length || !fogA) { return; }
+        if (!force && now - fogColorT < 120) { return; }
+        fogColorT = now;
+        var i = 0;
+        while (i < ERA_KNOTS.length - 1 && travelEff > ERA_KNOTS[i + 1]) { i++; }
+        var t = (travelEff - ERA_KNOTS[i]) / (ERA_KNOTS[i + 1] - ERA_KNOTS[i]);
+        t = Math.max(0, Math.min(1, t));
+        var lo = eraHues[i], hi = eraHues[Math.min(i + 1, eraHues.length - 1)];
+        var a = lerp3(lo.a, hi.a, t);
+        var b = lerp3(lo.b, hi.b, t);
+        var d = (lo.d + (hi.d - lo.d) * t).toFixed(1);
+        var key = a.join() + '|' + b.join() + '|' + d;
+        if (key === fogLastKey) { return; }
+        fogLastKey = key;
+        var fog = fogA.parentNode;
+        fog.style.setProperty('--haze-a', 'rgb(' + a.join(',') + ')');
+        fog.style.setProperty('--haze-b', 'rgb(' + b.join(',') + ')');
+        fog.style.setProperty('--haze-d', d + '%');
+    }
+
     /* ---- the space itself moves: fog strata and the paper tooth slide with
             travel at depth-graded rates, so drifting reads as YOU moving
             through the weather, not things filing past. Transform-only on
@@ -653,6 +705,8 @@
         new MutationObserver(function () {
             grainColors();
             refreshDithers();
+            resolveHues();
+            updateFogColors(fogColorT + 999, true);
         }).observe(document.documentElement,
             { attributes: true, attributeFilter: ['data-theme'] });
     }
@@ -690,9 +744,11 @@
             place(f, now);
         }
 
+        settleSnap(now);
         updateEra();
         updateRail();
         moveBackground(now);
+        updateFogColors(now, false);
         drawGrain(now, dt);
         dismissHintIfDrifting();
         idleWhisper(now);
@@ -714,20 +770,82 @@
         updateEra();
         updateRail();
         moveBackground(0);
+        updateFogColors(0, true);
         dismissHintIfDrifting();
     }
 
+    var lastDir = 1;                 // the current carries you onward, not back
     function nudge(dz) {
+        if (dz) { lastDir = dz > 0 ? 1 : -1; }
         targetTravel = clampTravel(targetTravel + dz);
-        if (reduced) { applyOnce(); }
+        if (reduced) { applyOnce(); snapNowReduced(); }
+    }
+
+    /* ======================= settling onto the nearest memory =======================
+       When the scroll comes to rest, the drift eases the closest piece to the
+       eye plane and holds it — its text surfaces without anyone aiming. Any
+       new input lets go again. (Ghosts and the title are never snapped: the
+       futures stay out of reach, and the threshold is its own moment.) */
+
+    var snapDocks = [];              // [{ f, dock }] built once at init
+    var snapTo = null, snapHeldDone = false, autoHeld = false;
+
+    function buildSnapDocks() {
+        for (var i = 0; i < floaters.length; i++) {
+            var f = floaters[i];
+            if (f.form === 'title' || f.form === 'ghost') { continue; }
+            snapDocks.push({ f: f, dock: clampTravel(f.depth0 - HOLD_AT / LAYER_M[f.layer]) });
+        }
+    }
+
+    function nearestDock() {
+        // distance against the grain costs almost double: the current prefers
+        // to carry you onward in the direction you were already drifting
+        var best = null, bestD = 1e9, i, d, cost;
+        for (i = 0; i < snapDocks.length; i++) {
+            d = snapDocks[i].dock - targetTravel;
+            cost = Math.abs(d) * ((d > 0 ? 1 : -1) === lastDir ? 0.55 : 1);
+            if (cost < bestD) { bestD = cost; best = snapDocks[i]; }
+        }
+        return best && bestD < 900 ? best : null;
+    }
+
+    function settleSnap(now) {
+        if (!lifted || travel < 200) { return; }             // not at the threshold
+        if (modalOpen() || touch.id !== null) { return; }
+        if (glide !== 0 || now - lastInputT < 380) { return; }
+        if (Math.abs(targetTravel - travel) > 60) { return; }
+        if (snapTo && Math.abs(snapTo.dock - targetTravel) > 60) {
+            snapTo = null;                                   // something moved us
+        }
+        if (!snapTo) {
+            snapTo = nearestDock();
+            snapHeldDone = false;
+            if (snapTo) { targetTravel = snapTo.dock; }
+            return;
+        }
+        if (!snapHeldDone && Math.abs(travel - snapTo.dock) < 30) {
+            snapHeldDone = true;
+            if (!held) { setHeld(snapTo.f, true); }
+        }
+    }
+
+    function snapNowReduced() {       // reduced motion: arrive held, instantly
+        if (!lifted || travel < 200) { return; }
+        var best = nearestDock();
+        if (!best) { return; }
+        targetTravel = best.dock;
+        setHeld(best.f, true);
+        applyOnce();
     }
 
     /* ======================= holding ======================= */
 
-    function setHeld(f) {
-        if (held === f) { return; }
+    function setHeld(f, auto) {
+        if (held === f) { autoHeld = !!auto; return; }
         if (held) { held.el.classList.remove('is-held'); }
         held = f;
+        autoHeld = !!auto && !!f;
         if (f) {
             f.el.classList.add('is-held');
             if (window.lnzhHum) { window.lnzhHum.blip(f.idx); }
@@ -800,7 +918,11 @@
             !!document.querySelector('.theme-settings-panel:not([hidden])');
     }
 
-    function poke() { lastInputT = prevT || 1; }
+    function poke() {
+        lastInputT = prevT || 1;
+        snapTo = null;                               // a new gesture lets go
+        if (autoHeld && held) { setHeld(null); }
+    }
 
     function onWheel(e) {
         if (modalOpen()) { return; }
@@ -970,6 +1092,8 @@
         sizeViewport();
         floaters = MEMORIES;
         buildField();
+        buildSnapDocks();
+        resolveHues();
         drift.setAttribute('data-era', '0');
         eraEl.textContent = ERAS[0].label;
         buildHumBtn();
@@ -1015,6 +1139,7 @@
         // tiny dev/test hook, same spirit as window.lnzhPalette
         window.lnzhTime = {
             goto: function (depth) {
+                poke();
                 glide = 0;
                 targetTravel = clampTravel(depth);
                 if (reduced) { applyOnce(); }

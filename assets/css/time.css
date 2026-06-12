@@ -151,11 +151,13 @@ body.museum-on .tooth {
     pointer-events: none;
 }
 
+/* no blur filter on purpose: the air recolors continuously with travel, and
+   gradient repaints stay cheap only while there's no blur pass to redo —
+   the softness lives in the gradient stops themselves */
 .fog-a,
 .fog-b {
     position: absolute;
     inset: -42% -16%;
-    filter: blur(40px);
 }
 
 .fog-a {
@@ -529,6 +531,16 @@ html[data-theme="dark"] .museum .drawn-slot.has-art {
     pointer-events: auto;
     transition: opacity 0.28s cubic-bezier(0.3, 1.1, 0.4, 1),
                 transform 0.28s cubic-bezier(0.3, 1.1, 0.4, 1);
+}
+
+/* a note already says its piece — its plaque only adds the year (and a link) */
+.mem-note .plaque-title,
+.mem-note .plaque-blurb {
+    display: none;
+}
+
+.mem-note .plaque {
+    min-width: 0;
 }
 
 .plaque-year {
