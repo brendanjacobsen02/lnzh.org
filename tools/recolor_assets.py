@@ -11,8 +11,12 @@ sibling ``<name>-dark.png`` for each:
   * SHADED -> per-channel luminance invert (255 - v) blended ~12% toward
     beige for warmth, alpha preserved.
 
-A manifest (``tools/recolor_manifest.json``) records source -> variant -> class
-for the toggle script and verifier to consume.
+Each source also gets a ``<name>-nebula.png`` sibling for the cosmic palette
+(data-palette="cosmic"): same FLAT/SHADED treatment, but toward the cosmic
+ink lavender #ECE7FA so ink art wears the palette like the text does.
+
+A manifest (``tools/recolor_manifest.json``) records source -> variant ->
+nebula -> class for the toggle script and verifier to consume.
 
 The script is idempotent: re-running overwrites the variants with identical
 output and regenerates the manifest. It deliberately never reads or rewrites
@@ -40,8 +44,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 ASSETS_DIR = REPO_ROOT / "assets"
 MANIFEST_PATH = REPO_ROOT / "tools" / "recolor_manifest.json"
 
-# Beige paper color used for FLAT recolor and SHADED warm tint.
+# Beige paper color used for FLAT recolor and SHADED warm tint (dark theme).
 BEIGE = (0xF2, 0xF2, 0xE4)
+
+# Cosmic-palette ink (mirrors --ink under html[data-palette="cosmic"]) used
+# the same way for the -nebula variants.
+NEBULA = (0xEC, 0xE7, 0xFA)
 
 # Opaque-pixel threshold: pixels with alpha above this are "ink".
 ALPHA_THRESHOLD = 16
@@ -50,14 +58,15 @@ ALPHA_THRESHOLD = 16
 # image is treated as flat monochrome (black + anti-aliasing).
 FLAT_MAX_UNIQUE_COLORS = 600
 
-# Warmth blend factor applied to inverted SHADED pixels (toward beige).
+# Tone blend factor applied to inverted SHADED pixels (toward beige/lavender).
 WARM_BLEND = 0.12
 
 # Substring marking a paths to skip entirely (gitignored Instagram dumps).
 INSTAGRAM_MARKER = "instagram-"
 
-# Suffix that identifies generated variants (never treated as a source).
+# Suffixes that identify generated variants (never treated as a source).
 DARK_SUFFIX = "-dark"
+NEBULA_SUFFIX = "-nebula"
 
 # Full-color brand/logo assets that must stay untouched, plus assets themed
 # at runtime (gear.png is a CSS mask painted with currentColor, so it needs
@@ -76,6 +85,7 @@ EXCLUDED_RELATIVE = {
 class Result:
     source: str  # repo-root-relative POSIX path of the source asset
     variant: str  # repo-root-relative POSIX path of the generated -dark.png
+    nebula: str  # repo-root-relative POSIX path of the generated -nebula.png
     cls: str  # "flat" or "shaded"
 
 
@@ -96,7 +106,7 @@ def iter_source_pngs() -> list[Path]:
         posix = path.as_posix()
         if INSTAGRAM_MARKER in posix:
             continue
-        if path.stem.endswith(DARK_SUFFIX):
+        if path.stem.endswith(DARK_SUFFIX) or path.stem.endswith(NEBULA_SUFFIX):
             # Never use a previously generated variant as a source.
             continue
         if rel(path) in EXCLUDED_RELATIVE:
@@ -123,41 +133,41 @@ def classify(img: Image.Image) -> str:
     return "flat"
 
 
-def recolor_flat(img: Image.Image) -> Image.Image:
-    """Recolor every opaque pixel to beige, preserving the original alpha."""
+def recolor_flat(img: Image.Image, tone: tuple[int, int, int]) -> Image.Image:
+    """Recolor every opaque pixel to the tone, preserving the original alpha."""
     rgba = img.convert("RGBA")
     alpha = rgba.getchannel("A")
-    solid = Image.new("RGBA", rgba.size, (*BEIGE, 255))
+    solid = Image.new("RGBA", rgba.size, (*tone, 255))
     solid.putalpha(alpha)
     return solid
 
 
-def _warm_invert_lut(beige_value: int) -> list[int]:
-    """256-entry LUT: invert (255 - v) then blend toward the beige channel.
+def _tone_invert_lut(tone_value: int) -> list[int]:
+    """256-entry LUT: invert (255 - v) then blend toward the tone channel.
 
-    out = (255 - v) * (1 - WARM_BLEND) + beige_value * WARM_BLEND
+    out = (255 - v) * (1 - WARM_BLEND) + tone_value * WARM_BLEND
     Done via a lookup table so it is Pillow-version independent and fast.
     """
     lut: list[int] = []
     for v in range(256):
         inverted = 255 - v
-        blended = inverted * (1.0 - WARM_BLEND) + beige_value * WARM_BLEND
+        blended = inverted * (1.0 - WARM_BLEND) + tone_value * WARM_BLEND
         lut.append(max(0, min(255, round(blended))))
     return lut
 
 
-def recolor_shaded(img: Image.Image) -> Image.Image:
-    """Luminance-invert each channel then blend toward beige; keep alpha."""
+def recolor_shaded(img: Image.Image, tone: tuple[int, int, int]) -> Image.Image:
+    """Luminance-invert each channel then blend toward the tone; keep alpha."""
     rgba = img.convert("RGBA")
     r, g, b, a = rgba.split()
-    nr = r.point(_warm_invert_lut(BEIGE[0]))
-    ng = g.point(_warm_invert_lut(BEIGE[1]))
-    nb = b.point(_warm_invert_lut(BEIGE[2]))
+    nr = r.point(_tone_invert_lut(tone[0]))
+    ng = g.point(_tone_invert_lut(tone[1]))
+    nb = b.point(_tone_invert_lut(tone[2]))
     return Image.merge("RGBA", (nr, ng, nb, a))
 
 
-def variant_path(source: Path) -> Path:
-    return source.with_name(f"{source.stem}{DARK_SUFFIX}.png")
+def variant_path(source: Path, suffix: str = DARK_SUFFIX) -> Path:
+    return source.with_name(f"{source.stem}{suffix}.png")
 
 
 # ---------------------------------------------------------------------------
@@ -179,24 +189,29 @@ def main() -> int:
             img = raw.convert("RGBA")
         cls = classify(img)
         if cls == "flat":
-            out = recolor_flat(img)
+            dark, neb = recolor_flat(img, BEIGE), recolor_flat(img, NEBULA)
             flat_count += 1
         else:
-            out = recolor_shaded(img)
+            dark, neb = recolor_shaded(img, BEIGE), recolor_shaded(img, NEBULA)
             shaded_count += 1
 
-        out_path = variant_path(source)
-        out.save(out_path, "PNG")
-        results.append(Result(source=rel(source), variant=rel(out_path), cls=cls))
+        dark_path = variant_path(source)
+        neb_path = variant_path(source, NEBULA_SUFFIX)
+        dark.save(dark_path, "PNG")
+        neb.save(neb_path, "PNG")
+        results.append(Result(source=rel(source), variant=rel(dark_path),
+                              nebula=rel(neb_path), cls=cls))
 
     manifest = [
-        {"source": r.source, "variant": r.variant, "class": r.cls} for r in results
+        {"source": r.source, "variant": r.variant, "nebula": r.nebula,
+         "class": r.cls}
+        for r in results
     ]
     MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
     MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n")
 
     excluded = sorted(EXCLUDED_RELATIVE)
-    print(f"variants generated : {len(results)}")
+    print(f"variants generated : {len(results)} (x dark + nebula)")
     print(f"  flat (recolored) : {flat_count}")
     print(f"  shaded (inverted): {shaded_count}")
     print(f"excluded full-color: {len(excluded)}")

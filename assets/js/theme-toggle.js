@@ -87,24 +87,32 @@
     // Each manifest source begins with "assets/"; strip that prefix and
     // resolve against assetsRoot so the suffix-match works regardless of the
     // page's depth (root / about/ / blog/tomato/ all collapse to absolute URLs).
-    var DARK_SUFFIX_TAIL = '-dark.png';
     // Build the set of recognized source suffixes (the portion after "assets/").
     var sourceTails = MANIFEST_SOURCES.map(function (p) {
         return p.replace(/^assets\//, '');         // e.g. "images/ui/hr.png"
     });
 
-    function darkVariant(tail) {
-        return tail.replace(/\.png$/i, DARK_SUFFIX_TAIL); // "images/ui/hr-dark.png"
+    // Three art "modes": the two themes plus the cosmic palette, whose ink art
+    // is lavender (-nebula.png siblings) so it wears the palette like the text.
+    var MODE_SUFFIX = { light: '.png', dark: '-dark.png', nebula: '-nebula.png' };
+    var MODES = ['light', 'dark', 'nebula'];
+
+    function variantTail(tail, mode) {
+        return tail.replace(/\.png$/i, MODE_SUFFIX[mode]); // "images/ui/hr-dark.png"
     }
 
-    /* ---- preload all -dark variants once (avoid flicker on first swap) ---- */
-    var preloaded = false;
-    function preloadDarkVariants() {
-        if (preloaded) { return; }
-        preloaded = true;
+    function variantUrl(tail, mode) {
+        return new URL(variantTail(tail, mode), assetsRoot).href;
+    }
+
+    /* ---- preload a mode's variants once (avoid flicker on first swap) ---- */
+    var preloadedModes = {};
+    function preloadVariants(mode) {
+        if (preloadedModes[mode]) { return; }
+        preloadedModes[mode] = true;
         sourceTails.forEach(function (tail) {
             var img = new Image();
-            img.src = new URL(darkVariant(tail), assetsRoot).href;
+            img.src = variantUrl(tail, mode);
         });
     }
 
@@ -124,8 +132,23 @@
             window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     }
 
-    /* ---- image swap: walk every <img>, match against manifest tails ---- */
-    function swapImages(theme) {
+    /* ---- image swap: walk every <img>, match against manifest tails ----
+       `mode` is 'light' | 'dark' | 'nebula': whichever variant the current src
+       is, it swaps to the target mode's sibling. */
+    function swapImages(mode) {
+        // For a given absolute URL, return the target-mode URL if the source
+        // matches any variant of a manifest entry (null when it's not ours).
+        function retarget(resolved) {
+            for (var j = 0; j < sourceTails.length; j++) {
+                for (var m = 0; m < MODES.length; m++) {
+                    if (resolved === variantUrl(sourceTails[j], MODES[m])) {
+                        return MODES[m] === mode ? null
+                            : variantUrl(sourceTails[j], mode);
+                    }
+                }
+            }
+            return null;
+        }
         var imgs = document.querySelectorAll('img');
         for (var i = 0; i < imgs.length; i++) {
             var img = imgs[i];
@@ -137,19 +160,8 @@
             } catch (e) {
                 continue;
             }
-            for (var j = 0; j < sourceTails.length; j++) {
-                var tail = sourceTails[j];
-                var lightUrl = new URL(tail, assetsRoot).href;
-                var darkUrl = new URL(darkVariant(tail), assetsRoot).href;
-                if (resolved === lightUrl && theme === 'dark') {
-                    img.src = darkUrl;
-                    break;
-                }
-                if (resolved === darkUrl && theme === 'light') {
-                    img.src = lightUrl;
-                    break;
-                }
-            }
+            var next = retarget(resolved);
+            if (next) { img.src = next; }
         }
         // The 4-star dropdown toggle is a <span> painted via the --star-src
         // custom property (nav-dropdown.js replaces the <img> with it), so it is
@@ -163,12 +175,8 @@
             if (!m) { continue; }
             var cur;
             try { cur = new URL(m[1], document.baseURI).href; } catch (e) { continue; }
-            for (var k = 0; k < sourceTails.length; k++) {
-                var lUrl = new URL(sourceTails[k], assetsRoot).href;
-                var dUrl = new URL(darkVariant(sourceTails[k]), assetsRoot).href;
-                if (cur === lUrl && theme === 'dark') { el.style.setProperty('--star-src', 'url("' + dUrl + '")'); break; }
-                if (cur === dUrl && theme === 'light') { el.style.setProperty('--star-src', 'url("' + lUrl + '")'); break; }
-            }
+            var nextStar = retarget(cur);
+            if (nextStar) { el.style.setProperty('--star-src', 'url("' + nextStar + '")'); }
         }
     }
 
@@ -566,7 +574,7 @@
             html.setAttribute('data-palette', pal);
             html.setAttribute('data-theme', 'dark'); // dark backdrop (base theme pref kept)
             persistPalette(pal);
-            swapImages('dark');
+            swapImages('nebula');                    // lavender ink art, not beige
             updateThemeControl('dark');
             loadGlintOnce();                         // glint self-starts via its observer
         } else {
@@ -649,6 +657,10 @@
     function updateNebulaBtn() {
         if (!nebulaBtn) { return; }
         nebulaBtn.hidden = !nebulaUnlocked();
+        // One click away from cosmic — warm the -nebula art so the swap under
+        // the supernova burst doesn't pop in late. Once-guarded, so repeat
+        // calls (every theme change) are free.
+        if (!nebulaBtn.hidden) { preloadVariants('nebula'); }
         var active = currentPalette() === 'cosmic';
         nebulaBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
         nebulaBtn.classList.toggle('tt-neb-on', active);
@@ -856,9 +868,9 @@
         injectStyles();
         buildUI();
         wireSettingsLink();
-        preloadDarkVariants();
-        // Ensure images match the theme already set by theme-init.js.
-        swapImages(currentTheme());
+        preloadVariants('dark');
+        // Ensure images match the theme/palette already set by theme-init.js.
+        swapImages(currentPalette() ? 'nebula' : currentTheme());
         // If theme-init.js booted us into the special palette, the glint script
         // isn't on the page yet — load it (it self-starts from its observer).
         if (currentPalette()) { loadGlintOnce(); }

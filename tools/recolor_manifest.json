@@ -2,231 +2,277 @@
   {
     "source": "assets/clipart/americanoclip.png",
     "variant": "assets/clipart/americanoclip-dark.png",
+    "nebula": "assets/clipart/americanoclip-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/clipart/espressoclip.png",
     "variant": "assets/clipart/espressoclip-dark.png",
+    "nebula": "assets/clipart/espressoclip-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/clipart/existenceclip.png",
     "variant": "assets/clipart/existenceclip-dark.png",
+    "nebula": "assets/clipart/existenceclip-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/clipart/gossipclip.png",
     "variant": "assets/clipart/gossipclip-dark.png",
+    "nebula": "assets/clipart/gossipclip-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/clipart/identityclip.png",
     "variant": "assets/clipart/identityclip-dark.png",
+    "nebula": "assets/clipart/identityclip-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/clipart/latteclip.png",
     "variant": "assets/clipart/latteclip-dark.png",
+    "nebula": "assets/clipart/latteclip-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/clipart/otherworldlyclip.png",
     "variant": "assets/clipart/otherworldlyclip-dark.png",
+    "nebula": "assets/clipart/otherworldlyclip-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/clipart/times-i-criedclip.png",
     "variant": "assets/clipart/times-i-criedclip-dark.png",
+    "nebula": "assets/clipart/times-i-criedclip-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/clipart/tomatoclip.png",
     "variant": "assets/clipart/tomatoclip-dark.png",
+    "nebula": "assets/clipart/tomatoclip-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/images/content/AI.png",
     "variant": "assets/images/content/AI-dark.png",
+    "nebula": "assets/images/content/AI-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/americano.png",
     "variant": "assets/images/content/americano-dark.png",
+    "nebula": "assets/images/content/americano-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/images/content/archive.png",
     "variant": "assets/images/content/archive-dark.png",
+    "nebula": "assets/images/content/archive-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/artifacts.png",
     "variant": "assets/images/content/artifacts-dark.png",
+    "nebula": "assets/images/content/artifacts-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/blog0.png",
     "variant": "assets/images/content/blog0-dark.png",
+    "nebula": "assets/images/content/blog0-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/coffee.png",
     "variant": "assets/images/content/coffee-dark.png",
+    "nebula": "assets/images/content/coffee-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/images/content/espresso.png",
     "variant": "assets/images/content/espresso-dark.png",
+    "nebula": "assets/images/content/espresso-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/images/content/latte.png",
     "variant": "assets/images/content/latte-dark.png",
+    "nebula": "assets/images/content/latte-nebula.png",
     "class": "shaded"
   },
   {
     "source": "assets/images/content/list.png",
     "variant": "assets/images/content/list-dark.png",
+    "nebula": "assets/images/content/list-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/lnzh.org.png",
     "variant": "assets/images/content/lnzh.org-dark.png",
+    "nebula": "assets/images/content/lnzh.org-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/next.png",
     "variant": "assets/images/content/next-dark.png",
+    "nebula": "assets/images/content/next-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/now.png",
     "variant": "assets/images/content/now-dark.png",
+    "nebula": "assets/images/content/now-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/on-existence.png",
     "variant": "assets/images/content/on-existence-dark.png",
+    "nebula": "assets/images/content/on-existence-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/on-gossip.png",
     "variant": "assets/images/content/on-gossip-dark.png",
+    "nebula": "assets/images/content/on-gossip-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/on-identity.png",
     "variant": "assets/images/content/on-identity-dark.png",
+    "nebula": "assets/images/content/on-identity-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/self.png",
     "variant": "assets/images/content/self-dark.png",
+    "nebula": "assets/images/content/self-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/the-world-inside-my-head.png",
     "variant": "assets/images/content/the-world-inside-my-head-dark.png",
+    "nebula": "assets/images/content/the-world-inside-my-head-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/thoughts.png",
     "variant": "assets/images/content/thoughts-dark.png",
+    "nebula": "assets/images/content/thoughts-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/time.png",
     "variant": "assets/images/content/time-dark.png",
+    "nebula": "assets/images/content/time-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/times-i-cried-with-you.png",
     "variant": "assets/images/content/times-i-cried-with-you-dark.png",
+    "nebula": "assets/images/content/times-i-cried-with-you-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/tomato.png",
     "variant": "assets/images/content/tomato-dark.png",
+    "nebula": "assets/images/content/tomato-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/upload.png",
     "variant": "assets/images/content/upload-dark.png",
+    "nebula": "assets/images/content/upload-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/venmo.png",
     "variant": "assets/images/content/venmo-dark.png",
+    "nebula": "assets/images/content/venmo-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/content/zelle.png",
     "variant": "assets/images/content/zelle-dark.png",
+    "nebula": "assets/images/content/zelle-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/icons/XD.png",
     "variant": "assets/images/icons/XD-dark.png",
+    "nebula": "assets/images/icons/XD-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/icons/chess.png",
     "variant": "assets/images/icons/chess-dark.png",
+    "nebula": "assets/images/icons/chess-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/icons/gmail.png",
     "variant": "assets/images/icons/gmail-dark.png",
+    "nebula": "assets/images/icons/gmail-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/icons/instagram.png",
     "variant": "assets/images/icons/instagram-dark.png",
+    "nebula": "assets/images/icons/instagram-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/icons/linkedin.png",
     "variant": "assets/images/icons/linkedin-dark.png",
+    "nebula": "assets/images/icons/linkedin-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/icons/yelp.png",
     "variant": "assets/images/icons/yelp-dark.png",
+    "nebula": "assets/images/icons/yelp-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/ui/3starbig.png",
     "variant": "assets/images/ui/3starbig-dark.png",
+    "nebula": "assets/images/ui/3starbig-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/ui/4star.png",
     "variant": "assets/images/ui/4star-dark.png",
+    "nebula": "assets/images/ui/4star-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/ui/arrow-sort.png",
     "variant": "assets/images/ui/arrow-sort-dark.png",
+    "nebula": "assets/images/ui/arrow-sort-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/ui/arrow0.png",
     "variant": "assets/images/ui/arrow0-dark.png",
+    "nebula": "assets/images/ui/arrow0-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/ui/arrow1.png",
     "variant": "assets/images/ui/arrow1-dark.png",
+    "nebula": "assets/images/ui/arrow1-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/ui/arrow2.png",
     "variant": "assets/images/ui/arrow2-dark.png",
+    "nebula": "assets/images/ui/arrow2-nebula.png",
     "class": "flat"
   },
   {
     "source": "assets/images/ui/hr.png",
     "variant": "assets/images/ui/hr-dark.png",
+    "nebula": "assets/images/ui/hr-nebula.png",
     "class": "flat"
   }
 ]
