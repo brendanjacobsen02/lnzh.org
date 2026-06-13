@@ -49,8 +49,9 @@ const opt = (name, fallback) => {
 };
 
 const BASE = (opt('--base', 'http://localhost:8000')).replace(/\/$/, '');
-// One page per path depth: home (0), a section page (1), a deep page (2).
-const PAGES = (opt('--pages', '/,/writing/,/blog/tomato/')).split(',').map((p) => p.trim()).filter(Boolean);
+// One page per path depth: home (0), a section page (1), a deep page (2);
+// plus 404.html, which is served at ANY depth so its paths must all be absolute.
+const PAGES = (opt('--pages', '/,/writing/,/blog/tomato/,/404.html')).split(',').map((p) => p.trim()).filter(Boolean);
 const THEMES = ['light', 'dark'];
 const NO_LIGHTHOUSE = flag('--no-lighthouse');
 const STRICT_A11Y = flag('--strict-a11y');
