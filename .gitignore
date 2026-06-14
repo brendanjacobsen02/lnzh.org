@@ -18,3 +18,5 @@ thoughts/stories.html
 
 # Cloudflare Worker local secrets
 .dev.vars
+
+__pycache__/

@@ -51,9 +51,9 @@ eye-white = `--paper`** (so it literally wears the site's ink-on-paper at every 
 ### Canonical geometry (`viewBox="0 0 64 64"`) — single source of truth
 
 ```
-feet    <ellipse cx="26" cy="52" rx="3.4" ry="2.2"/>   fill: INK
-        <ellipse cx="38" cy="52" rx="3.4" ry="2.2"/>   fill: INK
-body    <path d="M17 28 C19 17 45 17 47 28 C50 40 45 50 32 50.5 C19 50 14 40 17 28 Z"/>  fill: INK
+feet    <ellipse cx="25" cy="51.5" rx="3.3" ry="2.1"/>   fill: INK
+        <ellipse cx="39" cy="51.5" rx="3.3" ry="2.1"/>   fill: INK   (tucked into the base so they read as nubs, not loose pebbles)
+body    <path d="M17 27 C18 16 46 16 47 27 C48 37 47 45 43 49 C41 52 23 52 21 49 C17 45 16 37 17 27 Z"/>  fill: INK
 eyeball <circle cx="31" cy="30" r="9.3"/>              fill: PAPER
 pupil   <circle cx="34.3" cy="30" r="4.2"/>            fill: INK
 glint   <circle cx="32.6" cy="28.4" r="1.1"/>          fill: PAPER   (decorative; may vanish <20px — fine)
