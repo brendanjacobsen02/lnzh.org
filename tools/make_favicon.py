@@ -31,10 +31,15 @@ EYEBALL = (31, 30, 9.3)   # cx, cy, r  (PAPER)
 PUPIL = (34.3, 30, 4.2)   # INK
 GLINT = (32.6, 28.4, 1.1) # PAPER
 
+# Tight square crop (vx, vy, side) so the mark fills the tab instead of
+# floating in dead margin. Content spans x[16,48] y[16,53.6]; this leaves a
+# few px of breathing room on each side.
+VIEW = (11, 13.8, 42)
+
 # --- theme tones (mirror assets/css/style.css tokens) ---------------------
 LIGHT = dict(ink="#000000", paper="#f4f1e1")
 DARK = dict(ink="#f4f1e1", paper="#100e0a")
-NEBULA = dict(ink="#ece7fa", paper="#06040f")
+NEBULA = dict(ink="#b794f6", paper="#06040f")   # lilac — favicon reads more purple than the pale in-page --ink #ece7fa
 
 
 def _cubic(p0, c1, c2, p1, n=48):
@@ -59,16 +64,18 @@ def render(size: int, ink: str, paper: str, bg: str | None = None) -> Image.Imag
     """Rasterize the sprout at `size`px (supersampled), optional opaque bg."""
     ss = 8
     R = size * ss
-    s = R / 64.0
+    vx, vy, side = VIEW
+    s = R / side
     img = Image.new("RGBA", (R, R), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
 
     def ell(cx, cy, rx, ry, fill):
-        d.ellipse([(cx - rx) * s, (cy - ry) * s, (cx + rx) * s, (cy + ry) * s], fill=fill)
+        d.ellipse([(cx - rx - vx) * s, (cy - ry - vy) * s,
+                   (cx + rx - vx) * s, (cy + ry - vy) * s], fill=fill)
 
     for cx, cy, rx, ry in FEET:
         ell(cx, cy, rx, ry, ink)
-    d.polygon([(x * s, y * s) for x, y in _body_polygon()], fill=ink)
+    d.polygon([((x - vx) * s, (y - vy) * s) for x, y in _body_polygon()], fill=ink)
     ell(*EYEBALL[:2], EYEBALL[2], EYEBALL[2], paper)
     ell(*PUPIL[:2], PUPIL[2], PUPIL[2], ink)
     ell(*GLINT[:2], GLINT[2], GLINT[2], paper)
@@ -83,7 +90,7 @@ def render(size: int, ink: str, paper: str, bg: str | None = None) -> Image.Imag
 
 def svg_self_inverting() -> str:
     return (
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="11 13.8 42 42">'
         "<style>"
         ".ink{fill:%(li)s}.paper{fill:%(lp)s}"
         "@media (prefers-color-scheme:dark){.ink{fill:%(di)s}.paper{fill:%(dp)s}}"

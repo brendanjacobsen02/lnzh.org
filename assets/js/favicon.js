@@ -13,12 +13,12 @@
  * canonical sprout in tools/make_favicon.py / favicon.svg — keep them in step.
  */
 (function () {
-    var INK = { light: '#000000', dark: '#f4f1e1', nebula: '#ece7fa' };
+    var INK = { light: '#000000', dark: '#f4f1e1', nebula: '#b794f6' };
     var PAPER = { light: '#f4f1e1', dark: '#100e0a', nebula: '#06040f' };
 
     function sprite(mode) {
         var ink = INK[mode], paper = PAPER[mode];
-        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="11 13.8 42 42">'
             + '<ellipse fill="' + ink + '" cx="25" cy="51.5" rx="3.3" ry="2.1"/>'
             + '<ellipse fill="' + ink + '" cx="39" cy="51.5" rx="3.3" ry="2.1"/>'
             + '<path fill="' + ink + '" d="M17 27 C18 16 46 16 47 27 C48 37 47 45 43 49 C41 52 23 52 21 49 C17 45 16 37 17 27 Z"/>'

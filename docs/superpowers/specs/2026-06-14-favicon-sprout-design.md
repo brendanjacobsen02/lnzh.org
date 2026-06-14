@@ -48,7 +48,11 @@ caught mid-shuffle, curious. One solid silhouette + a single big eye = legible a
 16px; the sidelong gaze + feet give it life. Two tones only: **body = `--ink`,
 eye-white = `--paper`** (so it literally wears the site's ink-on-paper at every theme).
 
-### Canonical geometry (`viewBox="0 0 64 64"`) — single source of truth
+### Canonical geometry (coords in a 0–64 space; framed by `viewBox="11 13.8 42 42"`) — single source of truth
+
+> The tight 42-unit square crop (vs. the full 64 box) removes dead margin so the
+> mark fills the tab at 16px instead of floating small. Coords below are unchanged;
+> only the viewBox frames them. `tools/make_favicon.py` `VIEW = (11, 13.8, 42)`.
 
 ```
 feet    <ellipse cx="25" cy="51.5" rx="3.3" ry="2.1"/>   fill: INK
@@ -65,7 +69,7 @@ glint   <circle cx="32.6" cy="28.4" r="1.1"/>          fill: PAPER   (decorative
 |--------|-------------------|--------------------------|
 | light  | `#000000`         | `#f4f1e1`                |
 | dark   | `#f4f1e1`         | `#100e0a`                |
-| nebula | `#ece7fa`         | `#06040f`                |
+| nebula | `#b794f6`         | `#06040f`                |
 
 The eye inverts with the body, so on dark/nebula the pupil reads as a glowing
 cream/lavender dot inside a dark eye — intentional, not a bug.
