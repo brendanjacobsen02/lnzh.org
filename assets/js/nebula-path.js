@@ -18,7 +18,7 @@
     'use strict';
 
     var STORE_KEY = 'nebula-unlocked';
-    var ROT_KEY = 'nebula-path-i';      // rotate the starting board across opens
+    var ROT_KEY = 'nebula-path-i';      // remember the current board across opens (resume the ramp)
     var SVGNS = 'http://www.w3.org/2000/svg';
     var CELL = 40;
     // cosmic supernova palette (mirrors the nova-iris in dev/theme-demo.html)
@@ -52,21 +52,35 @@
     }
 
     /* ---- the pool: 30–39 cells, 1–4 solutions each. Every board verified
-            solvable by an offline Hamiltonian solver (tools/one-stroke search);
-            difficulty escalates and the last three are UNIQUE-solution (brutal).
+            solvable by an offline Hamiltonian solver (tools/one-stroke search).
+            Ordered easy → hard: the panel opens on the gentlest board and the
+            "new" button walks UP the ramp (wrapping), so no first-timer is thrown
+            straight at a unique-solution beast. Difficulty rule of thumb: fewer
+            cells + more distinct solutions = easier; the three 'hard' boards are
+            UNIQUE-solution (one path only, no room to improvise).
             '.'=cell, '#'=wall (not part of the shape), 'S'=start. ---- */
     var BOARDS = [
-        ['S.....', '......', '....#.', '..#..#', '......', '#.....'],                  // 32 cells, 2 sols
-        ['S....#', '.#....', '...#..', '......', '#...#.', '#.....'],                  // 30, 2
-        ['S....##', '.......', '#.....#', '#...#.#', '.......', '...#...'],            // 34, 4
-        ['S......', '....##.', '##..##.', '#..#...', '...#..#', '.#.....', '...#...'], // 37, 3
-        ['S..#....', '.......#', '....#..#', '#...#..#', '....#...', '...##...'],      // 38, 3
-        ['S..##..', '.#.....', '.#..##.', '.#.....', '.......', '....#..'],            // 34, 2
-        ['S###...', '.#....#', '.......', '##...#.', '.....#.', '.......', '##..#..'], // 37, 2
-        ['S##....', '.......', '......#', '.##....', '.###.#.', '...#...'],            // 32, 1 (unique)
-        ['S#..#...', '......#.', '....#...', '..#.#..#', '#....#..', '...#....'],      // 38, 1 (unique)
-        ['S#...#.', '.#.#.#.', '.......', '....#..', '.......', '..#.#..', '..#...#']  // 39, 1 (unique, brutal)
+        // -- easy: small shapes, several ways through --
+        { d: 'easy',   rows: ['S....#', '.#....', '...#..', '......', '#...#.', '#.....'] },                  // 30 cells, 2 sols
+        { d: 'easy',   rows: ['S.....', '......', '....#.', '..#..#', '......', '#.....'] },                  // 32, 2
+        { d: 'easy',   rows: ['S....##', '.......', '#.....#', '#...#.#', '.......', '...#...'] },            // 34, 4
+        // -- medium: bigger shapes, fewer ways through --
+        { d: 'medium', rows: ['S..##..', '.#.....', '.#..##.', '.#.....', '.......', '....#..'] },            // 34, 2
+        { d: 'medium', rows: ['S......', '....##.', '##..##.', '#..#...', '...#..#', '.#.....', '...#...'] }, // 37, 3
+        { d: 'medium', rows: ['S###...', '.#....#', '.......', '##...#.', '.....#.', '.......', '##..#..'] }, // 37, 2
+        { d: 'medium', rows: ['S..#....', '.......#', '....#..#', '#...#..#', '....#...', '...##...'] },       // 38, 3
+        // -- hard: UNIQUE-solution — one path only --
+        { d: 'hard',   rows: ['S##....', '.......', '......#', '.##....', '.###.#.', '...#...'] },            // 32, 1
+        { d: 'hard',   rows: ['S#..#...', '......#.', '....#...', '..#.#..#', '#....#..', '...#....'] },       // 38, 1
+        { d: 'hard',   rows: ['S#...#.', '.#.#.#.', '.......', '....#..', '.......', '..#.#..', '..#...#'] }   // 39, 1 (brutal)
     ];
+    // badge accents — warm-shifted leaf/honey/clay so they read as a ramp without
+    // breaking the paper palette; bordered pip carries the meaning, the word carries it for SR.
+    var DIFF = {
+        easy:   '#5a9e5e',   // leaf green
+        medium: '#d4922c',   // honey amber
+        hard:   '#c44a36'    // clay red
+    };
 
     /* ---- parse a board into geometry ---- */
     function parseBoard(rows) {
@@ -118,7 +132,12 @@
             '  border:3px solid var(--line-strong,#000);box-shadow:4px 4px 0 0 var(--line-strong,#000);',
             '  transform-origin:top right;animation:np-pop .16s steps(3) both;}',
             '@keyframes np-pop{from{transform:scale(.5);opacity:.4}to{transform:scale(1);opacity:1}}',
-            '.np-head{display:flex;align-items:center;justify-content:flex-end;padding:5px 6px 0;}',
+            '.np-head{display:flex;align-items:center;justify-content:space-between;padding:5px 6px 0;}',
+            // difficulty badge: chunky bordered pip (color set per board) + lowercase word
+            '.np-diff{display:flex;align-items:center;gap:6px;font-family:var(--mono,monospace);font-size:10px;',
+            '  text-transform:lowercase;letter-spacing:.04em;color:var(--ink,#000);padding-left:2px;}',
+            '.np-pip{width:9px;height:9px;flex:0 0 auto;border:2px solid var(--line-strong,#000);',
+            '  box-shadow:1.5px 1.5px 0 0 var(--line-strong,#000);}',
             '.np-x{font-family:var(--mono,monospace);font-size:13px;line-height:1;width:20px;height:20px;padding:0;',
             '  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink,#000);',
             '  background:var(--paper,#f4f1e1);border:2px solid var(--line-strong,#000);box-shadow:2px 2px 0 0 var(--line-strong,#000);}',
@@ -153,6 +172,7 @@
     var overlay = null, skyEl = null, svgEl = null, cellRects = {}, trail = null, tip = null;
     var board = null, path = [], onPath = {}, boardIndex = 0, solved = false;
     var progEl = null, keyHandler = null, lastFocus = null, dragging = false, lastCell = -1;
+    var diffPip = null, diffLabel = null;
 
     function cx(id) { return board.cells[id].c * CELL + CELL / 2; }
     function cy(id) { return board.cells[id].r * CELL + CELL / 2; }
@@ -200,22 +220,26 @@
         path = [board.start]; onPath = {}; onPath[board.start] = true; solved = false;
         redraw();
     }
-    // pick a RANDOM board (a fresh pattern every open / "new"), never repeating the
-    // one currently shown so "new" always visibly changes.
-    function pickBoard(exclude) {
-        if (BOARDS.length <= 1) { return 0; }
-        var i;
-        do { i = Math.floor(Math.random() * BOARDS.length); } while (i === exclude);
-        return i;
+    // where to resume on open: the saved board (clamped), defaulting to 0 (easiest)
+    // so a first-timer always starts gentle. "new" walks UP the ramp from here.
+    function savedIndex() {
+        try { var v = parseInt(localStorage.getItem(ROT_KEY), 10); if (v >= 0 && v < BOARDS.length) { return v; } } catch (e) {}
+        return 0;
     }
+    // "new" → step forward through the difficulty-ordered pool (wraps). Always
+    // changes the board, and the difficulty only ever climbs (then loops back to easy).
     function nextBoard() {
-        boardIndex = pickBoard(boardIndex);
+        boardIndex = (boardIndex + 1) % BOARDS.length;
         try { localStorage.setItem(ROT_KEY, String(boardIndex)); } catch (e) {}
         loadBoard(boardIndex);
     }
 
     function loadBoard(i) {
-        board = parseBoard(BOARDS[i]);
+        board = parseBoard(BOARDS[i].rows);
+        // reflect this board's difficulty in the header badge
+        var tier = BOARDS[i].d;
+        if (diffLabel) { diffLabel.textContent = tier; }
+        if (diffPip) { diffPip.style.background = DIFF[tier] || DIFF.easy; }
         // (re)build the grid svg
         while (svgEl.firstChild) { svgEl.removeChild(svgEl.firstChild); }
         svgEl.setAttribute('viewBox', '0 0 ' + (board.w * CELL) + ' ' + (board.h * CELL));
@@ -454,8 +478,7 @@
         if (overlay) { return; }
         injectStyles();
         lastFocus = document.activeElement;
-        boardIndex = pickBoard(-1);     // a random pattern every time the puzzle opens
-        try { localStorage.setItem(ROT_KEY, String(boardIndex)); } catch (e) {}
+        boardIndex = savedIndex();      // resume the ramp (easiest on a first open)
 
         overlay = document.createElement('div'); overlay.className = 'np-backdrop';
         overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true');
@@ -463,8 +486,13 @@
 
         var panel = document.createElement('div'); panel.className = 'np-panel';
         var headBar = document.createElement('div'); headBar.className = 'np-head';
+        // difficulty badge (colored pip + word), top-left; updated per board in loadBoard
+        var diff = document.createElement('div'); diff.className = 'np-diff'; diff.title = 'difficulty';
+        diffPip = document.createElement('span'); diffPip.className = 'np-pip'; diffPip.setAttribute('aria-hidden', 'true');
+        diffLabel = document.createElement('span');
+        diff.appendChild(diffPip); diff.appendChild(diffLabel);
         var x = document.createElement('button'); x.className = 'np-x'; x.type = 'button'; x.setAttribute('aria-label', 'Close puzzle'); x.textContent = '×'; x.addEventListener('click', close);
-        headBar.appendChild(x);
+        headBar.appendChild(diff); headBar.appendChild(x);
 
         skyEl = document.createElement('div'); skyEl.className = 'np-sky'; skyEl.tabIndex = 0;
         skyEl.setAttribute('role', 'application');
@@ -528,7 +556,7 @@
         window.removeEventListener('pointerup', endDrag);
         document.removeEventListener('keydown', keyHandler);
         if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
-        overlay = null; svgEl = null; skyEl = null;
+        overlay = null; svgEl = null; skyEl = null; diffPip = null; diffLabel = null;
         if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
     }
 
