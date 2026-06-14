@@ -68,16 +68,14 @@ INSTAGRAM_MARKER = "instagram-"
 DARK_SUFFIX = "-dark"
 NEBULA_SUFFIX = "-nebula"
 
-# Full-color brand/logo assets that must stay untouched, plus assets themed
-# at runtime (gear.png is a CSS mask painted with currentColor, so it needs
-# no -dark sibling). Paths relative to the repo root.
+# Full-color brand/logo assets that must stay untouched. Paths relative to
+# the repo root.
 EXCLUDED_RELATIVE = {
     "assets/images/content/cashapp.png",
     "assets/images/content/cashapplogo.png",
     "assets/images/content/venmologo.png",
     "assets/images/content/zellelogo.png",
     "assets/images/content/favicon.png",
-    "assets/images/content/gear.png",
 }
 
 

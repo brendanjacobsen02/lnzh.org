@@ -29,8 +29,6 @@
         ? document.currentScript.src
         : window.location.href;
     var assetsRoot = new URL('../', scriptUrl).href; // .../assets/
-    // Hand-drawn gear, masked with currentColor in the settings button.
-    var gearMaskUrl = new URL('images/content/gear.png', assetsRoot).href;
 
     /* ---- recolor manifest: source paths (relative to repo) that have a
             -dark sibling. Mirrors tools/recolor_manifest.json. Listing the
@@ -186,39 +184,27 @@
         var style = document.createElement('style');
         style.id = 'theme-toggle-styles';
         style.textContent = [
-            /* Chunky 8-bit toggle button, fixed top-right. */
+            /* Top-right icon buttons (puzzle + gear) — bare icons, no frame:
+               just the hand-drawn glyph on the page, scaled to fill the old
+               box footprint. Hover dims like the nav links; press nudges down. */
             '.theme-toggle-btn{',
             '  position:fixed;top:16px;right:16px;z-index:2147483646;',
-            '  width:52px;height:52px;padding:0;cursor:pointer;',
-            '  font-family:monospace;font-size:22px;line-height:1;',
-            '  color:var(--ink,#000);',
-            '  background:var(--paper-raised,#fffdf4);',
-            '  border:3px solid var(--line-strong,#000);',
-            '  border-radius:0;',          /* hard pixel corners */
-            '  image-rendering:pixelated;',
-            /* stacked hard shadow = blocky 8-bit drop */
-            '  box-shadow:4px 4px 0 0 var(--line-strong,#000);',
+            '  width:44px;height:44px;padding:0;cursor:pointer;',
+            '  line-height:1;color:var(--ink,#000);',
+            '  background:none;border:none;border-radius:0;box-shadow:none;',
             '  display:flex;align-items:center;justify-content:center;',
-            '  transition:transform .08s steps(2),box-shadow .08s steps(2);',
+            '  transition:transform .12s ease,opacity .12s ease;',
             '  -webkit-tap-highlight-color:transparent;',
             '}',
-            '.theme-toggle-btn:hover{transform:translate(1px,1px);',
-            '  box-shadow:3px 3px 0 0 var(--line-strong,#000);}',
-            '.theme-toggle-btn:active{transform:translate(4px,4px);',
-            '  box-shadow:0 0 0 0 var(--line-strong,#000);}',
+            '.theme-toggle-btn:hover{opacity:.6;}',
+            '.theme-toggle-btn:active{transform:scale(.88);}',
             /* visible focus ring (keyboard) */
             '.theme-toggle-btn:focus-visible{',
             '  outline:3px solid var(--link,#119c36);outline-offset:3px;}',
-            /* The gear icon: the hand-drawn gear.png as an alpha mask painted
-               with currentColor, so it follows --ink in both themes (and any
-               accent/cosmic palette) without a -dark sibling. Absolute URL —
-               a relative one would resolve against the page, not assets/. */
-            '.theme-toggle-btn .tt-gear{',
-            '  pointer-events:none;width:28px;height:28px;',
-            '  background:currentColor;',
-            '  -webkit-mask:url("' + gearMaskUrl + '") center/contain no-repeat;',
-            '  mask:url("' + gearMaskUrl + '") center/contain no-repeat;',
-            '}',
+            /* Inline-SVG icon wrapper (palette + puzzle): center the glyph,
+               let the button own click/hover. */
+            '.theme-toggle-btn .tt-ic{display:flex;align-items:center;justify-content:center;pointer-events:none;}',
+            '.theme-toggle-btn .tt-palette svg{width:38px;height:38px;}',
             /* One-shot pulse to send the eye to the gear when the panel is
                opened from elsewhere on the page (e.g. the homepage link). */
             '@keyframes tt-pulse{',
@@ -229,8 +215,8 @@
             '}',
             '.theme-toggle-btn.tt-pulse{animation:tt-pulse .5s steps(4) 2;}',
             '@media (max-width:600px){',
-            '  .theme-toggle-btn{width:44px;height:44px;font-size:18px;top:10px;right:10px;}',
-            '  .theme-toggle-btn .tt-gear{width:23px;height:23px;}',
+            '  .theme-toggle-btn{width:38px;height:38px;top:10px;right:10px;}',
+            '  .theme-toggle-btn .tt-palette svg{width:32px;height:32px;}',
             '}',
 
             /* Settings panel (opened by the gear) + accent swatches. */
@@ -267,10 +253,12 @@
             '  box-shadow:1px 1px 0 0 var(--line-strong,#000);}',
             '.theme-swatch[aria-pressed="true"]{outline:3px solid var(--ink,#000);outline-offset:2px;}',
             '.theme-swatch:focus-visible{outline:3px solid var(--link,#119c36);outline-offset:2px;}',
-            /* puzzle launcher — its own button just left of the gear (always a game) */
-            '.tt-game-btn{right:78px;}',
-            '@media (max-width:600px){.tt-game-btn{right:62px;}}',
-            '.tt-game-btn .tt-ic{display:flex;align-items:center;justify-content:center;pointer-events:none;}',
+            /* puzzle launcher — its own bare icon just left of the palette (always a game) */
+            '.tt-game-btn{right:66px;}',
+            '@media (max-width:600px){.tt-game-btn{right:53px;}}',
+            /* scale the geometric puzzle glyph to sit alongside the bigger palette */
+            '.tt-game-btn .tt-ic svg{width:34px;height:34px;}',
+            '@media (max-width:600px){.tt-game-btn .tt-ic svg{width:30px;height:30px;}}',
 
             /* theme row: the light/dark control + the Nebula toggle, side by side */
             '.tt-theme-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}',
@@ -620,6 +608,17 @@
             The game stays a game so you can replay it for a fresh random pattern. ---- */
     var GAME_GLYPH = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/><rect x="4" y="4" width="7" height="7" fill="currentColor" stroke="none"/></svg>';
     var NEBULA_GLYPH = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 1.5 L13.9 9.4 L21.5 12 L13.9 14.6 L12 22.5 L10.1 14.6 L2.5 12 L10.1 9.4 Z"/></svg>';
+    /* The appearance button's icon: a painter's palette (the button opens the
+       Theme/Accent settings). Line-art body in currentColor so it follows --ink
+       in every theme (light/dark/cosmic) like the puzzle glyph beside it; the
+       paint dabs are the site's own accent hues so it reads as "colors". */
+    var PALETTE_GLYPH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round">'
+        + '<path d="M11 3.4 C16.7 3 21.3 5.9 21.1 10.7 C20.95 14.3 17.7 16.2 14.6 16.1 C12.2 16 11.3 17.5 11.7 18.9 C12.1 20.4 10.9 21.1 9.4 20.7 C5.1 19.6 2.8 15.8 3 11.3 C3.2 6.7 5.4 3.8 11 3.4 Z"/>'
+        + '<circle cx="8" cy="15.2" r="1.5"/>'
+        + '<circle cx="8.2" cy="8.4" r="1.45" fill="#3fd06a" stroke="none"/>'
+        + '<circle cx="12.7" cy="7" r="1.45" fill="#c26c68" stroke="none"/>'
+        + '<circle cx="16.7" cy="9" r="1.45" fill="#d29a52" stroke="none"/>'
+        + '<circle cx="15" cy="12.7" r="1.45" fill="#5a92a3" stroke="none"/></svg>';
     function nebulaUnlocked() {
         try { return localStorage.getItem('nebula-unlocked') === '1'; } catch (e) { return false; }
     }
@@ -731,8 +730,9 @@
         gear.setAttribute('aria-haspopup', 'true');
         gear.setAttribute('aria-expanded', 'false');
         var gi = document.createElement('span');
-        gi.className = 'tt-gear';
+        gi.className = 'tt-ic tt-palette';
         gi.setAttribute('aria-hidden', 'true');
+        gi.innerHTML = PALETTE_GLYPH;
         gear.appendChild(gi);
         gear.addEventListener('click', function () {
             if (panelOpen) { closePanel(); } else { openPanel(); }
